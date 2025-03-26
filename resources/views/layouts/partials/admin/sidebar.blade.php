@@ -14,7 +14,27 @@
         'icon' => 'fa-solid fa-gauge-high',
         'route' => 'Usuario',
         'active' => request()->routeIs('Usuario')
-    ]
+    ],
+    [
+        'header' => 'Proveedores',
+    ],
+    [
+        'name' => 'Proveedores',
+        'icon' => 'fa-solid fa-gauge-high',
+        'route' => 'proveedores',
+        'active' => request()->routeIs('proveedores')
+    ],
+    [
+        'header' => 'Cotización',
+    ],
+    [
+        'name' => 'Proveedores',
+        'icon' => 'fa-solid fa-gauge-high',
+        'route' => 'proveedores',
+        'active' => request()->routeIs('proveedores')
+    ],
+
+
     ]    
 @endphp
 

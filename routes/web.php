@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\Proveedor;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EnviarCorreo;
@@ -55,4 +56,5 @@ Route::get('/dashboard', function () {
 Route::get('/index', [UsuarioController::class, 'showRegistrationForm'])->name('Usuario');
 Route::post('/index', [UsuarioController::class, 'register']);
 
-Route::get('/admin', [LoginController::class, 'index'])->name('admin')->middleware('auth');
+Route::get('/admin/proveedores', [Proveedor::class, 'index_proveedor'])->name('proveedores');
+Route::get('/admin/pedidos', [Proveedor::class, 'index_pedidos'])->name('pedidos');
