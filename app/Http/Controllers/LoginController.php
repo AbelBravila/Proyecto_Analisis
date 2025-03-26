@@ -16,14 +16,14 @@
             $credentials = $request->only('correo', 'contrasena');
     
             // Llamar al procedimiento almacenado
-            $usuario = DB::select('EXEC sp_ObtenerUsuarioContrasena ?', [$credentials['correo']]);
+            $usuario = DB::selectOne('EXEC sp_ObtenerUsuarioContrasena ?', [$credentials['correo']]);
     
             // Verificar si el usuario existe
             if (empty($usuario)) {
                 return back()->withErrors(['correo' => 'Usuario no encontrado'])->withInput();
             }
     
-            $usuario = $usuario[0]; // Obtener el primer resultado
+            // $usuario = $usuario[0]; // Obtener el primer resultado
     
             // Verificar si el usuario está inactivo
             if ($usuario->estado === 'I') {
@@ -45,13 +45,21 @@
                     ->where('id_usuario', $usuario->id_usuario)
                     ->update(['intentos' => 0]);
 
+
+                    $user = new \App\Models\User([
+                       'id_usuario' => $usuario->id_usuario,
+                       'nombre_usuario' => $usuario->nombre_usuario,
+                       'correo' => $usuario->correo,
+                       'estado' => $usuario->estado
+                    ]);
+
                     $respuesta=DB::select("EXEC VerificarCambioContrasena '$usuario->id_usuario'");
  
                     if ($respuesta[0]->cambio=='1') {
                         return redirect()->route('register',$usuario->id_usuario);
                     }
                     else{
-                        Auth::loginUsingId($usuario->id_usuario);
+                        Auth::login($user);
                         return redirect()->intended('welcome');
                     }
                 
@@ -66,8 +74,8 @@
         }
         public function logout()
         {
-            Auth::logout();
-            return redirect('/login');
+            Auth::logout(); 
+            return redirect('login');
         }
         public function registerForm($id)
         {
