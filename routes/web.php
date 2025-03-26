@@ -26,19 +26,6 @@ Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-//Route::get('/usuario', [UsuarioController::class, 'showRegistrationForm'])->name('Usuario');
-//Route::post('/usuario', [UsuarioController::class, 'Usuario']);
-
-
-
-// Route::get('/usuario', [UsuarioController::class, 'showRegistrationForm'])->name('Usuario');
-// Route::post('/usuario', [UsuarioController::class, 'register'])->name('Usuario');
-
-
-//Route::get('/Usuario', [UsuarioController::class, 'index'])->name('Usuario');
-
-
-
 
 /*Route::post('Metodo-de-Recuperación', function(){
     Mail::to(request()->email)->send(new EnviarCorreo(request()->password, request()->email));

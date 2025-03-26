@@ -23,7 +23,7 @@ class UsuarioController extends Controller
 
     public function showRegistrationForm()
     {
-        return view('Usuario.index');
+      return view('Usuario.index');
     }
 
     public function register(Request $request)
