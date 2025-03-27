@@ -18,27 +18,14 @@ use Illuminate\Support\Str;
 // });
 Route::get('/welcome', function () {
     return view('welcome');
-})->name('welcome');
+})->name('welcome')->middleware('auth');
 
 Route::post('Reset-Password', [LoginController::class, 'resetPassword'])->name('reset');
 Route::get('/register/{id}', [LoginController::class, 'registerForm'])->name('register');
 
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-//Route::get('/usuario', [UsuarioController::class, 'showRegistrationForm'])->name('Usuario');
-//Route::post('/usuario', [UsuarioController::class, 'Usuario']);
-
-
-
-// Route::get('/usuario', [UsuarioController::class, 'showRegistrationForm'])->name('Usuario');
-// Route::post('/usuario', [UsuarioController::class, 'register'])->name('Usuario');
-
-
-//Route::get('/Usuario', [UsuarioController::class, 'index'])->name('Usuario');
-
-
+Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 /*Route::post('Metodo-de-Recuperación', function(){
@@ -54,8 +41,8 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
 
-Route::get('/index', [UsuarioController::class, 'showRegistrationForm'])->name('Usuario');
-Route::post('/index', [UsuarioController::class, 'register']);
+Route::get('/index', [UsuarioController::class, 'showRegistrationForm'])->name('Usuario')->middleware('auth');
+Route::post('/index', [UsuarioController::class, 'register'])->middleware('auth');
 
-Route::get('/admin/proveedores', [Proveedor::class, 'index_proveedor'])->name('proveedores');
-Route::get('/admin/pedidos', [PedidosController::class, 'index_pedidos'])->name('pedidos');
+Route::get('/admin/proveedores', [Proveedor::class, 'index_proveedor'])->name('proveedores')->middleware('auth');
+Route::get('/admin/pedidos', [Proveedor::class, 'index_pedidos'])->name('pedidos')->middleware('auth');

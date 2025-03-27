@@ -1,4 +1,4 @@
-body {
+/*body {
     font-family: "Afacad Flux", sans-serif;
     background-color: #f0f2f5;
     display:flex;
@@ -6,7 +6,7 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-}
+}*/
 .container {
     background-color: #fff;
     padding: 20px;
