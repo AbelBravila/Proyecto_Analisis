@@ -16,6 +16,14 @@
 
         <!-- Styles -->
         @livewireStyles
+
+         <!-- Estilos de Bootstrap -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Script de Bootstrap (es necesario para el funcionamiento de los modales y otras interacciones) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Bootstrap Bundle con Popper (JavaScript) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     </head>
     <body class="font-sans antialiased">
         <x-banner />
