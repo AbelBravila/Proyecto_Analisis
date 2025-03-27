@@ -25,6 +25,24 @@
         'active' => request()->routeIs('proveedores')
     ],
     [
+        'header' => 'Productos',
+    ],
+    [
+        'name' => 'Productos',
+        'icon' => 'fa-solid fa-cart-plus',
+        'route' => 'producto',
+        'active' => request()->routeIs('producto')
+    ],
+    [
+        'header' => 'Compras',
+    ],
+    [
+        'name' => 'Compras',
+        'icon' => 'fa-solid fa-shopping-cart',
+        'route' => 'compras',
+        'active' => request()->routeIs('compras')
+    ],
+    [
         'header' => 'Ubicaciones',
     ],
     [
