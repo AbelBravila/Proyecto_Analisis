@@ -5,6 +5,8 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\Proveedor;
 use App\Http\Controllers\PedidosController;
+use App\Http\Controllers\ComprasController;
+use App\Http\Controllers\ProductoController;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EnviarCorreo;
@@ -48,3 +50,9 @@ Route::get('/admin/proveedores', [Proveedor::class, 'index_proveedor'])->name('p
 Route::get('/admin/pedidos', [PedidosController::class, 'index_pedidos'])->name('pedidos')->middleware('auth');
 Route::post('/admin/pedidos', [PedidosController::class, 'store'])->name('pedidos.guardar')->middleware('auth');
 Route::post('/admin/pedidos/buscar', [PedidosController::class, 'buscar'])->name('pedidos.buscar')->middleware('auth');
+
+Route::get('/compras/compras', [ComprasController::class, 'index_compras'])->name('compras')->middleware('auth');
+
+Route::get('/compras/producto', [ProductoController::class, 'index_producto'])->name('producto')->middleware('auth');
+Route::post('/compras/producto', [ProductoController::class, 'agregar'])->middleware('auth');
+Route::get('/compras/producto/{id}', [ProductoController::class, 'cambiar_estado'])->name('producto.cambiar_estado');
