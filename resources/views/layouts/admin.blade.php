@@ -17,7 +17,7 @@
         <script src="https://kit.fontawesome.com/6b8dd96fea.js" crossorigin="anonymous"></script>
         <!-- Styles -->
     @livewireStyles
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+       <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <style>
             [x-cloak] { display: none; }
         </style>

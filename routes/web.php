@@ -45,4 +45,4 @@ Route::get('/index', [UsuarioController::class, 'showRegistrationForm'])->name('
 Route::post('/index', [UsuarioController::class, 'register'])->middleware('auth');
 
 Route::get('/admin/proveedores', [Proveedor::class, 'index_proveedor'])->name('proveedores')->middleware('auth');
-Route::get('/admin/pedidos', [Proveedor::class, 'index_pedidos'])->name('pedidos')->middleware('auth');
+Route::get('/admin/pedidos', [PedidosController::class, 'index_pedidos'])->name('pedidos')->middleware('auth');
