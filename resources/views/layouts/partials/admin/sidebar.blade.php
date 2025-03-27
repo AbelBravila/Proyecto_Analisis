@@ -25,15 +25,14 @@
         'active' => request()->routeIs('proveedores')
     ],
     [
-        'header' => 'Cotización',
+        'header' => 'Cotización Compras',
     ],
     [
-        'name' => 'Proveedores',
-        'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'proveedores',
-        'active' => request()->routeIs('proveedores')
+        'name' => 'Pedidos',
+        'icon' => 'fa-regular fa-pen-to-square',
+        'route' => 'pedidos',
+        'active' => request()->routeIs('pedidos')
     ],
-
 
     ]    
 @endphp

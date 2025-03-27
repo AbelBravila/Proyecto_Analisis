@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\Proveedor;
+use App\Http\Controllers\PedidosController;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EnviarCorreo;
@@ -57,4 +58,4 @@ Route::get('/index', [UsuarioController::class, 'showRegistrationForm'])->name('
 Route::post('/index', [UsuarioController::class, 'register']);
 
 Route::get('/admin/proveedores', [Proveedor::class, 'index_proveedor'])->name('proveedores');
-Route::get('/admin/pedidos', [Proveedor::class, 'index_pedidos'])->name('pedidos');
+Route::get('/admin/pedidos', [PedidosController::class, 'index_pedidos'])->name('pedidos');
