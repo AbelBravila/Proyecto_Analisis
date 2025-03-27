@@ -18,12 +18,14 @@ class UsuarioController extends Controller
      */
     public function index()
     {        
-        return view('Usuario.index');
+        $usuarios = DB::table('usuario')->where('estado', 'A')->get();
+        return view('Usuario.index', compact('usuarios'));
     }
 
     public function showRegistrationForm()
     {
-      return view('Usuario.index');
+        $usuarios = DB::table('usuario')->where('estado', 'A')->get();
+        return view('Usuario.index', compact('usuarios'));
     }
 
     public function register(Request $request)

@@ -23,52 +23,119 @@
                           </button>
                       </div>
                   <!-- Modal body -->
-                  <div class="container">
+        <div class="container">
        
-                  @if(session('success'))
-    <p class="success">{{ session('success') }}</p>
-@endif
+            @if(session('success'))
+            <p class="success">{{ session('success') }}</p>
+            @endif
 
-<form class="p-4 md:p-5" action="{{ route('Usuario') }}" method="POST">
-    @csrf
-    <div class="grid gap-4 mb-4 grid-cols-2">
-        <div class="col-span-2">
-            <label for="codigo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Codigo Usuario</label>
-            <input type="text" id="codigo" name="codigo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-            @error('codigo')
-                <span class="error text-red-500 text-sm">{{ $message }}</span>
-            @enderror
-        </div>
-        <div class="col-span-2">
-            <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
-            <input type="text" id="nombre" name="nombre" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-            @error('nombre')
-                <span class="error text-red-500 text-sm">{{ $message }}</span>
-            @enderror
-        </div>
-        <div class="col-span-2">
-            <label for="correo_u" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo Electrónico</label>
-            <input type="email" id="correo_u" name="correo_u" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-            @error('correo_u')
-                <span class="error text-red-500 text-sm">{{ $message }}</span>
-            @enderror
-        </div>
-        <div class="col-span-2">
-            <label for="numero" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Teléfono</label>
-            <input type="number" id="numero" name="numero" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-            @error('numero')
-                <span class="error text-red-500 text-sm">{{ $message }}</span>
-            @enderror
-        </div>
-    </div>
-    <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-        <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
-        Registrar
-    </button>
-   
-</form>
+            <form class="p-4 md:p-5" action="{{ route('Usuario') }}" method="POST">
+            @csrf
+            <div class="grid gap-4 mb-4 grid-cols-2">
+                        <div class="col-span-2">
+                            <label for="codigo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Codigo Usuario</label>
+                            <input type="text" id="codigo" name="codigo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            @error('codigo')
+                                <span class="error text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="col-span-2">
+                            <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+                            <input type="text" id="nombre" name="nombre" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            @error('nombre')
+                                <span class="error text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="col-span-2">
+                            <label for="correo_u" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo Electrónico</label>
+                            <input type="email" id="correo_u" name="correo_u" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            @error('correo_u')
+                                <span class="error text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="col-span-2">
+                            <label for="numero" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Teléfono</label>
+                            <input type="number" id="numero" name="numero" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            @error('numero')
+                                <span class="error text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+                        Registrar
+                    </button>
+                
+                </form>
+              </div>
               </div>
           </div>
       </div> 
-      
+
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-white">
+        <thead class="text-m text-gray-700  bg-gray-50 dark:bg-gray-700 dark:text-white">
+            <tr>
+            <th scope="col" class="px-6 py-3">
+                   ID
+                </th>
+                <th scope="col" class="px-6 py-3">
+                   Codigo del Usuario
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Nombre del Usuario
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Correo 
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Telefono
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Respuesta
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Estado 
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Nivel
+                </th>
+                <th scope="col" class="px-6 py-3">
+                   Pregunta
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Intentos
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Temporal 
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Dias
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($usuarios as $usuario)
+                <tr>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->id_usuario}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->codigo_usuario}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->nombre_usuario }}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->correo}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->telefono}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->respuesta_pregunta }}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->estado}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->id_nivel}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->id_pregunta}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->intentos}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->temporal}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->dias}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">
+                        <a class="fa fa-trash fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline"  onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?')"></a>
+                        <a class="fa fa-pencil fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline"></a>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
     </x-admin-layout>
