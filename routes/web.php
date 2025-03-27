@@ -46,3 +46,5 @@ Route::post('/index', [UsuarioController::class, 'register'])->middleware('auth'
 
 Route::get('/admin/proveedores', [Proveedor::class, 'index_proveedor'])->name('proveedores')->middleware('auth');
 Route::get('/admin/pedidos', [PedidosController::class, 'index_pedidos'])->name('pedidos')->middleware('auth');
+Route::post('/admin/pedidos', [PedidosController::class, 'store'])->name('pedidos.guardar')->middleware('auth');
+Route::post('/admin/pedidos/buscar', [PedidosController::class, 'buscar'])->name('pedidos.buscar')->middleware('auth');
