@@ -1,6 +1,4 @@
 <x-admin-layout>
-
-
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table id="productTable" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -56,13 +54,10 @@
             </button>
 
         </form> 
-        <form method="POST" action="{{ route('pedidos.buscar') }}">
-            @csrf
-            <button type="submit">Buscar</button>
-        </form>
     </div>
     
     <script>
+
         // Función para agregar una nueva fila
         document.getElementById("addRowButton").addEventListener("click", function() {
             const tableBody = document.querySelector("#productTable tbody");
@@ -74,43 +69,60 @@
             // Agregar celdas a la nueva fila
             newRow.innerHTML = `
                 <td class="px-6 py-4">
-                    <input type="text" style="width: 75px; height: 40px;" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                </td>
-                <td class="px-6 py-4">
-                    <input type="text" style="width: 115px; height: 40px;" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                </td>
-                <td class="px-6 py-4">
-                    <input type="text" style="width: 115px; height: 40px;" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                </td>
-                <td class="px-6 py-4">
-                    <input type="text" style="width: 100px; height: 40px;" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                </td>
-                <td class="px-6 py-4">
-                    <input type="text" disabled class="mb-5 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 cursor-not-allowed" value="0">
-                </td>
+                        <input type="text" id="cantidad" name="cantidad" style="width: 75px; height: 40px;" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    </td>
+                    <td class="px-6 py-4">
+                        <input type="text" id="codigo_producto" name="codigo_producto" style="width: 115px; height: 40px;" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    </td>
+                    <td class="px-6 py-4">
+                        <input type="text" id="nombre_producto" name="nombre_producto" disabled class="mb-5 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 cursor-not-allowed" value="{{ $nombre_producto ?? '' }}">
+                    </td>
+                    <td class="px-6 py-4">
+                        <input type="text" id="precio_unitario" style="width: 100px; height: 40px;" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    </td>
+                    <td class="px-6 py-4">
+                        <input type="text" id="costo" name="costo" class="mb-5 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 cursor-not-allowed" value="">
+                    </td>
             `;
     
             // Añadir la nueva fila al cuerpo de la tabla
             tableBody.appendChild(newRow);
         });
     </script>
-    <script>
-        document.getElementById("codigo_producto").addEventListener("change", function () {
-        const codigoProducto = this.value;
-                fetch(`/pedidos/buscar?codigo_producto=${codigoProducto}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.nombre_producto) {
-                            document.getElementById("nombre_producto").value = data.nombre_producto;
-                        } else {
-                            alert("Producto no encontrado");
-                            document.getElementById("nombre_producto").value = "";
-                        }
-                    })
-                    .catch(error => console.error("Error:", error));
-            });
 
-    </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Seleccionar el campo de código del producto
+        document.getElementById("codigo_producto").addEventListener("blur", function () {
+            let codigoProducto = this.value;
+            
+            if (codigoProducto.trim() === "") return; // Evitar solicitudes vacías
+
+            fetch("{{ route('pedidos.buscar') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}" // Token CSRF para Laravel
+                },
+                body: JSON.stringify({ codigo_producto: codigoProducto })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Producto no encontrado");
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById("nombre_producto").value = data.nombre_producto;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("nombre_producto").value = "No encontrado";
+            });
+        });
+    });
+</script>
+
 
     
 </x-admin-layout>

@@ -25,14 +25,18 @@ class PedidosController extends Controller
         ]);
     
         $codigo_producto = $request->input('codigo_producto');
-        $data = DB::select('SELECT E.nombre_producto FROM esquema_producto E JOIN producto P ON E.id_esquema_producto = P.id_esquema_producto WHERE E.codigo_producto = ?', [$codigo_producto]);
+        
+        $data = DB::table('esquema_producto')
+            ->where('codigo_producto', $codigo_producto)
+            ->select('nombre_producto')
+            ->first();
     
-        if (empty($data)) {
+        if (!$data) {
             return response()->json(['message' => 'Producto no encontrado'], 404);
         }
     
-        return response()->json(['nombre_producto' => $data[0]->nombre_producto]);
-    
-    
+        return response()->json(['nombre_producto' => $data->nombre_producto]);
     }
+    
+    
 }
