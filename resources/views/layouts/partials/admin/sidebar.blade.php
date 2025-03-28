@@ -48,8 +48,14 @@
     [
         'name' => 'Pasillos',
         'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'proveedores',
-        'active' => request()->routeIs('proveedores')
+        'route' => 'Pasillo',
+        'active' => request()->routeIs('Pasillo')
+    ],
+    [
+        'name' => 'Estantes',
+        'icon' => 'fa-solid fa-gauge-high',
+        'route' => 'Estanteria',
+        'active' => request()->routeIs('Estanteria')
     ],
     [
         'header' => 'Cotización Compras',
