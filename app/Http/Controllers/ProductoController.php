@@ -58,7 +58,7 @@ class ProductoController extends Controller
 
     public function cambiar_estado($id)
     {
-        DB::statement('EXEC cambiarEstadoProducto ?', [$id]);
+        DB::statement('EXEC sp_cambiarEstadoEsquemaProducto ?', [$id]);
 
         return redirect()->route('producto')->with('success', 'Estado del producto actualizado');
     }

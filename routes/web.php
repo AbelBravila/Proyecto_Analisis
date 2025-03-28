@@ -56,7 +56,4 @@ Route::get('/compras/compras', [ComprasController::class, 'index_compras'])->nam
 Route::get('/compras/producto', [ProductoController::class, 'index_producto'])->name('producto')->middleware('auth');
 Route::post('/compras/producto', [ProductoController::class, 'agregar'])->middleware('auth');
 Route::get('/compras/producto/{id}', [ProductoController::class, 'cambiar_estado'])->name('producto.cambiar_estado');
-<<<<<<< HEAD
-Route::put('/compras/producto/{id}', [ProductoController::class, 'editar_producto'])->name('producto.editar_producto');
-=======
->>>>>>> 0c4a4ef563b18e0b6b27919daedae3bcfcc94316
+//Route::put('/compras/producto/{id}', [ProductoController::class, 'editar_producto'])->name('producto.editar_producto');

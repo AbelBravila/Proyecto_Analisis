@@ -11,7 +11,8 @@ class ComprasController extends Controller
 {
     public function index_compras()
     {
-        return view('compras.compras');
+        $productos = DB::table('esquema_producto')->where('estado', 'A')->get();
+        return view('compras.producto', compact('productos'));
     }
 
     
