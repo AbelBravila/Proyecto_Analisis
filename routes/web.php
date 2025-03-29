@@ -67,4 +67,4 @@ Route::post('/pasillo', [PasilloController::class, 'ingreso_P'])->middleware('au
 Route::get('/estante', [EstanteController::class, 'index_estante'])->name('Estanteria')->middleware('auth');
 Route::post('/estante', [EstanteController::class, 'ingreso_Estante'])->middleware('auth');
 
-Route::put('/estanteria/{id}', [EstanteriaController::class, 'update'])->name('Estanteria.update');
+Route::put('/estanteria/{id}', [EstanteController::class, 'update'])->name('Estanteria.update');
