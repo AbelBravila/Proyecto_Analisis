@@ -59,7 +59,6 @@ Route::get('/compras/compras', [ComprasController::class, 'index_compras'])->nam
 Route::get('/compras/producto', [ProductoController::class, 'index_producto'])->name('producto')->middleware('auth');
 Route::post('/compras/producto', [ProductoController::class, 'agregar'])->middleware('auth');
 Route::get('/compras/producto/{id}', [ProductoController::class, 'cambiar_estado'])->name('producto.cambiar_estado');
-
 //Route::put('/compras/producto/{id}', [ProductoController::class, 'editar_producto'])->name('producto.editar_producto');
 
 Route::get('/pasillo', [PasilloController::class, 'index_pasillo'])->name('Pasillo')->middleware('auth');
