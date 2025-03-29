@@ -60,6 +60,17 @@
         'route' => 'pedidos',
         'active' => request()->routeIs('pedidos')
     ],
+    
+[
+    'header' => 'Devoluciones',
+    
+    ],
+    [
+        'name' => 'Gestión de Devoluciones',
+        'icon' => 'fa-solid fa-boxes-packing',
+        'route' => 'devoluciones.index',
+        'active' => request()->routeIs('devoluciones.*')
+    ],
 
     ]    
 @endphp

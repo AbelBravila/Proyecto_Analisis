@@ -6,6 +6,8 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\Proveedor;
 use App\Http\Controllers\PedidosController;
 use App\Http\Controllers\ComprasController;
+use App\Http\Controllers\DevolucionController;
+use App\Http\Controllers\DevolucionesController;
 use App\Http\Controllers\ProductoController;
 
 use Illuminate\Support\Facades\Mail;
@@ -56,3 +58,15 @@ Route::get('/compras/compras', [ComprasController::class, 'index_compras'])->nam
 Route::get('/compras/producto', [ProductoController::class, 'index_producto'])->name('producto')->middleware('auth');
 Route::post('/compras/producto', [ProductoController::class, 'agregar'])->middleware('auth');
 Route::get('/compras/producto/{id}', [ProductoController::class, 'cambiar_estado'])->name('producto.cambiar_estado');
+
+
+
+Route::get('/admin/devoluciones', [DevolucionesController::class, 'index_devoluciones'])->name('devoluciones')->middleware('auth');
+
+
+Route::prefix('devoluciones')->name('devoluciones.')->group(function () {
+    Route::get('/', [DevolucionController::class, 'index'])->name('index');
+    Route::get('/crear', [DevolucionController::class, 'create'])->name('create');
+    Route::post('/', [DevolucionController::class, 'store'])->name('store');
+    Route::get('/{id}', [DevolucionController::class, 'show'])->name('show');
+});
