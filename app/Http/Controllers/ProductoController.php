@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class ProductoController extends Controller
 {
@@ -40,9 +39,26 @@ class ProductoController extends Controller
         return redirect()->route('producto')->with('success', 'Producto registrado exitosamente');
     }
 
+    public function editar_producto(Request $request, $id)
+    {
+        $request->validate([
+            'nombre_product' => 'required|string|max:100',
+            'descripcion_product' => 'required|string|max:100'
+        ]);
+
+        DB::statement("EXEC sp_EditarEsquemaProducto
+            @id_esquema_producto = ?,
+            @nombre_producto = ?,
+            @descripcion =?",
+            [$id, $request->nombre_product, $request->descripcion_product]
+        );
+
+        return redirect()->route('producto')->with('success', 'Producto actualizado correctamente');
+    }
+
     public function cambiar_estado($id)
     {
-        DB::statement('EXEC cambiarEstadoProducto ?', [$id]);
+        DB::statement('EXEC sp_cambiarEstadoEsquemaProducto ?', [$id]);
 
         return redirect()->route('producto')->with('success', 'Estado del producto actualizado');
     }

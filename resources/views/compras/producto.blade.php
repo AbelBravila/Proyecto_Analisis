@@ -86,7 +86,6 @@
                     <td scope="col" class="px-6 py-3 dark:text-black">{{ $producto->descripcion}}</td>
                     <td scope="col" class="px-6 py-3 dark:text-black">
                         <a class="fa fa-trash fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline" href="{{ route('producto.cambiar_estado', ['id' => $producto->id_esquema_producto]) }}" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?')"></a>
-                        <a class="fa fa-pencil fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline"></a>
                     </td>
                 </tr>
             @endforeach
