@@ -65,7 +65,6 @@ Route::get('/compras/compras', [ComprasController::class, 'index_compras'])->nam
 Route::get('/compras/producto', [ProductoController::class, 'index_producto'])->name('producto')->middleware('auth');
 Route::post('/compras/producto', [ProductoController::class, 'agregar'])->middleware('auth');
 Route::get('/compras/producto/{id}', [ProductoController::class, 'cambiar_estado'])->name('producto.cambiar_estado');
-
 //Route::put('/compras/producto/{id}', [ProductoController::class, 'editar_producto'])->name('producto.editar_producto');
 
 Route::get('/pasillo', [PasilloController::class, 'index_pasillo'])->name('Pasillo')->middleware('auth');
@@ -73,4 +72,7 @@ Route::post('/pasillo', [PasilloController::class, 'ingreso_P'])->middleware('au
 
 Route::get('/estante', [EstanteController::class, 'index_estante'])->name('Estanteria')->middleware('auth');
 Route::post('/estante', [EstanteController::class, 'ingreso_Estante'])->middleware('auth');
+
+Route::put('/estanteria/{id}', [EstanteController::class, 'update'])->name('Estanteria.update');
+
 Route::get('/admin/Tipo_Inventario', [Tipo_InventarioController::class, 'index_Tipo_Inventario'])->name('Tipo_Inventario')->middleware('auth');
