@@ -20,7 +20,7 @@ class EstanteController extends Controller
     public function ingreso_Estante(Request $request)
     {
         $request->validate([
-            'codigo_pasillo' => 'required|string',
+            'codigo_estanteria' => 'required|string',
         ]);
     
         // Ejecutar el procedimiento almacenado para registrar el usuario con contraseña encriptada
@@ -33,4 +33,24 @@ class EstanteController extends Controller
         // Enviar correo al usuario con la contraseña generada
         return redirect()->route('Estanteria')->with('success', 'Estanteria registrado exitosamente');
     }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'codigo_estanteria' => 'required|string|max:255',
+            'pasillo' => 'required|string|max:255',
+            'estado' => 'required|string' // Asegura que solo se ingresen valores válidos
+        ]);
+    
+        $estanteria = Estanteria::findOrFail($id);
+        $estanteria->codigo_estanteria = $request->codigo_estanteria;
+        $estanteria->id_pasillo = $request->pasillo;
+        $estanteria->estado = $request->estado; // Actualiza el estado
+        $estanteria->save();
+    
+        return redirect()->back()->with('success', 'Estantería actualizada correctamente.');
+    }
+    
+    
+
 }
