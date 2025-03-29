@@ -21,8 +21,8 @@
     [
         'name' => 'Proveedores',
         'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'proveedores',
-        'active' => request()->routeIs('proveedores')
+        'route' => 'Proveedores',
+        'active' => request()->routeIs('Proveedores')
     ],
     [
         'header' => 'Productos',
@@ -66,6 +66,16 @@
         'route' => 'pedidos',
         'active' => request()->routeIs('pedidos')
     ],
+    [
+        'header' => 'Tipo Inventario',
+    ],
+    [
+        'name' => 'Tipo_Inventario',
+        'icon' => 'fa-regular fa-pen-to-square',
+        'route' => 'Tipo_Inventario',
+        'active' => request()->routeIs('Tipo_Inventario')
+    ],
+
 
     ]    
 @endphp
