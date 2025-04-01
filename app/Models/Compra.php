@@ -34,13 +34,18 @@ class Compra extends Model
         ]);
     }
 
-    public function detalles()
-    {
-        return $this->hasMany(DetalleCompra::class, 'id_compra');
-    }
-
     public function devoluciones()
     {
         return $this->hasMany(Devolucion::class, 'id_compra');
     }
+
+    public function detalle()
+{
+    // Example for a hasMany relationship
+    return $this->hasMany(DetalleCompra::class, 'id_compra');
+    
+    // Or for a hasOne relationship
+    // return $this->hasOne(DetalleCompra::class);
 }
+}
+
