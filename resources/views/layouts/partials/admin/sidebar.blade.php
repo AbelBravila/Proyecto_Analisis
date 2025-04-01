@@ -66,9 +66,8 @@
         'route' => 'pedidos',
         'active' => request()->routeIs('pedidos')
     ],
-<<<<<<< HEAD
     
-[
+    [
     'header' => 'Devoluciones',
     
     ],
@@ -78,7 +77,6 @@
         'route' => 'devoluciones.index',
         'active' => request()->routeIs('devoluciones.*')
     ],
-=======
     [
         'header' => 'Tipo Inventario',
     ],
@@ -89,7 +87,6 @@
         'active' => request()->routeIs('Tipo_Inventario')
     ],
 
->>>>>>> 8584a5d31e99cfc1fc787df2c4a700d422a1be3f
 
     ]    
 @endphp
