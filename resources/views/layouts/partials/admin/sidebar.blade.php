@@ -21,8 +21,8 @@
     [
         'name' => 'Proveedores',
         'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'proveedores',
-        'active' => request()->routeIs('proveedores')
+        'route' => 'Proveedores',
+        'active' => request()->routeIs('Proveedores')
     ],
     [
         'header' => 'Productos',
@@ -66,6 +66,7 @@
         'route' => 'pedidos',
         'active' => request()->routeIs('pedidos')
     ],
+<<<<<<< HEAD
     
 [
     'header' => 'Devoluciones',
@@ -77,6 +78,18 @@
         'route' => 'devoluciones.index',
         'active' => request()->routeIs('devoluciones.*')
     ],
+=======
+    [
+        'header' => 'Tipo Inventario',
+    ],
+    [
+        'name' => 'Tipo_Inventario',
+        'icon' => 'fa-regular fa-pen-to-square',
+        'route' => 'Tipo_Inventario',
+        'active' => request()->routeIs('Tipo_Inventario')
+    ],
+
+>>>>>>> 8584a5d31e99cfc1fc787df2c4a700d422a1be3f
 
     ]    
 @endphp
