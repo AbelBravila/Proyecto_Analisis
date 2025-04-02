@@ -75,8 +75,7 @@ Route::post('/pasillo', [PasilloController::class, 'ingreso_P'])->middleware('au
 Route::get('/estante', [EstanteController::class, 'index_estante'])->name('Estanteria')->middleware('auth');
 Route::post('/estante', [EstanteController::class, 'ingreso_Estante'])->middleware('auth');
 
-<<<<<<< HEAD
-Route::put('/estanteria/{id}', [EstanteriaController::class, 'update'])->name('Estanteria.update');
+Route::put('/estanteria/{id}', [EstanteController::class, 'update'])->name('Estanteria.update');
 
 
 
@@ -89,8 +88,6 @@ Route::prefix('devoluciones')->name('devoluciones.')->group(function () {
     Route::post('/', [DevolucionController::class, 'store'])->name('store');
     Route::get('/{id}', [DevolucionController::class, 'show'])->name('show');
 });
-=======
 Route::put('/estanteria/{id}', [EstanteController::class, 'update'])->name('Estanteria.update');
 
 Route::get('/admin/Tipo_Inventario', [Tipo_InventarioController::class, 'index_Tipo_Inventario'])->name('Tipo_Inventario')->middleware('auth');
->>>>>>> 8584a5d31e99cfc1fc787df2c4a700d422a1be3f
