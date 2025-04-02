@@ -9,6 +9,8 @@ use App\Models\Compra;
 use App\Models\Producto;
 use App\Models\Proveedor;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
 
 class DevolucionController extends Controller
 {
@@ -25,8 +27,10 @@ class DevolucionController extends Controller
 
     public function create()
     {
-        // No necesitamos esta función si usamos el modal en index
-        return redirect()->route('devoluciones.index');
+        // Obtener todos los proveedores para el select
+        $proveedores = Proveedor::orderBy('nombre_proveedor')->get();
+    
+        return view('devoluciones.create', compact('proveedores'));
     }
 
     public function store(Request $request)
@@ -85,31 +89,27 @@ class DevolucionController extends Controller
     // Nuevos métodos para el proceso AJAX
     public function buscarCompras(Request $request)
     {
-        $request->validate([
-            'proveedor_id' => 'required|exists:proveedor,id_proveedor',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio'
-        ]);
+        $proveedorId = $request->get('proveedor_id');
+        $fechaInicio = $request->get('fecha_inicio');
+        $fechaFin = $request->get('fecha_fin');
 
-        $compras = Compra::with(['tipoCompra', 'proveedor'])
-        ->where('id_proveedor', $request->proveedor_id)
-        ->whereBetween('fecha_compra', [$request->fecha_inicio, $request->fecha_fin])
-        ->where('estado', 'C')
-        ->get()
-        ->map(function($compra) {
-            return [
-                'id_compra' => $compra->id_compra,
-                'fecha_compra' => $compra->fecha_compra,
-                'tipo_compra' => [
-                    'nombre_tipo_compra' => $compra->tipoCompra->nombre_tipo_compra ?? 'Sin tipo'
-                ],
-                'proveedor' => $compra->proveedor,
-                'total' => $compra->detalles->sum(function($item) {
-                    return $item->cantidad * $item->costo;
-                })
-            ];
-        });
+        $startDate = Carbon::parse($fechaInicio)->startOfDay()->format('Y-m-d H:i:s.000');
+        $endDate = Carbon::parse($fechaFin)->endOfDay()->format('Y-m-d H:i:s.999');
 
+        $query = Compra::with(['tipoCompra', 'detalle.producto.esquema', 'detalle.producto.proveedor', 'detalle.producto.lote'])
+            ->whereBetween('fecha_compra', [$startDate, $endDate]);
+        
+ 
+        
+        // Si se especifica un proveedor, filtramos las compras que tengan productos de ese proveedor
+        if ($proveedorId) {
+            $query->whereHas('detalle.producto', function ($q) use ($proveedorId) {
+                $q->where('id_proveedor', $proveedorId);
+            });
+        }
+        
+        $compras = $query->orderBy('fecha_compra', 'desc')->get();
+        
         return response()->json($compras);
     }
 

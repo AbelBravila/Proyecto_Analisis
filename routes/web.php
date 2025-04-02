@@ -66,8 +66,10 @@ Route::get('/compras/compras', [ComprasController::class, 'index_compras'])->nam
 
 Route::get('/compras/producto', [ProductoController::class, 'index_producto'])->name('producto')->middleware('auth');
 Route::post('/compras/producto', [ProductoController::class, 'agregar'])->middleware('auth');
-Route::get('/compras/producto/{id}', [ProductoController::class, 'cambiar_estado'])->name('producto.cambiar_estado');
-//Route::put('/compras/producto/{id}', [ProductoController::class, 'editar_producto'])->name('producto.editar_producto');
+Route::get('/compras/producto/editar_producto/{id}', [ProductoController::class, 'editar_producto'])->name('producto.editar_producto')->middleware('auth');
+Route::put('/compras/producto/{id}', [ProductoController::class, 'actualizar_producto'])->name('producto.actualizar_producto')->middleware('auth');
+Route::get('/compras/producto/{id}', [ProductoController::class, 'cambiar_estado'])->name('producto.cambiar_estado')->middleware('auth');
+
 
 Route::get('/pasillo', [PasilloController::class, 'index_pasillo'])->name('Pasillo')->middleware('auth');
 Route::post('/pasillo', [PasilloController::class, 'ingreso_P'])->middleware('auth');
@@ -75,7 +77,6 @@ Route::post('/pasillo', [PasilloController::class, 'ingreso_P'])->middleware('au
 Route::get('/estante', [EstanteController::class, 'index_estante'])->name('Estanteria')->middleware('auth');
 Route::post('/estante', [EstanteController::class, 'ingreso_Estante'])->middleware('auth');
 
-Route::put('/estanteria/{id}', [EstanteController::class, 'update'])->name('Estanteria.update');
 
 
 
@@ -84,10 +85,16 @@ Route::get('/admin/devoluciones', [DevolucionesController::class, 'index_devoluc
 
 Route::prefix('devoluciones')->name('devoluciones.')->group(function () {
     Route::get('/', [DevolucionController::class, 'index'])->name('index');
-    Route::get('/crear', [DevolucionController::class, 'create'])->name('create');
-    Route::post('/', [DevolucionController::class, 'store'])->name('store');
+    Route::get('/create', [DevolucionController::class, 'create'])->name('create');
+    Route::post('devoluciones', [DevolucionController::class, 'store'])->name('store');
     Route::get('/{id}', [DevolucionController::class, 'show'])->name('show');
+    Route::get('/buscar-compras', [DevolucionController::class, 'buscarCompras'])->name('buscar-compras');
+    Route::get('/compra/{id}/detalle', [DevolucionController::class, 'detalleCompra'])->name('compra.detalle');
+
 });
+    
+
+
 Route::put('/estanteria/{id}', [EstanteController::class, 'update'])->name('Estanteria.update');
 
 Route::get('/admin/Tipo_Inventario', [Tipo_InventarioController::class, 'index_Tipo_Inventario'])->name('Tipo_Inventario')->middleware('auth');

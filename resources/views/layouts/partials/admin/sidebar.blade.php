@@ -67,7 +67,7 @@
         'active' => request()->routeIs('pedidos')
     ],
     
-[
+    [
     'header' => 'Devoluciones',
     
     ],

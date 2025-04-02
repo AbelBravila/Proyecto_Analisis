@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Proveedor extends Model
 {
+    protected $primaryKey = 'id_proveedor';
+    
     use HasFactory;
 
     // Nombre de la tabla en la base de datos
@@ -22,13 +24,19 @@ class Proveedor extends Model
         'correo',
         'telefono',
         'direccion',
+        'estado'
     ];
-
-    // Si deseas desactivar los timestamps por alguna razón, puedes hacerlo así:
-    // public $timestamps = false;
-    // Especifica que la clave primaria es 'id_proveedor' en lugar de 'id'
-    protected $primaryKey = 'id_proveedor';
-
-    // Si tu columna 'id_proveedor' no es auto-incremental (aunque debería serlo)
-    public $incrementing = true;
+    
+    // Relación con Productos
+    public function productos()
+    {
+        return $this->hasMany(Producto::class, 'id_proveedor');
+    }
+    
+    // Scope para proveedores activos
+    public function scopeActivos($query)
+    {
+        return $query->where('estado', 'A');
+    }
 }
+    
