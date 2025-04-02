@@ -6,24 +6,30 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\EsquemaProducto;
 
 class ProductoController extends Controller
 {
     public function index_producto()
     {
-        $productos = DB::table('esquema_producto')->where('estado', 'A')->get();
+        $productos = EsquemaProducto::where('estado', 'A')->get();
         return view('compras.producto', compact('productos'));
     }
 
-    public function agregar(Request $request)
+    private function validateProduct(Request $request)
     {
         $request->validate([
             'codigo_product' => 'required|string|max:15',
             'nombre_product' => 'required|string|max:100',
             'descripcion_product' => 'required|string|max:100'
         ]);
+    }
 
-        $codigoExistente = DB::table('esquema_producto')->where('codigo_producto', $request->codigo_product)->first();
+    public function agregar(Request $request)
+    {
+        $this->validateProduct($request);
+
+        $codigoExistente = EsquemaProducto::where('codigo_producto', $request->codigo_product)->first();
 
         if ($codigoExistente) {
             return redirect()->route('producto')->with('error', 'El codigo ya está existe.');
@@ -39,21 +45,38 @@ class ProductoController extends Controller
         return redirect()->route('producto')->with('success', 'Producto registrado exitosamente');
     }
 
-    public function editar_producto(Request $request, $id)
+    public function editar_producto($id)
     {
-        $request->validate([
-            'nombre_product' => 'required|string|max:100',
-            'descripcion_product' => 'required|string|max:100'
-        ]);
+        $productos = EsquemaProducto::findOrFail($id);
 
-        DB::statement("EXEC sp_EditarEsquemaProducto
-            @id_esquema_producto = ?,
-            @nombre_producto = ?,
-            @descripcion =?",
-            [$id, $request->nombre_product, $request->descripcion_product]
+        return view('compras.producto', compact('productos'));
+    }
+
+    public function actualizar_producto(Request $request, $id)
+    {
+        $this->validateProduct($request);
+        $productos = EsquemaProducto::findOrFail($id);
+        $codigoExistente = EsquemaProducto::where('codigo_producto', $request->codigo_product)->first();
+
+        if ($codigoExistente) {
+            return redirect()->route('producto')->with('error', 'El codigo ya está existe.');
+        }
+
+        DB::statement('EXEC sp_actualizar_esquema_producto
+            @id_esquema_producto = ?, 
+            @codigo_producto = ?, 
+            @nombre_producto = ?, 
+            @descripcion = ?',
+            [
+                $id, 
+                $request->codigo_product, 
+                $request->nombre_product, 
+                $request->descripcion_product
+            ]
         );
 
-        return redirect()->route('producto')->with('success', 'Producto actualizado correctamente');
+        // Redirigir con mensaje de éxito
+        return redirect()->route('producto')->with('success', 'Producto actualizado exitosamente.');
     }
 
     public function cambiar_estado($id)
