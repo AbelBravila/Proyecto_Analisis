@@ -105,6 +105,10 @@
                     data.forEach(compra => {
                         const row = document.createElement('tr');
                         row.className = 'bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600';
+                        
+                        // Crear la URL de manera dinámica usando un template de ruta
+                        const detalleUrl = "{{ route('devoluciones.compra.detalle', ':id') }}".replace(':id', compra.id_compra);
+                        
                         row.innerHTML = `
                             <td class="px-6 py-4">${compra.id_compra}</td>
                             <td class="px-6 py-4">${compra.fecha_compra}</td>
@@ -124,9 +128,9 @@
                             </td>
                             <td class="px-6 py-4">Q${parseFloat(compra.total).toFixed(2)}</td> <!-- Mostramos el total acumulado -->
                             <td class="px-6 py-4">
-                                <button class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                    <i class="fas fa-eye mr-1"></i> Seleccionar
-                                </button>
+                                <a href="${detalleUrl}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                    <i class="fas fa-check-circle"></i> Seleccionar
+                                </a>
                             </td>
                         `;
                         comprasList.appendChild(row);

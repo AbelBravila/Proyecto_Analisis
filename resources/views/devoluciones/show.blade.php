@@ -1,6 +1,6 @@
 <x-admin-layout>
     <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Detalle de Devolución #{{ $devolucion->id_devolucion }}</h2>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-black">Detalle de Devolución #{{ $devolucion->id_devolucion }}</h2>
         <a href="{{ route('devoluciones.index') }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
             <i class="fas fa-arrow-left mr-2"></i>Volver al listado
         </a>
@@ -9,7 +9,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Información General</h3>
-            <div class="space-y-2">
+            <div class="space-y-2 dark:text-white">
                 <p><span class="font-semibold">ID Devolución:</span> {{ $devolucion->id_devolucion }}</p>
                 <p><span class="font-semibold">Fecha:</span> {{ \Carbon\Carbon::parse($devolucion->fecha_devolucion)->format('d/m/Y H:i') }}</p>
                 <p><span class="font-semibold">Estado:</span> 
@@ -22,7 +22,7 @@
         
         <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Resumen</h3>
-            <div class="space-y-2">
+            <div class="space-y-2 dark:text-white">
                 <p><span class="font-semibold">Total Productos:</span> {{ $devolucion->detalles->count() }}</p>
                 <p><span class="font-semibold">Cantidad Total:</span> {{ $devolucion->detalles->sum('cantidad') }}</p>
                 <p><span class="font-semibold">Monto Total:</span> ${{ number_format($devolucion->detalles->sum(function($item) { return $item->cantidad * $item->costo; }), 2) }}</p>
