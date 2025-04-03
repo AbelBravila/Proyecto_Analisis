@@ -16,3 +16,30 @@ JOIN
     producto pr ON dc.id_producto = pr.id_producto
 JOIN 
     proveedor p ON pr.id_proveedor = p.id_proveedor;
+
+
+
+---------------------- vw_compras_completa --------------------------
+CREATE OR ALTER VIEW [dbo].[vw_compras_completa]
+AS
+SELECT        c.id_compra, 
+              FORMAT(c.fecha_compra, 'dd/MM/yyyy') AS fecha_compra_formateada, 
+              CAST(c.fecha_compra AS DATE) AS fecha_sin_hora,  -- Nueva línea añadida
+              tc.nombre_tipo_compra, 
+			  pv.nombre_proveedor, pv.nit, ep.nombre_producto, ep.descripcion AS descripcion_producto, pr.presentacion, 
+                         dc.cantidad, dc.costo AS costo_unitario, dc.cantidad * dc.costo AS subtotal, l.lote, l.fabricante, FORMAT(l.fecha_fabricacion, 'dd/MM/yyyy') AS fecha_fabricacion, FORMAT(l.fecha_vencimiento, 'dd/MM/yyyy') 
+                         AS fecha_vencimiento, DATEDIFF(DAY, GETDATE(), l.fecha_vencimiento) AS dias_para_vencer, ps.codigo_pasillo + '-' + es.codigo_estanteria AS ubicacion_almacen, emp.nombre_empresa AS empresa_compradora, 
+                         pv.id_proveedor
+FROM            dbo.detalle_compra AS dc INNER JOIN
+                         dbo.compra AS c ON dc.id_compra = c.id_compra INNER JOIN
+                         dbo.tipo_compra AS tc ON c.id_tipo_compra = tc.id_tipo_compra INNER JOIN
+                         dbo.producto AS prd ON dc.id_producto = prd.id_producto INNER JOIN
+                         dbo.proveedor AS pv ON prd.id_proveedor = pv.id_proveedor INNER JOIN
+                         dbo.esquema_producto AS ep ON prd.id_esquema_producto = ep.id_esquema_producto INNER JOIN
+                         dbo.presentacion AS pr ON prd.id_presentacion = pr.id_presentacion INNER JOIN
+                         dbo.lote AS l ON prd.id_lote = l.id_lote INNER JOIN
+                         dbo.estanteria AS es ON prd.id_estanteria = es.id_estanteria INNER JOIN
+                         dbo.pasillo AS ps ON es.id_pasillo = ps.id_pasillo INNER JOIN
+                         dbo.empresa AS emp ON prd.id_empresa = emp.id_empresa
+WHERE        (dc.estado = 'A') AND (c.estado = 'A')
+GO

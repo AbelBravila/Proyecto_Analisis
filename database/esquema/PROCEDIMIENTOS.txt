@@ -282,3 +282,202 @@ BEGIN
 
     PRINT 'Pasillo insertado exitosamente.'
 END
+
+
+
+
+
+
+
+
+
+
+
+
+/*------------------ ALVARO DEVOLUCIONES ----------------------*/
+
+
+CREATE OR ALTER PROCEDURE sp_RegistrarDevolucion
+    @id_compra INT,
+    @ProductosDevolver NVARCHAR(MAX) -- JSON con productos y cantidades
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @id_devolucion INT;
+    DECLARE @ErrorCount INT = 0;
+    DECLARE @MensajesResultado TABLE (Mensaje NVARCHAR(500));
+    
+    BEGIN TRY
+        -- Crear tabla temporal para los productos a devolver
+        CREATE TABLE #ProductosDevolucion (
+            nombre_producto NVARCHAR(100),
+            cantidad_devolver INT
+        );
+        
+        -- Insertar datos desde JSON
+        INSERT INTO #ProductosDevolucion (nombre_producto, cantidad_devolver)
+        SELECT nombre_producto, cantidad_devolver
+        FROM OPENJSON(@ProductosDevolver)
+        WITH (
+            nombre_producto NVARCHAR(100) '$.nombre_producto',
+            cantidad_devolver INT '$.cantidad'
+        );
+        
+        -- Validar que todos los productos existen en la compra
+        IF EXISTS (
+            SELECT 1 FROM #ProductosDevolucion pd
+            WHERE NOT EXISTS (
+                SELECT 1 
+                FROM detalle_compra dc
+                INNER JOIN producto p ON dc.id_producto = p.id_producto
+                INNER JOIN esquema_producto ep ON p.id_esquema_producto = ep.id_esquema_producto
+                WHERE dc.id_compra = @id_compra
+                AND ep.nombre_producto = pd.nombre_producto
+                AND dc.estado = 'A'
+            )
+        )
+        BEGIN
+            INSERT INTO @MensajesResultado
+            SELECT 'Error: El producto "' + pd.nombre_producto + '" no existe en la compra especificada'
+            FROM #ProductosDevolucion pd
+            WHERE NOT EXISTS (
+                SELECT 1 
+                FROM detalle_compra dc
+                INNER JOIN producto p ON dc.id_producto = p.id_producto
+                INNER JOIN esquema_producto ep ON p.id_esquema_producto = ep.id_esquema_producto
+                WHERE dc.id_compra = @id_compra
+                AND ep.nombre_producto = pd.nombre_producto
+                AND dc.estado = 'A'
+            );
+            
+            SET @ErrorCount = @ErrorCount + 1;
+        END
+        
+        -- Validar stock disponible
+        IF EXISTS (
+            SELECT 1 FROM #ProductosDevolucion pd
+            INNER JOIN (
+                SELECT 
+                    ep.nombre_producto,
+                    p.id_producto,
+                    p.stock
+                FROM 
+                    detalle_compra dc
+                    INNER JOIN producto p ON dc.id_producto = p.id_producto
+                    INNER JOIN esquema_producto ep ON p.id_esquema_producto = ep.id_esquema_producto
+                WHERE 
+                    dc.id_compra = @id_compra
+                    AND dc.estado = 'A'
+            ) cp ON pd.nombre_producto = cp.nombre_producto
+            WHERE pd.cantidad_devolver > cp.stock
+        )
+        BEGIN
+            INSERT INTO @MensajesResultado
+            SELECT 'Error: No hay suficiente stock para devolver ' + CAST(pd.cantidad_devolver AS NVARCHAR) + 
+                   ' unidades de "' + pd.nombre_producto + '". Stock actual: ' + CAST(cp.stock AS NVARCHAR)
+            FROM #ProductosDevolucion pd
+            INNER JOIN (
+                SELECT 
+                    ep.nombre_producto,
+                    p.id_producto,
+                    p.stock
+                FROM 
+                    detalle_compra dc
+                    INNER JOIN producto p ON dc.id_producto = p.id_producto
+                    INNER JOIN esquema_producto ep ON p.id_esquema_producto = ep.id_esquema_producto
+                WHERE 
+                    dc.id_compra = @id_compra
+                    AND dc.estado = 'A'
+            ) cp ON pd.nombre_producto = cp.nombre_producto
+            WHERE pd.cantidad_devolver > cp.stock;
+            
+            SET @ErrorCount = @ErrorCount + 1;
+        END
+        
+        -- Si hay errores, mostrar y salir
+        IF @ErrorCount > 0
+        BEGIN
+            SELECT * FROM @MensajesResultado;
+            RETURN;
+        END
+        
+        BEGIN TRANSACTION;
+        
+        -- Registrar la devolución (cabecera)
+        INSERT INTO devolucion (fecha_devolucion, estado)
+        VALUES (GETDATE(), 'A');
+        
+        SET @id_devolucion = SCOPE_IDENTITY();
+        
+        -- Registrar detalles de devolución para cada producto
+        INSERT INTO detalle_devolucion (
+            cantidad, 
+            costo, 
+            id_producto, 
+            id_devolucion
+        )
+        SELECT 
+            pd.cantidad_devolver,
+            dc.costo,
+            p.id_producto,
+            @id_devolucion
+        FROM 
+            #ProductosDevolucion pd
+            INNER JOIN esquema_producto ep ON pd.nombre_producto = ep.nombre_producto
+            INNER JOIN producto p ON ep.id_esquema_producto = p.id_esquema_producto
+            INNER JOIN detalle_compra dc ON p.id_producto = dc.id_producto AND dc.id_compra = @id_compra
+        WHERE 
+            dc.estado = 'A';
+        
+        -- Actualizar stock para cada producto
+        UPDATE p
+        SET stock = stock - pd.cantidad_devolver
+        FROM 
+            producto p
+            INNER JOIN esquema_producto ep ON p.id_esquema_producto = ep.id_esquema_producto
+            INNER JOIN #ProductosDevolucion pd ON ep.nombre_producto = pd.nombre_producto;
+        
+        COMMIT TRANSACTION;
+        
+        -- Mensaje de éxito
+        INSERT INTO @MensajesResultado
+        VALUES ('Devolución registrada exitosamente. ID: ' + CAST(@id_devolucion AS NVARCHAR));
+        
+        -- Detalle de productos devueltos
+        INSERT INTO @MensajesResultado
+        SELECT 'Producto: ' + pd.nombre_producto + ' - Cantidad: ' + CAST(pd.cantidad_devolver AS NVARCHAR) + 
+               ' - Nuevo stock: ' + CAST(p.stock AS NVARCHAR)
+        FROM 
+            #ProductosDevolucion pd
+            INNER JOIN esquema_producto ep ON pd.nombre_producto = ep.nombre_producto
+            INNER JOIN producto p ON ep.id_esquema_producto = p.id_esquema_producto;
+        
+        SELECT * FROM @MensajesResultado;
+            
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+            
+        INSERT INTO @MensajesResultado
+        VALUES ('Error: ' + ERROR_MESSAGE());
+        
+        SELECT * FROM @MensajesResultado;
+    END CATCH
+    
+    -- Limpiar tabla temporal
+    IF OBJECT_ID('tempdb..#ProductosDevolucion') IS NOT NULL
+        DROP TABLE #ProductosDevolucion;
+END
+////////////////// PARA PROBAR FUNCIONAMIENTO ///////////////////////////////
+DECLARE @ProductosJSON NVARCHAR(MAX) =                                 
+'[                                                                     
+    {"nombre_producto": "Arroz Premium", "cantidad": 1},                
+    {"nombre_producto": "Frijol Blanco", "cantidad": 2}                
+]';                                                                     
+                                                                        
+EXEC sp_RegistrarDevolucion                                                 
+    @id_compra = 5,
+    @ProductosDevolver = @ProductosJSON;
+//////////////////////////////////////////////////////////////////////////
