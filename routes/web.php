@@ -88,11 +88,11 @@ Route::get('/admin/devoluciones', [DevolucionesController::class, 'index_devoluc
 Route::prefix('devoluciones')->name('devoluciones.')->group(function () {
     Route::get('/', [DevolucionController::class, 'index'])->name('index');
     Route::get('/create', [DevolucionController::class, 'create'])->name('create');
-    Route::post('devoluciones', [DevolucionController::class, 'store'])->name('store');
+    Route::post('/store', [DevolucionController::class, 'store'])->name('store'); // Cambiado a /store
     Route::get('/{id}', [DevolucionController::class, 'show'])->name('show');
     Route::get('/buscar-compras', [DevolucionController::class, 'buscarCompras'])->name('buscar-compras');
+    Route::post('/buscar', [DevolucionController::class, 'buscarCompras'])->name('buscar');
     Route::get('/compra/{id}/detalle', [DevolucionController::class, 'detalleCompra'])->name('compra.detalle');
-
 });
     
 
