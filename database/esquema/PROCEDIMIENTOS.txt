@@ -119,7 +119,7 @@ EXEC sp_CambiarContrasena
     @nueva_contrasena = 'Culebrin1';
 
 
------------------------RegistrarUsuarioConContrasenaEncriptada---------------
+-----------------------REGISTRAR CON CONTRASEÑA ENCRIPTADA---------------
 create PROCEDURE sp_RegistrarUsuarioConContrasenaEncriptada
     @codigo VARCHAR(50),
     @nombre VARCHAR(100),
@@ -152,30 +152,7 @@ BEGIN
     INSERT INTO bitacora (accion, fecha_registro, dato_anterior, dato_nuevo, id_usuario)
     VALUES ('Registro de usuario con contraseña encriptada', GETDATE(), NULL, @contraseñaEncriptada, @id_usuario);
 END;
------------------ACTUALIZAR ESQUEMA PRODUCTO---------------------
-CREATE PROCEDURE sp_actualizar_esquema_producto
-    @id_esquema_producto INT,
-    @codigo_producto NVARCHAR(15),
-    @nombre_producto NVARCHAR(100),
-    @descripcion NVARCHAR(100)
-AS
-BEGIN
-    IF EXISTS (SELECT 1 FROM esquema_producto WHERE id_esquema_producto = @id_esquema_producto)
-    BEGIN
-        UPDATE esquema_producto
-        SET
-            codigo_producto = @codigo_producto,
-            nombre_producto = @nombre_producto,
-            descripcion = @descripcion,
-            fecha_creacion = GETDATE()  
-        WHERE id_esquema_producto = @id_esquema_producto;
-    END
-    ELSE
-    BEGIN
-        RAISERROR('Producto no encontrado con el ID especificado.', 16, 1);
-    END
-END
------------------verificar esquema producto----------------
+-----------------VERIFICAR CAMBIO CONTRASEÑA ----------------
 create PROCEDURE VerificarCambioContrasena 
     @id_usuario INT
 AS
@@ -209,3 +186,99 @@ BEGIN
 
 		select @requiere_cambio as cambio
 END;
+-----------------ACTUALIZAR ESQUEMA PRODUCTO---------------------
+CREATE PROCEDURE sp_actualizar_esquema_producto
+    @id_esquema_producto INT,
+    @codigo_producto NVARCHAR(15),
+    @nombre_producto NVARCHAR(100),
+    @descripcion NVARCHAR(100)
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM esquema_producto WHERE id_esquema_producto = @id_esquema_producto)
+    BEGIN
+        UPDATE esquema_producto
+        SET
+            codigo_producto = @codigo_producto,
+            nombre_producto = @nombre_producto,
+            descripcion = @descripcion,
+            fecha_creacion = GETDATE()  
+        WHERE id_esquema_producto = @id_esquema_producto;
+    END
+    ELSE
+    BEGIN
+        RAISERROR('Producto no encontrado con el ID especificado.', 16, 1);
+    END
+END
+-----------------CAMBIAR ESTADO ESQUEMA PRODUCTO---------------------
+CREATE PROCEDURE sp_cambiarEstadoEsquemaProducto
+    @id_esquema_producto INT
+AS
+BEGIN
+    UPDATE esquema_producto
+    SET estado = 'I'
+    WHERE id_esquema_producto = @id_esquema_producto;
+END
+-----------------INSERTAR ESQUEMA PRODUCTO---------------------
+CREATE PROCEDURE sp_Insert_Esquema_Producto
+    @codigo_producto NVARCHAR(15),
+    @nombre_producto NVARCHAR(100),
+    @descripcion NVARCHAR(100)
+AS
+BEGIN
+    INSERT INTO esquema_producto (codigo_producto, nombre_producto, descripcion, fecha_creacion, estado)
+    VALUES (@codigo_producto, @nombre_producto, @descripcion, GETDATE(), 'A')
+END
+-----------------INSERTAR ESTANTERIA---------------------
+CREATE PROCEDURE sp_InsertarEstanteria
+    @cod_estanteria VARCHAR(50),
+    @pasillo INT
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+      
+        IF EXISTS (SELECT 1 FROM estanteria WHERE codigo_estanteria = @cod_estanteria)
+        BEGIN
+            PRINT 'El codigo de la estanteria ya existe. No se puede insertar duplicado.';
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        IF NOT EXISTS (SELECT 1 FROM pasillo WHERE id_pasillo = @pasillo)
+        BEGIN
+            PRINT 'El pasillo especificado no existe. Verifique el ID del pasillo.';
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        INSERT INTO estanteria (codigo_estanteria, id_pasillo, estado)
+        VALUES (@cod_estanteria, @pasillo, 'A');
+
+        PRINT 'Estanteria insertada exitosamente.';
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+
+        PRINT 'Ocurrio un error al intentar insertar la estanteria.';
+        ROLLBACK TRANSACTION;
+    END CATCH
+END
+-----------------INSERTAR PASILLO---------------------
+CREATE PROCEDURE sp_InsertarPasillo
+    @cod_pasillo VARCHAR(50)
+AS
+BEGIN
+
+    IF EXISTS (SELECT 1 FROM pasillo WHERE codigo_pasillo = @cod_pasillo)
+    BEGIN
+        PRINT 'El c digo del pasillo ya existe. No se puede insertar duplicado.'
+        RETURN
+    END
+
+    INSERT INTO pasillo (codigo_pasillo, estado)
+    VALUES (@cod_pasillo, 'A')
+
+    PRINT 'Pasillo insertado exitosamente.'
+END
