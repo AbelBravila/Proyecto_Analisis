@@ -65,6 +65,9 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/compras/compras', [ComprasController::class, 'index_compras'])->name('compras')->middleware('auth');
+Route::get('/compras/registrar', [ComprasController::class, 'index_resgistrar'])->name('compras.registrar')->middleware('auth');
+
+
 
 Route::get('/compras/producto', [ProductoController::class, 'index_producto'])->name('producto')->middleware('auth');
 Route::post('/compras/producto', [ProductoController::class, 'agregar'])->middleware('auth');
