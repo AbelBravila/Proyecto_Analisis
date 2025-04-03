@@ -1,0 +1,18 @@
+----------------------Vista Compras-------------------
+CREATE VIEW vw_detalle_compra AS
+SELECT 
+    c.id_compra,
+    tc.nombre_tipo_compra,
+    p.nombre_proveedor,
+    dc.cantidad,
+    (dc.cantidad * dc.costo) AS total_compra
+FROM 
+    compra c
+JOIN 
+    tipo_compra tc ON c.id_tipo_compra = tc.id_tipo_compra
+JOIN 
+    detalle_compra dc ON c.id_compra = dc.id_compra
+JOIN 
+    producto pr ON dc.id_producto = pr.id_producto
+JOIN 
+    proveedor p ON pr.id_proveedor = p.id_proveedor;

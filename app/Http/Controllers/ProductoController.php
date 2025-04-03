@@ -11,10 +11,25 @@ use App\Models\EsquemaProducto;
 
 class ProductoController extends Controller
 {
-    public function index_producto()
+    public function index()
     {
         $productos = EsquemaProducto::where('estado', 'A')->get();
         return view('compras.producto', compact('productos'));
+    }
+
+    public function index_producto(Request $request)
+    {
+        $buscar = $request->input('buscador');  // Recibe el término de búsqueda
+
+        // Filtra los productos por el término de búsqueda o muestra todos
+        $productos = EsquemaProducto::where('estado', 'A')
+            ->when($buscar, function ($query, $buscar) {
+                return $query->where('codigo_producto', 'LIKE', "%{$buscar}%")
+                             ->orWhere('nombre_producto', 'LIKE', "%{$buscar}%");
+            })
+            ->get();  // Puedes cambiarlo por `paginate()` si deseas paginación
+
+        return view('compras.producto', compact('productos', 'buscar'));
     }
 
     private function validateProduct(Request $request)
