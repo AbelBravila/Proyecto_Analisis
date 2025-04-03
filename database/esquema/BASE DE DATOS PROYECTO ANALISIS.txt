@@ -1,0 +1,480 @@
+
+CREATE TABLE empresa (
+  id_empresa INT PRIMARY KEY identity(1,1), 
+  codigo_empresa NVARCHAR(15), 
+  nombre_empresa NVARCHAR(100), 
+  nit NVARCHAR(15), 
+  representante NVARCHAR(150), 
+  direccion NVARCHAR(100), 
+  telefono NVARCHAR(16), 
+  estado CHAR(1)
+  );
+
+CREATE TABLE usuario (
+  id_usuario INT PRIMARY KEY identity(1,1), 
+  codigo_usuario NVARCHAR(15), 
+  nombre_usuario NVARCHAR(100), 
+  correo NVARCHAR(100), 
+  contrasena varbinary(8000), 
+  telefono NVARCHAR(16), 
+  respuesta_pregunta NVARCHAR(100), 
+  estado CHAR(1), 
+  id_nivel INT, 
+  id_pregunta INT, 
+  intentos INT, 
+  temporal NVARCHAR(100), 
+  dias INT
+  );
+
+CREATE TABLE nivel (
+  id_nivel INT PRIMARY KEY identity(1,1), 
+  nombre_nivel NVARCHAR(50), 
+  descripcion NVARCHAR(100), 
+  estado CHAR(1));
+
+CREATE TABLE rol (
+  id_rol INT PRIMARY KEY identity(1,1), 
+  nombre_rol NVARCHAR(100), 
+  descripcion NVARCHAR(150), 
+  estado CHAR(1));
+
+CREATE TABLE empresa_usuario (
+  id_empresa_usuario int PRIMARY KEY identity(1,1),
+  id_empresa INT, 
+  id_usuario INT
+);
+
+CREATE TABLE usuario_rol (
+  id_usuario_rol int PRIMARY KEY identity(1,1),
+  id_rol INT, 
+  id_usuario INT
+);
+
+CREATE TABLE bitacora (
+  id_bitacora INT PRIMARY KEY identity(1,1), 
+  accion NVARCHAR(100), 
+  fecha_registro DATETIME, 
+  dato_anterior varbinary(8000), 
+  dato_nuevo varbinary(8000), 
+  id_usuario INT
+);
+CREATE TABLE pregunta (
+  id_pregunta INT PRIMARY KEY identity (1,1), 
+  pregunta NVARCHAR(100), 
+  estado CHAR(1));
+
+CREATE TABLE cuenta_bancaria (
+  id_cuenta INT PRIMARY KEY identity (1,1), 
+  cuenta NVARCHAR(50), 
+  titular NVARCHAR(100), 
+  estado CHAR(1), 
+  id_banco INT, 
+  id_tipo_cuenta INT, 
+  id_empresa INT
+);
+
+CREATE TABLE banco (
+  id_banco INT PRIMARY KEY identity (1,1), 
+  nombre_banco NVARCHAR(100), 
+  estado CHAR(1));
+
+CREATE TABLE tipo_cuenta (
+  id_tipo_cuenta INT PRIMARY KEY identity (1,1), 
+  nombre_tipo NVARCHAR(100), 
+  estado CHAR(1)
+);
+
+-- Foreign Keys
+ALTER TABLE usuario ADD FOREIGN KEY (id_nivel) REFERENCES nivel(id_nivel);
+ALTER TABLE usuario ADD FOREIGN KEY (id_pregunta) REFERENCES pregunta(id_pregunta);
+ALTER TABLE empresa_usuario ADD FOREIGN KEY (id_empresa) REFERENCES empresa(id_empresa);
+ALTER TABLE empresa_usuario ADD FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario);
+ALTER TABLE usuario_rol ADD FOREIGN KEY (id_rol) REFERENCES rol(id_rol);
+ALTER TABLE usuario_rol ADD FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario);
+ALTER TABLE bitacora ADD FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario);
+ALTER TABLE cuenta_bancaria ADD FOREIGN KEY (id_banco) REFERENCES banco(id_banco);
+ALTER TABLE cuenta_bancaria ADD FOREIGN KEY (id_tipo_cuenta) REFERENCES tipo_cuenta(id_tipo_cuenta);
+ALTER TABLE cuenta_bancaria ADD FOREIGN KEY (id_empresa) REFERENCES empresa(id_empresa);
+
+
+CREATE TABLE lote (
+	id_lote INT PRIMARY KEY identity(1,1),
+	lote NVARCHAR(50),
+	fabricante NVARCHAR(100),
+	fecha_fabricacion DATETIME,
+	fecha_vencimiento DATETIME,
+	estado CHAR(1)
+);
+
+CREATE TABLE proveedor (
+	id_proveedor INT PRIMARY KEY identity(1,1), 
+	nombre_proveedor NVARCHAR(100),
+	nit NVARCHAR(15),
+	correo NVARCHAR(100),
+	telefono NVARCHAR(16),
+	direccion NVARCHAR(100),
+	estado CHAR(1)
+);
+
+CREATE TABLE presentacion (
+	id_presentacion INT PRIMARY KEY identity(1,1), 
+	presentacion NVARCHAR(30),
+	estado CHAR(1)
+);
+
+CREATE TABLE pasillo (
+	id_pasillo INT PRIMARY KEY identity(1,1), 
+	codigo_pasillo NVARCHAR(25),
+	estado CHAR(1)
+);
+
+CREATE TABLE estanteria (
+	id_estanteria INT PRIMARY KEY identity(1,1), 
+	codigo_estanteria NVARCHAR(25),
+	id_pasillo INT,
+	estado CHAR(1)
+);
+ALTER TABLE estanteria ADD FOREIGN KEY (id_pasillo) REFERENCES pasillo(id_pasillo);
+
+CREATE TABLE esquema_producto (
+	id_esquema_producto INT PRIMARY KEY identity(1,1), 
+	codigo_producto NVARCHAR(15), 
+	nombre_producto NVARCHAR(100), 
+	descripcion NVARCHAR(100),
+	fecha_creacion DATETIME,
+	estado CHAR(1)
+);
+
+CREATE TABLE producto (
+	id_producto INT PRIMARY KEY identity(1,1), 
+	id_esquema_producto INT,
+	precio NUMERIC(12,2), 
+	costo NUMERIC(12,2), 
+	stock INT, 
+	id_lote INT,
+	id_proveedor INT,
+	id_presentacion INT,
+	id_estanteria INT,
+	id_empresa INT,
+	fecha_registro DATETIME,
+	estado CHAR(1)
+);
+ALTER TABLE producto ADD FOREIGN KEY (id_esquema_producto) REFERENCES esquema_producto(id_esquema_producto);
+ALTER TABLE producto ADD FOREIGN KEY (id_lote) REFERENCES lote(id_lote);
+ALTER TABLE producto ADD FOREIGN KEY (id_proveedor) REFERENCES proveedor(id_proveedor);
+ALTER TABLE producto ADD FOREIGN KEY (id_presentacion) REFERENCES presentacion(id_presentacion);
+ALTER TABLE producto ADD FOREIGN KEY (id_estanteria) REFERENCES estanteria(id_estanteria);
+ALTER TABLE producto ADD FOREIGN KEY (id_empresa) REFERENCES empresa(id_empresa);
+
+CREATE TABLE tipo_compra (
+	id_tipo_compra INT PRIMARY KEY identity(1,1), 
+	nombre_tipo_compra NVARCHAR(50),
+	estado CHAR(1)
+);
+
+CREATE TABLE compra (
+	id_compra INT PRIMARY KEY identity(1,1), 
+	id_tipo_compra INT,
+	fecha_compra DATETIME,
+	estado CHAR(1)
+);
+ALTER TABLE compra ADD FOREIGN KEY (id_tipo_compra) REFERENCES tipo_compra(id_tipo_compra);
+
+CREATE TABLE detalle_compra (
+	id_detalle_compra INT PRIMARY KEY identity(1,1), 
+	cantidad INT,
+	costo NUMERIC(12,2), 
+	id_producto INT,
+	id_compra INT,
+	estado CHAR(1)
+);
+ALTER TABLE detalle_compra ADD FOREIGN KEY (id_compra) REFERENCES compra(id_compra);
+ALTER TABLE detalle_compra ADD FOREIGN KEY (id_producto) REFERENCES producto(id_producto);
+
+CREATE TABLE devolucion (
+	id_devolucion INT PRIMARY KEY identity(1,1), 
+	fecha_devolucion DATETIME,
+	estado CHAR(1)
+);
+
+CREATE TABLE detalle_devolucion (
+	id_detalle_devolucion INT PRIMARY KEY identity(1,1), 
+	cantidad INT,
+	costo NUMERIC(12,2), 
+	id_producto INT,
+	id_devolucion INT,
+	estado CHAR(1)
+);
+ALTER TABLE detalle_devolucion ADD FOREIGN KEY (id_devolucion) REFERENCES devolucion(id_devolucion);
+ALTER TABLE detalle_devolucion ADD FOREIGN KEY (id_producto) REFERENCES producto(id_producto);
+
+CREATE TABLE pedido (
+	id_pedido INT PRIMARY KEY identity(1,1), 
+	fecha_pedido DATETIME,
+	estado CHAR(1)
+);
+
+CREATE TABLE detalle_pedido (
+	id_detalle_pedido INT PRIMARY KEY identity(1,1), 
+	cantidad INT,
+	costo NUMERIC(12,2), 
+	id_producto INT,
+	id_pedido INT,
+	estado CHAR(1)
+);
+ALTER TABLE detalle_pedido ADD FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido);
+ALTER TABLE detalle_pedido ADD FOREIGN KEY (id_producto) REFERENCES producto(id_producto);
+
+CREATE TABLE tipo_inventario (
+	id_tipo_inventario INT PRIMARY KEY identity(1,1), 
+	nombre_tipo_inventario NVARCHAR(50),
+	estado CHAR(1)
+);
+
+CREATE TABLE detalle_inventario (
+	id_detalle_inventario INT PRIMARY KEY identity(1,1), 
+	descripcion NVARCHAR(50),
+	cantidad INT,
+	id_producto INT,
+	id_tipo_inventario INT,
+	fecha_resgistro DATETIME,
+	estado CHAR(1)
+);
+ALTER TABLE detalle_inventario ADD FOREIGN KEY (id_tipo_inventario) REFERENCES tipo_inventario(id_tipo_inventario);
+ALTER TABLE detalle_inventario ADD FOREIGN KEY (id_producto) REFERENCES producto(id_producto);
+
+CREATE TABLE alta_baja (
+	id_alta_baja INT PRIMARY KEY identity(1,1), 
+	cantidad INT,
+	id_detalle_inventario INT,
+	fecha_resgistro DATETIME,
+	estado CHAR(1)
+);
+ALTER TABLE alta_baja ADD FOREIGN KEY (id_detalle_inventario) REFERENCES detalle_inventario(id_detalle_inventario);
+
+
+
+
+
+
+-------------------INSERTS----------------------------------------------
+-- Tabla: empresa---
+INSERT INTO empresa (codigo_empresa, nombre_empresa, nit, representante, direccion, telefono, estado)
+VALUES 
+('1PATITO', 'EMPRESA PATITO', '12345678-9', 'ABEL', 'Av. Principal 123', '555-1234', 'A');
+
+-- Tabla: usuario
+INSERT INTO [dbo].[usuario]
+           ([codigo_usuario]
+           ,[nombre_usuario]
+           ,[correo]
+           ,[contrasena]
+           ,[telefono]
+           ,[estado]
+           ,[intentos]
+           ,[temporal])
+     VALUES
+           ('sc01'
+           ,'Alvaro Bart'
+           ,'albart242000@gmail.com'
+           ,ENCRYPTBYPASSPHRASE('$Veronica25$', 'Alvaro123')
+           ,'54530049'
+           ,'A'
+           ,0
+           ,0)
+GO
+-- Tabla: nivel-------
+INSERT INTO nivel (nombre_nivel, descripcion, estado)
+VALUES 
+('Soporte', 'Soporte= Dios', 'A');
+
+-- Tabla: rol
+INSERT INTO rol (nombre_rol, descripcion, estado)
+VALUES 
+('Vendedor', 'Registra Ventas', 'A');
+
+-- Tabla: empresa_usuario
+INSERT INTO empresa_usuario (id_empresa, id_usuario)
+VALUES 
+(1, 1);
+select * from empresa
+
+-- Tabla: usuario_rol
+INSERT INTO usuario_rol (id_rol, id_usuario)
+VALUES 
+(1, 1);
+
+
+INSERT INTO pregunta (pregunta, estado)
+VALUES 
+('¿Cual es tu animal favorito?', 'A');
+
+-- Tabla: banco
+INSERT INTO banco (nombre_banco, estado)
+VALUES 
+('BANRURAL', 'A');
+
+-- Tabla: tipo_cuenta
+INSERT INTO tipo_cuenta (nombre_tipo, estado)
+VALUES 
+('Ahorro', 'A');
+
+-- Tabla: cuenta_bancaria
+INSERT INTO cuenta_bancaria (cuenta, titular, estado, id_banco, id_tipo_cuenta, id_empresa)
+VALUES 
+('1234567890', 'ABEL', 'A', 1, 1, 1);
+
+--------------------PROCEDIMIENTO ENCRIPTACION-------------------------
+create PROCEDURE sp_EncriptarContrasena
+    @correo VARCHAR(255),
+    @contrasena VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @id_usuario INT;
+    DECLARE @dato_anterior varbinary(8000);
+    DECLARE @contraseñaNueva varbinary(8000);
+
+    -- Obtener el ID del usuario y la contraseña anterior
+    SELECT @id_usuario = id_usuario, @dato_anterior = contrasena
+    FROM usuario
+    WHERE correo = @correo;
+
+    -- Encriptar la nueva contraseña antes de actualizar
+    SET @contraseñaNueva = ENCRYPTBYPASSPHRASE('$Veronica25$', @contrasena);
+
+    -- Actualizar la contraseña del usuario
+    UPDATE usuario
+    SET contrasena = @contraseñaNueva
+    WHERE correo = @correo;
+
+    -- Insertar registro en la bitacora
+    INSERT INTO bitacora (accion, fecha_registro, dato_anterior, dato_nuevo, id_usuario)
+    VALUES ('Recuperacion de contraseña Temporal', GETDATE(), @dato_anterior, @contraseñaNueva, @id_usuario);
+END
+select * from bitacora;
+/************	CREACIÓN DE PROCEDIMIENTO DESENCRIPTAR *******/
+CREATE PROCEDURE sp_ObtenerUsuarioContrasena
+    @correo VARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        id_usuario, 
+        nombre_usuario, 
+        correo,
+        estado,
+		intentos,
+temporal,
+        CONVERT(VARCHAR(100), DECRYPTBYPASSPHRASE('$Veronica25$', contrasena)) AS contrasena_desencriptada
+    FROM usuario
+    WHERE correo = @correo;
+END;
+--------------------------vinicio----------------------
+CREATE PROCEDURE sp_CambiarContrasena
+    @id_usuario INT,                
+    @nueva_contrasena VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @contrasena_anterior_encriptada VARBINARY(8000);
+    DECLARE @contrasena_anterior_desencriptada VARCHAR(100);
+    DECLARE @contrasena_encriptada VARBINARY(8000);
+    DECLARE @existe_similitud INT = 0;
+    
+    -- Recorremos todas las contraseñas anteriores del usuario
+    DECLARE contrasena_cursor CURSOR FOR
+    SELECT dato_nuevo
+    FROM bitacora
+    WHERE id_usuario = @id_usuario
+    AND accion = 'Cambio de contraseña'
+    ORDER BY fecha_registro DESC;
+
+    OPEN contrasena_cursor;
+
+    FETCH NEXT FROM contrasena_cursor INTO @contrasena_anterior_encriptada;
+
+    -- Iteramos sobre todas las contraseñas anteriores
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Desencriptamos la contraseña anterior iterada
+        SET @contrasena_anterior_desencriptada = CONVERT(VARCHAR(100), DECRYPTBYPASSPHRASE('$Veronica25$', @contrasena_anterior_encriptada));
+
+        -- Verificamos con soundex la contraseña anterior con la nueva
+        IF SOUNDEX(@nueva_contrasena) = SOUNDEX(@contrasena_anterior_desencriptada)
+        BEGIN
+            -- Si encontramos similitud, actualizamos la variable y salimos del ciclo
+            SET @existe_similitud = 1;
+            BREAK;  
+        END
+
+        -- Obtenemos la siguiente contraseña anterior
+        FETCH NEXT FROM contrasena_cursor INTO @contrasena_anterior_encriptada;
+    END
+
+    CLOSE contrasena_cursor;
+    DEALLOCATE contrasena_cursor;
+
+    -- Si encontramos una similitud, abortamos el cambio
+    IF @existe_similitud = 1
+    BEGIN
+        SELECT 'La nueva contraseña no puede ser similar a una contraseña anterior.' AS mensaje;
+        RETURN;
+    END
+
+    -- Si no hay, encriptamos la nueva contraseña y actualizamos el usuario
+    SET @contrasena_encriptada = ENCRYPTBYPASSPHRASE('$Veronica25$', @nueva_contrasena);
+
+    UPDATE usuario
+    SET contrasena = @contrasena_encriptada, temporal='0'	
+    WHERE id_usuario = @id_usuario;
+
+    -- Insertamos el cambio de contraseña en la tabla bitacora
+    INSERT INTO bitacora (accion, fecha_registro, dato_anterior, dato_nuevo, id_usuario)
+    VALUES ('Cambio de contraseña', GETDATE(), @contrasena_anterior_encriptada, @contrasena_encriptada, @id_usuario);
+
+    SELECT 'Contraseña cambiada correctamente.' AS mensaje;
+END;
+
+------para probar--------------
+EXEC sp_CambiarContrasena 
+    @id_usuario = 1, 
+    @nueva_contrasena = 'Culebrin1';
+
+
+-----------------------kath---------------
+create PROCEDURE sp_RegistrarUsuarioConContrasenaEncriptada
+    @codigo VARCHAR(50),
+    @nombre VARCHAR(100),
+    @correo_u VARCHAR(255),
+    @numero VARCHAR(20),
+    @contrasenaTemporal VARCHAR(100), 
+	@respuesta NVARCHAR(100), 
+    @estado CHAR(1), 
+    @id_nivel INT, 
+    @id_pregunta INT, 
+    @intentos INT, 
+    @temporal NVARCHAR(100), 
+    @dias INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @contraseñaEncriptada VARBINARY(8000);
+
+    -- Encriptar la contraseña temporal
+    SET @contraseñaEncriptada = ENCRYPTBYPASSPHRASE('$Veronica25$', @contrasenaTemporal);
+
+    -- Insertar usuario y obtener el ID generado
+    INSERT INTO usuario (codigo_usuario, nombre_usuario, correo, telefono, contrasena, respuesta_pregunta, estado, id_nivel, id_pregunta, intentos, temporal, dias)
+    VALUES (@codigo, @nombre, @correo_u, @numero, @contraseñaEncriptada, @respuesta, @estado , @id_nivel , @id_pregunta, @intentos, @temporal, @dias);
+
+    DECLARE @id_usuario INT = SCOPE_IDENTITY();
+
+    -- Insertar registro en la bitácora
+    INSERT INTO bitacora (accion, fecha_registro, dato_anterior, dato_nuevo, id_usuario)
+    VALUES ('Registro de usuario con contraseña encriptada', GETDATE(), NULL, @contraseñaEncriptada, @id_usuario);
+END;

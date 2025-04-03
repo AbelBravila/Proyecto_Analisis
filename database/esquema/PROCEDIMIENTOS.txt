@@ -1,0 +1,211 @@
+--------------------PROCEDIMIENTO ENCRIPTACION-------------------------
+create PROCEDURE sp_EncriptarContrasena
+    @correo VARCHAR(255),
+    @contrasena VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @id_usuario INT;
+    DECLARE @dato_anterior varbinary(8000);
+    DECLARE @contraseñaNueva varbinary(8000);
+
+    -- Obtener el ID del usuario y la contraseña anterior
+    SELECT @id_usuario = id_usuario, @dato_anterior = contrasena
+    FROM usuario
+    WHERE correo = @correo;
+
+    -- Encriptar la nueva contraseña antes de actualizar
+    SET @contraseñaNueva = ENCRYPTBYPASSPHRASE('$Veronica25$', @contrasena);
+
+    -- Actualizar la contraseña del usuario
+    UPDATE usuario
+    SET contrasena = @contraseñaNueva
+    WHERE correo = @correo;
+
+    -- Insertar registro en la bitacora
+    INSERT INTO bitacora (accion, fecha_registro, dato_anterior, dato_nuevo, id_usuario)
+    VALUES ('Recuperacion de contraseña Temporal', GETDATE(), @dato_anterior, @contraseñaNueva, @id_usuario);
+END
+select * from bitacora;
+/************	CREACIÓN DE PROCEDIMIENTO DESENCRIPTAR *******/
+CREATE PROCEDURE sp_ObtenerUsuarioContrasena
+    @correo VARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        id_usuario, 
+        nombre_usuario, 
+        correo,
+        estado,
+		intentos,
+temporal,
+        CONVERT(VARCHAR(100), DECRYPTBYPASSPHRASE('$Veronica25$', contrasena)) AS contrasena_desencriptada
+    FROM usuario
+    WHERE correo = @correo;
+END;
+--------------------------CAMBIAR CONTRASEÑA----------------------
+CREATE PROCEDURE sp_CambiarContrasena
+    @id_usuario INT,                
+    @nueva_contrasena VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @contrasena_anterior_encriptada VARBINARY(8000);
+    DECLARE @contrasena_anterior_desencriptada VARCHAR(100);
+    DECLARE @contrasena_encriptada VARBINARY(8000);
+    DECLARE @existe_similitud INT = 0;
+    
+    -- Recorremos todas las contraseñas anteriores del usuario
+    DECLARE contrasena_cursor CURSOR FOR
+    SELECT dato_nuevo
+    FROM bitacora
+    WHERE id_usuario = @id_usuario
+    AND accion = 'Cambio de contraseña'
+    ORDER BY fecha_registro DESC;
+
+    OPEN contrasena_cursor;
+
+    FETCH NEXT FROM contrasena_cursor INTO @contrasena_anterior_encriptada;
+
+    -- Iteramos sobre todas las contraseñas anteriores
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Desencriptamos la contraseña anterior iterada
+        SET @contrasena_anterior_desencriptada = CONVERT(VARCHAR(100), DECRYPTBYPASSPHRASE('$Veronica25$', @contrasena_anterior_encriptada));
+
+        -- Verificamos con soundex la contraseña anterior con la nueva
+        IF SOUNDEX(@nueva_contrasena) = SOUNDEX(@contrasena_anterior_desencriptada)
+        BEGIN
+            -- Si encontramos similitud, actualizamos la variable y salimos del ciclo
+            SET @existe_similitud = 1;
+            BREAK;  
+        END
+
+        -- Obtenemos la siguiente contraseña anterior
+        FETCH NEXT FROM contrasena_cursor INTO @contrasena_anterior_encriptada;
+    END
+
+    CLOSE contrasena_cursor;
+    DEALLOCATE contrasena_cursor;
+
+    -- Si encontramos una similitud, abortamos el cambio
+    IF @existe_similitud = 1
+    BEGIN
+        SELECT 'La nueva contraseña no puede ser similar a una contraseña anterior.' AS mensaje;
+        RETURN;
+    END
+
+    -- Si no hay, encriptamos la nueva contraseña y actualizamos el usuario
+    SET @contrasena_encriptada = ENCRYPTBYPASSPHRASE('$Veronica25$', @nueva_contrasena);
+
+    UPDATE usuario
+    SET contrasena = @contrasena_encriptada, temporal='0'	
+    WHERE id_usuario = @id_usuario;
+
+    -- Insertamos el cambio de contraseña en la tabla bitacora
+    INSERT INTO bitacora (accion, fecha_registro, dato_anterior, dato_nuevo, id_usuario)
+    VALUES ('Cambio de contraseña', GETDATE(), @contrasena_anterior_encriptada, @contrasena_encriptada, @id_usuario);
+
+    SELECT 'Contraseña cambiada correctamente.' AS mensaje;
+END;
+
+------para probar--------------
+EXEC sp_CambiarContrasena 
+    @id_usuario = 1, 
+    @nueva_contrasena = 'Culebrin1';
+
+
+-----------------------RegistrarUsuarioConContrasenaEncriptada---------------
+create PROCEDURE sp_RegistrarUsuarioConContrasenaEncriptada
+    @codigo VARCHAR(50),
+    @nombre VARCHAR(100),
+    @correo_u VARCHAR(255),
+    @numero VARCHAR(20),
+    @contrasenaTemporal VARCHAR(100), 
+	@respuesta NVARCHAR(100), 
+    @estado CHAR(1), 
+    @id_nivel INT, 
+    @id_pregunta INT, 
+    @intentos INT, 
+    @temporal NVARCHAR(100), 
+    @dias INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @contraseñaEncriptada VARBINARY(8000);
+
+    -- Encriptar la contraseña temporal
+    SET @contraseñaEncriptada = ENCRYPTBYPASSPHRASE('$Veronica25$', @contrasenaTemporal);
+
+    -- Insertar usuario y obtener el ID generado
+    INSERT INTO usuario (codigo_usuario, nombre_usuario, correo, telefono, contrasena, respuesta_pregunta, estado, id_nivel, id_pregunta, intentos, temporal, dias)
+    VALUES (@codigo, @nombre, @correo_u, @numero, @contraseñaEncriptada, @respuesta, @estado , @id_nivel , @id_pregunta, @intentos, @temporal, @dias);
+
+    DECLARE @id_usuario INT = SCOPE_IDENTITY();
+
+    -- Insertar registro en la bitácora
+    INSERT INTO bitacora (accion, fecha_registro, dato_anterior, dato_nuevo, id_usuario)
+    VALUES ('Registro de usuario con contraseña encriptada', GETDATE(), NULL, @contraseñaEncriptada, @id_usuario);
+END;
+-----------------ACTUALIZAR ESQUEMA PRODUCTO---------------------
+CREATE PROCEDURE sp_actualizar_esquema_producto
+    @id_esquema_producto INT,
+    @codigo_producto NVARCHAR(15),
+    @nombre_producto NVARCHAR(100),
+    @descripcion NVARCHAR(100)
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM esquema_producto WHERE id_esquema_producto = @id_esquema_producto)
+    BEGIN
+        UPDATE esquema_producto
+        SET
+            codigo_producto = @codigo_producto,
+            nombre_producto = @nombre_producto,
+            descripcion = @descripcion,
+            fecha_creacion = GETDATE()  
+        WHERE id_esquema_producto = @id_esquema_producto;
+    END
+    ELSE
+    BEGIN
+        RAISERROR('Producto no encontrado con el ID especificado.', 16, 1);
+    END
+END
+-----------------verificar esquema producto----------------
+create PROCEDURE VerificarCambioContrasena 
+    @id_usuario INT
+AS
+BEGIN
+    DECLARE @fecha_ultimo_cambio DATETIME;
+    DECLARE @dias_permitidos INT;
+    DECLARE @dias_transcurridos INT;
+	DECLARE @requiere_cambio bit;
+
+    SELECT TOP 1 @fecha_ultimo_cambio = fecha_registro
+    FROM bitacora
+    WHERE id_usuario = @id_usuario
+    ORDER BY fecha_registro DESC;
+
+    SELECT @dias_permitidos = dias
+    FROM usuario
+    WHERE id_usuario = @id_usuario;
+
+    IF @fecha_ultimo_cambio IS NULL
+    BEGIN
+        SET @requiere_cambio = 1;
+        RETURN;
+    END
+ 
+    SET @dias_transcurridos = DATEDIFF(DAY, @fecha_ultimo_cambio, GETDATE());
+
+    IF @dias_transcurridos >= @dias_permitidos
+        SET @requiere_cambio = 1; 
+		ELSE
+        SET @requiere_cambio = 0; 
+
+		select @requiere_cambio as cambio
+END;
