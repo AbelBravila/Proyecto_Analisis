@@ -26,15 +26,18 @@
         </table>
     </div>
 
-    <form method="POST" action="{{ route('pedidos.guardar') }}" id="formPedido">
+    <!-- Formulario oculto solo para tener el token CSRF -->
+    <form id="csrfForm" style="display: none;">
         @csrf
-        <input type="hidden" name="productos" id="productosInput">
-        <button class="bg-green-600 text-white px-4 py-2 rounded">Guardar Pedido</button>
     </form>
+
+    <button id="btnGuardarPedido" class="bg-green-600 text-white px-4 py-2 rounded">Guardar Pedido</button>
 
     <script>
         let productos = [];
-    
+
+        const csrfToken = document.querySelector('input[name="_token"]').value;
+
         // Agregar producto a la lista temporal
         document.getElementById('btnAgregar').addEventListener('click', () => {
             let cantidad = parseFloat(document.getElementById('inputCantidad').value) || 0;
@@ -42,14 +45,14 @@
             let descripcion = document.getElementById('inputDescripcion').value.trim();
             let precio = parseFloat(document.getElementById('inputPrecio').value) || 0;
             let total = cantidad * precio;
-    
+
             if (!codigo || !cantidad || !precio) {
                 alert("Completa todos los campos antes de agregar.");
                 return;
             }
-    
+
             productos.push({ cantidad, codigo, descripcion, precio, total });
-    
+
             const tbody = document.getElementById("listaProductos");
             tbody.innerHTML += `
                 <tr>
@@ -60,18 +63,17 @@
                     <td class="border px-4 py-2">Q${total.toFixed(2)}</td>
                 </tr>
             `;
-    
+
             // Limpiar campos
             document.getElementById('inputCantidad').value = '';
             document.getElementById('inputCodigo').value = '';
             document.getElementById('inputDescripcion').value = '';
             document.getElementById('inputPrecio').value = '';
         });
-    
-        // Enviar productos como JSON al enviar el formulario
-            document.getElementById("formPedido").addEventListener("submit", function(e) {
+
+        // Guardar pedido
+        document.getElementById("btnGuardarPedido").addEventListener("click", function () {
             if (productos.length === 0) {
-                e.preventDefault();
                 alert("Debes agregar al menos un producto.");
                 return;
             }
@@ -80,7 +82,7 @@
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    "X-CSRF-TOKEN": csrfToken
                 },
                 body: JSON.stringify({ productos })
             })
@@ -92,21 +94,18 @@
             .catch(error => {
                 console.error("Error al enviar el pedido:", error);
             });
-
-            e.preventDefault(); // Evita que el formulario se envíe tradicionalmente
         });
 
-    
-        // Búsqueda por código de producto cuando se pierde el foco del input
-        document.getElementById('inputCodigo').addEventListener('blur', function() {
+        // Búsqueda por código de producto cuando se pierde el foco
+        document.getElementById('inputCodigo').addEventListener('blur', function () {
             let codigoProducto = this.value.trim();
             if (!codigoProducto) return;
-    
+
             fetch("{{ route('pedidos.buscar') }}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    "X-CSRF-TOKEN": csrfToken
                 },
                 body: JSON.stringify({ codigo_producto: codigoProducto })
             })
@@ -119,6 +118,4 @@
             });
         });
     </script>
-    
-    
 </x-admin-layout>

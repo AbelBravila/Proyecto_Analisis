@@ -13,38 +13,49 @@
  
      public function store(Request $request)
      {
-        $productos = json_decode($request->input('productos'), true);
-        
-        if (empty($productos)) {
-            return response()->json(['error' => 'No se recibieron productos.'], 400);
-        }
-    
-        DB::beginTransaction();
-        try {
-            // Crear la tabla temporal
-            $detallePedidoTable = DB::table('DetallePedidoType');
-    
-            foreach ($productos as $producto) {
-                $detallePedidoTable->insert([
-                    'cantidad' => $producto['cantidad'],
-                    'costo' => $producto['precio'],
-                    'codigo_producto' => $producto['codigo'],
-                    'id_pedido' => 0, // Se actualizará en el procedimiento
-                    'estado' => 'A',
-                ]);
-            }
-    
-            // Llamar al procedimiento almacenado
-            DB::statement("EXEC InsertarPedidoConDetalles ?", [$detallePedidoTable]);
-    
-            DB::commit();
-            return response()->json(['mensaje' => 'Pedido y detalles guardados correctamente.']);
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json(['error' => 'Error al guardar el pedido.'], 500);
-        }
-    
+         $productos = $request->input('productos');
+     
+         if (empty($productos)) {
+             return response()->json(['error' => 'No se recibieron productos.'], 400);
+         }
+     
+         DB::beginTransaction();
+         try {
+             // Crear una variable de tabla en SQL Server para almacenar los detalles del pedido temporalmente
+             $tablaDetalles = collect($productos)->map(function ($producto) {
+                 return [
+                     'cantidad' => $producto['cantidad'],
+                     'costo' => $producto['precio'],
+                     'codigo_producto' => $producto['codigo'],
+                     'id_pedido' => null,  // Se asignará después en el procedimiento
+                     'estado' => 'A',
+                 ];
+             });
+     
+             // Insertar los datos en una tabla temporal en SQL Server
+             $sql = "DECLARE @DetallesPedido DetallePedidoType; ";
+             foreach ($tablaDetalles as $detalle) {
+                 $sql .= "INSERT INTO @DetallesPedido (cantidad, costo, codigo_producto, id_pedido, estado) VALUES ("
+                     . $detalle['cantidad'] . ", "
+                     . $detalle['costo'] . ", '"
+                     . $detalle['codigo_producto'] . "', "
+                     . ($detalle['id_pedido'] === null ? 'NULL' : $detalle['id_pedido']) . ", '"
+                     . $detalle['estado'] . "'); ";
+             }
+     
+             // Ejecutar el procedimiento almacenado con la tabla de tipo
+             $sql .= "EXEC sp_InsertarPedidoConDetalles @DetallesPedido;";
+             DB::statement($sql);
+     
+             DB::commit();
+             return response()->json(['mensaje' => 'Pedido y detalles guardados correctamente.']);
+         } catch (\Exception $e) {
+             DB::rollback();
+             return response()->json(['error' => 'Error al guardar el pedido.', 'detalle' => $e->getMessage()], 500);
+         }
      }
+     
+
  
      public function buscar(Request $request)
      {
