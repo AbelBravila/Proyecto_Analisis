@@ -481,3 +481,36 @@ EXEC sp_RegistrarDevolucion
     @id_compra = 5,
     @ProductosDevolver = @ProductosJSON;
 //////////////////////////////////////////////////////////////////////////
+
+
+------NO COPIAR TODAVIA-------------
+CREATE TYPE DetallePedidoType AS TABLE (
+    cantidad INT,
+    costo NUMERIC(12,2),
+    codigo_producto NVARCHAR(15),
+    id_pedido INT,
+    estado CHAR(1)
+);
+
+CREATE PROCEDURE sp_InsertarPedidoConDetalles
+    @DetallesPedido DetallePedidoType READONLY
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Insertar el pedido y obtener su ID
+    DECLARE @NuevoPedidoID INT;
+    
+    INSERT INTO pedido (fecha_pedido, estado)
+    VALUES (GETDATE(), 'A');
+
+    SET @NuevoPedidoID = SCOPE_IDENTITY(); -- Obtiene el último ID insertado
+
+    -- Insertar los detalles con el ID del nuevo pedido
+    INSERT INTO detalle_pedido (cantidad, costo, id_producto, id_pedido, estado)
+    SELECT d.cantidad, d.costo, p.id_producto, @NuevoPedidoID, d.estado
+    FROM @DetallesPedido d
+    JOIN producto p ON p.id_esquema_producto = (
+        SELECT id_esquema_producto FROM esquema_producto WHERE codigo_producto = d.codigo_producto
+    );
+END;

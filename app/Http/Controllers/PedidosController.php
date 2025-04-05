@@ -13,37 +13,37 @@
  
      public function store(Request $request)
      {
-      dd($request->all());
-
-         if (!$request->has(['cantidad', 'precio_unitario', 'codigo_producto'])) {
-             return redirect()->back()->with('error', 'Debe agregar al menos un producto.');
-         }
- 
-         $detallesXml = '<Detalles>';
-
-         foreach ($request->cantidad as $index => $cantidad) {
-             $precioUnitario = floatval($request->precio_unitario[$index] ?? 0);
-             $cantidad = intval($cantidad ?? 0);
-             $costo = $cantidad * $precioUnitario;
-             $idProducto = intval($request->codigo_producto[$index] ?? 0);
- 
-             $detallesXml .= "<Detalle>
-                                 <cantidad>{$cantidad}</cantidad>
-                                 <costo>{$costo}</costo>
-                                 <id_producto>{$idProducto}</id_producto>
-                                 <estado>A</estado>
-                             </Detalle>";
-         }
- 
-         $detallesXml .= '</Detalles>';
-   
- 
-         try {
-             DB::statement('EXEC InsertarPedido ?, ?, ?', [now(), 'A', $detallesXml]);
-             return redirect()->back()->with('success', 'Pedido guardado correctamente.');
-         } catch (\Exception $e) {
-             return redirect()->back()->with('error', 'Error al guardar el pedido: ' . $e->getMessage());
-         }
+        $productos = json_decode($request->input('productos'), true);
+        
+        if (empty($productos)) {
+            return response()->json(['error' => 'No se recibieron productos.'], 400);
+        }
+    
+        DB::beginTransaction();
+        try {
+            // Crear la tabla temporal
+            $detallePedidoTable = DB::table('DetallePedidoType');
+    
+            foreach ($productos as $producto) {
+                $detallePedidoTable->insert([
+                    'cantidad' => $producto['cantidad'],
+                    'costo' => $producto['precio'],
+                    'codigo_producto' => $producto['codigo'],
+                    'id_pedido' => 0, // Se actualizará en el procedimiento
+                    'estado' => 'A',
+                ]);
+            }
+    
+            // Llamar al procedimiento almacenado
+            DB::statement("EXEC InsertarPedidoConDetalles ?", [$detallePedidoTable]);
+    
+            DB::commit();
+            return response()->json(['mensaje' => 'Pedido y detalles guardados correctamente.']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 'Error al guardar el pedido.'], 500);
+        }
+    
      }
  
      public function buscar(Request $request)

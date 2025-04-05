@@ -1,58 +1,107 @@
 <x-admin-layout>
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table id="productTable" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th class="px-6 py-3">Cantidad</th>
-                    <th class="px-6 py-3">Código Producto</th>
-                    <th class="px-6 py-3">Descripción</th>
-                    <th class="px-6 py-3">Precio Unitario</th>
-                    <th class="px-6 py-3">Total</th>
+    <div class="mb-6">
+        <h2 class="text-lg font-semibold mb-2">Agregar producto</h2>
+        <div class="grid grid-cols-5 gap-4">
+            <input id="inputCantidad" type="number" placeholder="Cantidad" class="p-2 border rounded">
+            <input id="inputCodigo" type="text" placeholder="Código Producto" class="p-2 border rounded">
+            <input id="inputDescripcion" type="text" placeholder="Descripción" class="p-2 border rounded">
+            <input id="inputPrecio" type="number" placeholder="Precio Unitario" class="p-2 border rounded">
+            <button id="btnAgregar" class="bg-blue-500 text-white px-4 py-2 rounded">Agregar</button>
+        </div>
+    </div>
+
+    <div class="mb-6">
+        <h2 class="text-lg font-semibold mb-2">Productos agregados</h2>
+        <table class="w-full table-auto border-collapse">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="border px-4 py-2">Cantidad</th>
+                    <th class="border px-4 py-2">Código</th>
+                    <th class="border px-4 py-2">Descripción</th>
+                    <th class="border px-4 py-2">Precio</th>
+                    <th class="border px-4 py-2">Total</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr class="producto-row">
-                    <td><input type="number" name="cantidad[]" class="cantidad w-full"></td>
-                    <td><input type="text" name="codigo_producto[]" class="codigo_producto w-full"></td>
-                    <td><input type="text" name="nombre_producto[]" disabled class="nombre_producto w-full bg-gray-100"></td>
-                    <td><input type="number" name="precio_unitario[]" class="precio_unitario w-full"></td>
-                    <td><input type="text" name="costo[]" class="costo w-full bg-gray-100" readonly></td>
-                </tr>
-            </tbody>
+            <tbody id="listaProductos"></tbody>
         </table>
     </div>
 
-    <div class="flex gap-4 mt-4">
-        <button id="addRowButton" class="bg-blue-500 text-white py-2 px-4 rounded">Agregar Producto</button>
-        <form method="POST" action="{{ route('pedidos.guardar') }}">
-            @csrf   
-            <button class="bg-green-500 text-white py-2 px-4 rounded">Guardar Pedido</button>
-        </form> 
-    </div>
-    
+    <form method="POST" action="{{ route('pedidos.guardar') }}" id="formPedido">
+        @csrf
+        <input type="hidden" name="productos" id="productosInput">
+        <button class="bg-green-600 text-white px-4 py-2 rounded">Guardar Pedido</button>
+    </form>
+
     <script>
-        document.getElementById("addRowButton").addEventListener("click", function() {
-            const tableBody = document.querySelector("#productTable tbody");
-            const newRow = document.createElement("tr");
-            newRow.className = "producto-row";
-            newRow.innerHTML = `
-                <td><input type="number" name="cantidad[]" class="cantidad w-full"></td>
-                <td><input type="text" name="codigo_producto[]" class="codigo_producto w-full"></td>
-                <td><input type="text" name="nombre_producto[]" disabled class="nombre_producto w-full bg-gray-100"></td>
-                <td><input type="number" name="precio_unitario[]" class="precio_unitario w-full"></td>
-                <td><input type="text" name="costo[]" class="costo w-full bg-gray-100" readonly></td>
+        let productos = [];
+    
+        // Agregar producto a la lista temporal
+        document.getElementById('btnAgregar').addEventListener('click', () => {
+            let cantidad = parseFloat(document.getElementById('inputCantidad').value) || 0;
+            let codigo = document.getElementById('inputCodigo').value.trim();
+            let descripcion = document.getElementById('inputDescripcion').value.trim();
+            let precio = parseFloat(document.getElementById('inputPrecio').value) || 0;
+            let total = cantidad * precio;
+    
+            if (!codigo || !cantidad || !precio) {
+                alert("Completa todos los campos antes de agregar.");
+                return;
+            }
+    
+            productos.push({ cantidad, codigo, descripcion, precio, total });
+    
+            const tbody = document.getElementById("listaProductos");
+            tbody.innerHTML += `
+                <tr>
+                    <td class="border px-4 py-2">${cantidad}</td>
+                    <td class="border px-4 py-2">${codigo}</td>
+                    <td class="border px-4 py-2">${descripcion}</td>
+                    <td class="border px-4 py-2">Q${precio.toFixed(2)}</td>
+                    <td class="border px-4 py-2">Q${total.toFixed(2)}</td>
+                </tr>
             `;
-            tableBody.appendChild(newRow);
+    
+            // Limpiar campos
+            document.getElementById('inputCantidad').value = '';
+            document.getElementById('inputCodigo').value = '';
+            document.getElementById('inputDescripcion').value = '';
+            document.getElementById('inputPrecio').value = '';
+        });
+    
+        // Enviar productos como JSON al enviar el formulario
+            document.getElementById("formPedido").addEventListener("submit", function(e) {
+            if (productos.length === 0) {
+                e.preventDefault();
+                alert("Debes agregar al menos un producto.");
+                return;
+            }
+
+            fetch("{{ route('pedidos.guardar') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ productos })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Pedido guardado correctamente.");
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error("Error al enviar el pedido:", error);
+            });
+
+            e.preventDefault(); // Evita que el formulario se envíe tradicionalmente
         });
 
-        // Event delegation para búsqueda de producto
-        document.querySelector("#productTable tbody").addEventListener("blur", function(event) {
-            if (!event.target.classList.contains("codigo_producto")) return;
-            
-            let fila = event.target.closest("tr");
-            let codigoProducto = event.target.value.trim();
-            if (codigoProducto === "") return;
-
+    
+        // Búsqueda por código de producto cuando se pierde el foco del input
+        document.getElementById('inputCodigo').addEventListener('blur', function() {
+            let codigoProducto = this.value.trim();
+            if (!codigoProducto) return;
+    
             fetch("{{ route('pedidos.buscar') }}", {
                 method: "POST",
                 headers: {
@@ -63,24 +112,13 @@
             })
             .then(response => response.json())
             .then(data => {
-                fila.querySelector(".nombre_producto").value = data.nombre_producto ?? "No encontrado";
+                document.getElementById("inputDescripcion").value = data.nombre_producto ?? "No encontrado";
             })
             .catch(() => {
-                fila.querySelector(".nombre_producto").value = "No encontrado";
+                document.getElementById("inputDescripcion").value = "No encontrado";
             });
-        }, true);
-
-        // Cálculo automático del costo
-        document.addEventListener("input", function(event) {
-            if (!event.target.classList.contains("cantidad") && !event.target.classList.contains("precio_unitario")) return;
-
-            let row = event.target.closest("tr");
-            let cantidad = parseFloat(row.querySelector(".cantidad").value) || 0;
-            let precioUnitario = parseFloat(row.querySelector(".precio_unitario").value) || 0;
-            let costoInput = row.querySelector(".costo");
-
-            let costo = cantidad * precioUnitario;
-            costoInput.value = costo.toFixed(2);
         });
     </script>
+    
+    
 </x-admin-layout>
