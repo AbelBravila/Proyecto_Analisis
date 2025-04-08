@@ -42,7 +42,7 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="w-full text-sm text-left text-gray-500 dark:text-black">
                     @foreach ($compras as $compra)
                         <tr>
                             <td class="px-6 py-3">{{ $compra->id_compra }}</td>
