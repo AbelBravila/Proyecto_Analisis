@@ -43,7 +43,7 @@ class ComprasController extends Controller
     {
         // Recoger los productos y otros datos de la solicitud
         $productos = $request->input('productos');  // Un array de productos
-
+    
         // Crear una tabla temporal de productos en SQL Server
         $productosTable = [];
         foreach ($productos as $producto) {
@@ -51,16 +51,19 @@ class ComprasController extends Controller
             $fechaFabricacion = Carbon::parse($producto['fecha_fabricacion'])->format('Y-m-d');
             $fechaVencimiento = Carbon::parse($producto['fecha_vencimiento'])->format('Y-m-d');
             
+            // Log para verificar las fechas
+            \Log::info("Producto ID: {$producto['id_esquema_producto']} - Fecha Fabricación: {$fechaFabricacion} - Fecha Vencimiento: {$fechaVencimiento}");
+    
             // Validar que las fechas no sean nulas o vacías
             if (empty($fechaFabricacion) || empty($fechaVencimiento)) {
                 return response()->json(['error' => 'Las fechas de fabricación y vencimiento no pueden estar vacías.'], 400);
             }
-
+    
             // Asegurarse de que las fechas estén dentro del rango válido de SQL Server
             if (!$this->isValidDate($fechaFabricacion) || !$this->isValidDate($fechaVencimiento)) {
                 return response()->json(['error' => 'Fecha fuera de rango o formato inválido.'], 400);
             }
-
+    
             // Agregar el producto a la tabla temporal
             $productosTable[] = [
                 'IdEsquemaProducto' => $producto['id_esquema_producto'],
@@ -73,8 +76,8 @@ class ComprasController extends Controller
                 'Costo' => $producto['costo'],
             ];
         }
-
-        // Generar la cadena de valores para el INSERT
+    
+        // Log para verificar la consulta generada
         $insertValues = [];
         foreach ($productosTable as $producto) {
             $insertValues[] = sprintf(
@@ -89,10 +92,9 @@ class ComprasController extends Controller
                 $producto['Costo']
             );
         }
-
-        // Generar la consulta completa
         $insertQuery = implode(', ', $insertValues);
-
+        \Log::info("Insert Query: " . $insertQuery);
+    
         // Ejecutar el procedimiento almacenado usando una tabla temporal
         DB::transaction(function () use ($request, $insertQuery) {
             DB::statement('
@@ -115,10 +117,11 @@ class ComprasController extends Controller
                 $request->input('id_proveedor'),
             ]);
         });
-
+    
         // Redirigir con un mensaje de éxito
         return redirect()->route('compras')->with('success', 'Compra registrada exitosamente.');
     }
+    
 
     // Función para verificar si la fecha está en un rango válido para SQL Server
     private function isValidDate($date)
