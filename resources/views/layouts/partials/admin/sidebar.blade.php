@@ -21,8 +21,8 @@
     [
         'name' => 'Proveedores',
         'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'Proveedores',
-        'active' => request()->routeIs('Proveedores')
+        'route' => 'proveedor',
+        'active' => request()->routeIs('proveedor')
     ],
     [
         'header' => 'Productos',

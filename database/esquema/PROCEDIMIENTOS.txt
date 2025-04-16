@@ -611,3 +611,59 @@ BEGIN
         THROW;
     END CATCH
 END;
+
+--------------------------------------------- isaac proveedor 
+
+CREATE PROCEDURE sp_Insert_Proveedor
+    @nombre_proveedor NVARCHAR(100),
+    @nit NVARCHAR(15),
+    @correo NVARCHAR(100),
+	@telefono NVARCHAR(16),
+	@direccion NVARCHAR(100)
+AS
+BEGIN
+    INSERT INTO proveedor (nombre_proveedor, nit, correo, telefono, direccion,estado)
+    VALUES (@nombre_proveedor, @nit, @correo, @telefono, @direccion,'A')
+END
+
+select * from proveedor
+
+--------------------------------------------- isaac proveedor 
+-- actualizart proveedor
+CREATE PROCEDURE sp_actualizar_proveedor
+    @id_proveedor INT,
+    @nombre_proveedor NVARCHAR(100),
+    @nit NVARCHAR(15),
+    @correo NVARCHAR(100),
+	@telefono NVARCHAR(16),
+	@direccion NVARCHAR(100)
+
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM proveedor WHERE id_proveedor = @id_proveedor)
+    BEGIN
+        UPDATE proveedor
+        SET
+            nombre_proveedor = @nombre_proveedor,
+            nit = @nit,
+            correo = @correo,
+            telefono = @telefono,
+            direccion = @direccion
+        WHERE id_proveedor = @id_proveedor;
+    END
+    ELSE
+    BEGIN
+        RAISERROR('Proveedor no encontrado.', 16, 1);
+    END
+END
+
+--------------------------------------------- isaac proveedor 
+-- cambiar estado 
+CREATE PROCEDURE sp_cambiarEstadoProveedor
+    @id_proveedor INT
+AS
+BEGIN
+    UPDATE proveedor
+    SET estado = 'I'
+    WHERE id_proveedor = @id_proveedor;
+END

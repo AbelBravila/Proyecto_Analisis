@@ -52,11 +52,11 @@ Route::get('/dashboard', function () {
 Route::get('/index', [UsuarioController::class, 'showRegistrationForm'])->name('Usuario')->middleware('auth');
 Route::post('/index', [UsuarioController::class, 'register'])->middleware('auth');
 
-Route::get('/admin/proveedores', [ProveedorController::class, 'index_proveedor'])->name('Proveedores')->middleware('auth');
-Route::post('/admin/proveedores', [ProveedorController::class, 'store'])->name('Proveedores.Guardar')->middleware('auth');
-Route::get('/admin/proveedores/editar', [ProveedorController::class, 'editar'])->name('Proveedores.Editar')->middleware('auth');
-Route::put('/admin/proveedores', [ProveedorController::class, 'update'])->name('Proveedores.Actualizar')->middleware('auth');
-Route::delete('/admin/proveedores', [ProveedorController::class, 'destroy'])->name('Proveedores.Eliminar')->middleware('auth');
+Route::get('/proveedor/proveedor', [ProveedorController::class, 'index_proveedor'])->name('proveedor')->middleware('auth');
+Route::post('/proveedor/proveedor', [ProveedorController::class, 'agregar'])->middleware('auth');
+Route::get('/proveedor/proveedor/editar_proveedor/{id}', [ProveedorController::class, 'editar_proveedor'])->name('proveedor.editar_proveedor')->middleware('auth');
+Route::put('/proveedor/proveedor/{id}', [ProveedorController::class, 'actualizar_proveedor'])->name('proveedor.actualizar_proveedor')->middleware('auth');
+Route::get('/proveedor/proveedor/{id}', [ProveedorController::class, 'cambiar_estado'])->name('proveedor.cambiar_estado')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     Route::get('/admin/pedidos', [PedidosController::class, 'index_pedidos'])->name('pedidos');
