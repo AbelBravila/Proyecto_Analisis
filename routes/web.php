@@ -62,6 +62,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/pedidos', [PedidosController::class, 'index_pedidos'])->name('pedidos');
     Route::post('/admin/pedidos', [PedidosController::class, 'store'])->name('pedidos.guardar');
     Route::post('/admin/pedidos/buscar', [PedidosController::class, 'buscar'])->name('pedidos.buscar');
+    Route::get('/admin/pedidos-realizados', [PedidosController::class, 'VerPedido'])->name('pedidos.realizados');
+    //Route::get('/admin/pedidos/editar/{id}', [PedidosController::class, 'editar'])->name('pedidos.editar');
 });
 
 Route::get('/compras/compras', [ComprasController::class, 'index_compras'])->name('compras')->middleware('auth');
