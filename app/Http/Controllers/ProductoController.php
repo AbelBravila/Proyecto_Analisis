@@ -23,7 +23,7 @@ class ProductoController extends Controller
         $buscar = $request->input('buscador');  // Recibe el término de búsqueda
 
         // Filtra los productos por el término de búsqueda o muestra todos
-        $productos = EsquemaProducto::where('estado', 'A')
+        $productos = DB::table('vw_stock_producto') -> where('estado', 'A')
             ->when($buscar, function ($query, $buscar) {
                 return $query->where('codigo_producto', 'LIKE', "%{$buscar}%")
                              ->orWhere('nombre_producto', 'LIKE', "%{$buscar}%");
@@ -140,45 +140,46 @@ class ProductoController extends Controller
 
 public function mostrarDetalles($id)
 {
-
     $total_productos = DB::table('producto')
-        ->join('esquema_producto', 'producto.id_esquema_producto', '=', 'esquema_producto.id_esquema_producto')
-        ->join('lote', 'producto.id_lote', '=', 'lote.id_lote')
-        ->join('proveedor', 'producto.id_proveedor', '=', 'proveedor.id_proveedor')
-        ->join('presentacion', 'producto.id_presentacion', '=', 'presentacion.id_presentacion')
-        ->join('estanteria', 'producto.id_estanteria', '=', 'estanteria.id_estanteria')
-        ->join('empresa', 'producto.id_empresa', '=', 'empresa.id_empresa')
-        ->join('pasillo', 'estanteria.id_pasillo', '=', 'pasillo.id_pasillo')
-        ->select(
-            'esquema_producto.codigo_producto',
-            'esquema_producto.nombre_producto',
-            'producto.precio',
-            'producto.costo',
-            'lote.lote',
-            'lote.fabricante',
-            'lote.fecha_fabricacion',
-            'lote.fecha_vencimiento',
-            'presentacion.presentacion',
-            'pasillo.codigo_pasillo',
-            'estanteria.codigo_estanteria',
-            'proveedor.nombre_proveedor',
-            'producto.stock'
-        )
-        ->where('esquema_producto.id_esquema_producto', $id)
-        ->get()
-        ->map(function ($producto) {
-            $producto->fecha_fabricacion = $producto->fecha_fabricacion 
-                ? Carbon::parse($producto->fecha_fabricacion)->format('d/m/Y') 
-                : null;
+    ->join('esquema_producto', 'producto.id_esquema_producto', '=', 'esquema_producto.id_esquema_producto')
+    ->join('lote', 'producto.id_lote', '=', 'lote.id_lote')
+    ->join('proveedor', 'producto.id_proveedor', '=', 'proveedor.id_proveedor')
+    ->join('presentacion', 'producto.id_presentacion', '=', 'presentacion.id_presentacion')
+    ->join('estanteria', 'producto.id_estanteria', '=', 'estanteria.id_estanteria')
+    ->join('empresa', 'producto.id_empresa', '=', 'empresa.id_empresa')
+    ->join('pasillo', 'estanteria.id_pasillo', '=', 'pasillo.id_pasillo')
+    ->select(
+        'esquema_producto.codigo_producto',
+        'esquema_producto.nombre_producto',
+        'producto.precio',
+        'producto.costo',
+        'lote.lote',
+        'lote.fabricante',
+        'lote.fecha_fabricacion',
+        'lote.fecha_vencimiento',
+        'presentacion.presentacion',
+        'pasillo.codigo_pasillo',
+        'estanteria.codigo_estanteria',
+        'proveedor.nombre_proveedor',
+        'producto.stock'
+    )
+    ->where('esquema_producto.id_esquema_producto', $id)
+    ->where('producto.stock', '>', 0)
+    ->where('producto.estado', '<>', 'I')
+    ->get()
+    ->map(function ($producto) {
+        $producto->fecha_fabricacion = $producto->fecha_fabricacion 
+            ? Carbon::parse($producto->fecha_fabricacion)->format('d/m/Y') 
+            : null;
 
-            $producto->fecha_vencimiento = $producto->fecha_vencimiento 
-                ? Carbon::parse($producto->fecha_vencimiento)->format('d/m/Y') 
-                : null;
+        $producto->fecha_vencimiento = $producto->fecha_vencimiento 
+            ? Carbon::parse($producto->fecha_vencimiento)->format('d/m/Y') 
+            : null;
 
-            return $producto;
-        });
+        return $producto;
+    });
 
-    return view('producto.partials.detalles_producto', compact('total_productos'));
+return view('producto.partials.detalles_producto', compact('total_productos'));
 }
 
 }

@@ -12,6 +12,7 @@ use App\Models\EsquemaProducto;
 use App\Models\Producto;
 use App\Models\TipoCompra;
 use App\Models\Presentacion;
+use App\Models\Estanteria;
 
 class ComprasController extends Controller
 {
@@ -35,7 +36,8 @@ class ComprasController extends Controller
         $tipo_compra = TipoCompra::where('estado', 'A')->get();
         $productos = EsquemaProducto::where('estado', 'A')->get(); 
         $presentaciones = Presentacion::where('estado', 'A')->get();
-        return view('compras.registrarcompras', compact('productos', 'presentaciones', 'tipo_compra', 'proveedores'));
+        $estanterias = Estanteria::where('estado', 'A')->get();
+        return view('compras.registrarcompras', compact('productos', 'presentaciones', 'tipo_compra', 'proveedores', 'estanterias'));
         
     }
 
@@ -43,7 +45,6 @@ class ComprasController extends Controller
     {
         // Recoger los productos y otros datos de la solicitud
         $productos = $request->input('productos');  // Un array de productos
-    
         // Crear una tabla temporal de productos en SQL Server
         $productosTable = [];
         foreach ($productos as $producto) {
@@ -74,6 +75,7 @@ class ComprasController extends Controller
                 'IdPresentacion' => $producto['id_presentacion'],
                 'Cantidad' => $producto['cantidad'],
                 'Costo' => $producto['costo'],
+                'IdEstanteria' => $producto['id_estanteria'] 
             ];
         }
     
@@ -81,7 +83,7 @@ class ComprasController extends Controller
         $insertValues = [];
         foreach ($productosTable as $producto) {
             $insertValues[] = sprintf(
-                "(%d, '%s', '%s', '%s', '%s', %d, %d, %.2f)",
+                "(%d, '%s', '%s', '%s', '%s', %d, %d, %.2f, %d)",
                 $producto['IdEsquemaProducto'],
                 $producto['Lote'],
                 $producto['Fabricante'],
@@ -89,7 +91,8 @@ class ComprasController extends Controller
                 $producto['FechaVencimiento'],
                 $producto['IdPresentacion'],
                 $producto['Cantidad'],
-                $producto['Costo']
+                $producto['Costo'],
+                $producto['IdEstanteria']
             );     
             
         }
@@ -114,7 +117,7 @@ class ComprasController extends Controller
             DB::statement("
             DECLARE @Productos TipoProductos;
 
-            INSERT INTO @Productos (IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo)
+            INSERT INTO @Productos (IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo, IdEstanteria)
             VALUES $insertQuery;
 
             EXEC sp_RegistrarCompra 
@@ -157,4 +160,22 @@ class ComprasController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        $total_detalle = DB::table('vw_productos_comprados')
+            ->where('id_compra', $id)
+            ->get();
+
+            return view('compras.partials.detalle_modal', compact('total_detalle'));
+    }
+
+
+    public function mostrarDetalle($id)
+    {
+        $total_detalle = DB::table('vw_productos_comprados')
+            ->where('id_compra', $id)
+            ->get();
+
+        return view('compras.partials.detalle_modal', compact('total_detalle'));
+    }
 }

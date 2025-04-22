@@ -115,6 +115,9 @@
                         Descripcion
                     </th>
                     <th scope="col" class="px-6 py-3">
+                        Stock
+                    </th>
+                    <th scope="col" class="px-6 py-3">
                         Acciones
                     </th>
                 </tr>
@@ -126,6 +129,7 @@
                         <td scope="col" class="px-6 py-3 dark:text-black">{{ $producto->codigo_producto }}</td>
                         <td scope="col" class="px-6 py-3 dark:text-black">{{ $producto->nombre_producto }}</td>
                         <td scope="col" class="px-6 py-3 dark:text-black">{{ $producto->descripcion }}</td>
+                        <td scope="col" class="px-6 py-3 dark:text-black">{{ $producto->stock_total }}</td>
                         <td scope="col" class="px-6 py-3 dark:text-black">
                             <a class="fa fa-pencil fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                 data-modal-target="editar-modal-producto-{{ $producto->id_esquema_producto }}"
@@ -134,7 +138,7 @@
                             <a class="fa fa-trash fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                 href="{{ route('producto.cambiar_estado', ['id' => $producto->id_esquema_producto]) }}"
                                 onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?')"></a>
-                            <a class="fa fa-list fa-lg text-green-600 hover:underline ver-detalles cursor-pointer"
+                            <a class="fa-solid fa-list fa-lg text-blue-600 hover:underline ver-detalles cursor-pointer"
                                 data-id="{{ $producto->id_esquema_producto }}"></a>
                             {{-- <a class="fa-solid fa-list font-medium text-blue-600 dark:text-blue-500 hover:underline" data-modal-target="editar-modal-producto-{{ $producto->id_esquema_producto }}" data-modal-toggle="editar-modal-producto-{{ $producto->id_esquema_producto }}" class="text-blue-600"></a> --}}
                         </td>

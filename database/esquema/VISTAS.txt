@@ -2,6 +2,7 @@
 CREATE OR ALTER   VIEW vw_detalle_compra AS
 SELECT 
     c.id_compra,
+	CONVERT(date, c.fecha_compra) AS fecha_compra,
     tc.nombre_tipo_compra,
     p.nombre_proveedor,
     SUM(dc.cantidad) AS cantidad,
@@ -18,9 +19,8 @@ JOIN
 JOIN 
     proveedor p ON pr.id_proveedor = p.id_proveedor
 GROUP BY 
-    c.id_compra, tc.nombre_tipo_compra, p.nombre_proveedor, c.estado;
+    c.id_compra, c.fecha_compra, tc.nombre_tipo_compra, p.nombre_proveedor, c.estado;
 GO
-
 
 
 ---------------------- vw_compras_completa --------------------------
@@ -47,3 +47,44 @@ FROM            dbo.detalle_compra AS dc INNER JOIN
                          dbo.empresa AS emp ON prd.id_empresa = emp.id_empresa
 WHERE        (dc.estado = 'A') AND (c.estado = 'A')
 GO
+
+-----------------------vista para los productos comprados
+
+CREATE or alter VIEW vw_productos_comprados AS
+SELECT 
+	c.id_compra,
+    ep.codigo_producto,
+    ep.nombre_producto,
+    dc.cantidad,
+    dc.costo,
+    l.lote,
+    l.fabricante
+FROM detalle_compra dc
+INNER JOIN compra c ON dc.id_compra = c.id_compra
+INNER JOIN producto p ON dc.id_producto = p.id_producto
+INNER JOIN esquema_producto ep ON p.id_esquema_producto = ep.id_esquema_producto
+INNER JOIN lote l ON p.id_lote = l.id_lote;
+
+------------------------vista de productos con stock
+
+CREATE or alter VIEW vw_stock_producto AS
+SELECT 
+	ep.id_esquema_producto,
+    ep.codigo_producto,
+    ep.nombre_producto,
+    ep.descripcion,
+    SUM(p.stock) AS stock_total,
+	ep.estado
+FROM 
+    esquema_producto ep
+JOIN 
+    producto p ON ep.id_esquema_producto = p.id_esquema_producto
+WHERE 
+    ep.estado = 'A'
+    AND p.estado = 'A'
+GROUP BY 
+	ep.id_esquema_producto,
+    ep.codigo_producto,
+    ep.nombre_producto,
+    ep.descripcion,
+	ep.estado;

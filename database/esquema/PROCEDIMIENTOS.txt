@@ -523,8 +523,10 @@ BEGIN
 END;
 
 ------------PROCEDIMIENTO REGISTRAR COMPRAS-------------
+DROP TYPE IF EXISTS TipoProductos;
+GO
 
-CREATE TYPE TipoProductos AS TABLE
+create TYPE TipoProductos AS TABLE
 (
     IdEsquemaProducto INT,
     Lote NVARCHAR(50),
@@ -533,7 +535,8 @@ CREATE TYPE TipoProductos AS TABLE
     FechaVencimiento DATETIME,
     IdPresentacion INT,
     Cantidad INT,
-    Costo NUMERIC(12,2)
+    Costo NUMERIC(12,2),
+    IdEstanteria INT
 );
 
 CREATE OR ALTER PROCEDURE sp_RegistrarCompra
@@ -556,6 +559,7 @@ BEGIN
     DECLARE @Cantidad INT;
     DECLARE @Costo NUMERIC(12,2);
     DECLARE @Precio NUMERIC(12,2);
+    DECLARE @IdEstanteria INT; 
 
     BEGIN TRANSACTION;
 
@@ -566,12 +570,12 @@ BEGIN
         SET @IdCompra = SCOPE_IDENTITY();
         
         DECLARE producto_cursor CURSOR FOR
-        SELECT IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo
+        SELECT IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo, IdEstanteria
         FROM @Productos;
 
         OPEN producto_cursor;
         FETCH NEXT FROM producto_cursor INTO
-            @IdEsquemaProducto, @Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, @IdPresentacion, @Cantidad, @Costo;
+            @IdEsquemaProducto, @Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, @IdPresentacion, @Cantidad, @Costo, @IdEstanteria;
 
         WHILE @@FETCH_STATUS = 0
         BEGIN
@@ -582,8 +586,8 @@ BEGIN
 
             SET @IdLote = SCOPE_IDENTITY();
 
-            INSERT INTO producto (id_esquema_producto, precio, costo, stock, id_lote, id_proveedor, id_presentacion, estado, fecha_registro, id_empresa)
-            VALUES (@IdEsquemaProducto, @Precio, @Costo, @Cantidad, @IdLote, @IdProveedor, @IdPresentacion, 'A', GETDATE(), @IdEmpresa);
+            INSERT INTO producto (id_esquema_producto, precio, costo, stock, id_lote, id_proveedor, id_presentacion, id_estanteria, estado, fecha_registro, id_empresa)
+            VALUES (@IdEsquemaProducto, @Precio, @Costo, @Cantidad, @IdLote, @IdProveedor, @IdPresentacion, @IdEstanteria, 'A', GETDATE(), @IdEmpresa);
 
             SET @IdProducto = SCOPE_IDENTITY();
 
@@ -591,7 +595,7 @@ BEGIN
             VALUES (@Cantidad, @Costo, @IdProducto, @IdCompra, 'A');
 
             FETCH NEXT FROM producto_cursor INTO
-                @IdEsquemaProducto, @Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, @IdPresentacion, @Cantidad, @Costo;
+                @IdEsquemaProducto, @Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, @IdPresentacion, @Cantidad, @Costo, @IdEstanteria;
         END
 
         CLOSE producto_cursor;

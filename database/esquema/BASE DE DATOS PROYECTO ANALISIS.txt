@@ -478,3 +478,192 @@ BEGIN
     INSERT INTO bitacora (accion, fecha_registro, dato_anterior, dato_nuevo, id_usuario)
     VALUES ('Registro de usuario con contraseña encriptada', GETDATE(), NULL, @contraseñaEncriptada, @id_usuario);
 END;
+
+-----------------------Vinicio cambios compras---------------
+
+CREATE or alter VIEW vw_productos_comprados AS
+SELECT 
+	c.id_compra,
+    ep.codigo_producto,
+    ep.nombre_producto,
+    dc.cantidad,
+    dc.costo,
+    l.lote,
+    l.fabricante
+FROM detalle_compra dc
+INNER JOIN compra c ON dc.id_compra = c.id_compra
+INNER JOIN producto p ON dc.id_producto = p.id_producto
+INNER JOIN esquema_producto ep ON p.id_esquema_producto = ep.id_esquema_producto
+INNER JOIN lote l ON p.id_lote = l.id_lote;
+
+
+Drop procedure sp_RegistrarCompra
+DROP TYPE IF EXISTS TipoProductos;
+
+create TYPE TipoProductos AS TABLE
+(
+    IdEsquemaProducto INT,
+    Lote NVARCHAR(50),
+    Fabricante NVARCHAR(100),
+    FechaFabricacion DATETIME,
+    FechaVencimiento DATETIME,
+    IdPresentacion INT,
+    Cantidad INT,
+    Costo NUMERIC(12,2),
+    IdEstanteria INT
+);
+
+CREATE OR ALTER PROCEDURE sp_RegistrarCompra
+    @FechaCompra DATETIME,
+    @IdTipoCompra INT,
+    @IdProveedor INT,
+    @Productos TipoProductos READONLY,
+    @IdEmpresa INT
+AS
+BEGIN
+    DECLARE @IdCompra INT;
+    DECLARE @IdLote INT;
+    DECLARE @IdProducto INT;
+    DECLARE @IdEsquemaProducto INT;
+    DECLARE @Lote NVARCHAR(50);
+    DECLARE @Fabricante NVARCHAR(100);
+    DECLARE @FechaFabricacion DATETIME;
+    DECLARE @FechaVencimiento DATETIME;
+    DECLARE @IdPresentacion INT;
+    DECLARE @Cantidad INT;
+    DECLARE @Costo NUMERIC(12,2);
+    DECLARE @Precio NUMERIC(12,2);
+    DECLARE @IdEstanteria INT; -- ➕ Nueva variable
+
+    BEGIN TRANSACTION;
+
+    BEGIN TRY
+        INSERT INTO compra (id_tipo_compra, fecha_compra, estado)
+        VALUES (@IdTipoCompra, @FechaCompra, 'A');
+        
+        SET @IdCompra = SCOPE_IDENTITY();
+        
+        DECLARE producto_cursor CURSOR FOR
+        SELECT IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo, IdEstanteria
+        FROM @Productos;
+
+        OPEN producto_cursor;
+        FETCH NEXT FROM producto_cursor INTO
+            @IdEsquemaProducto, @Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, @IdPresentacion, @Cantidad, @Costo, @IdEstanteria;
+
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            SET @Precio = @Costo * 1.30;
+
+            INSERT INTO lote (lote, fabricante, fecha_fabricacion, fecha_vencimiento, estado)
+            VALUES (@Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, 'A');
+
+            SET @IdLote = SCOPE_IDENTITY();
+
+            INSERT INTO producto (id_esquema_producto, precio, costo, stock, id_lote, id_proveedor, id_presentacion, id_estanteria, estado, fecha_registro, id_empresa)
+            VALUES (@IdEsquemaProducto, @Precio, @Costo, @Cantidad, @IdLote, @IdProveedor, @IdPresentacion, @IdEstanteria, 'A', GETDATE(), @IdEmpresa);
+
+            SET @IdProducto = SCOPE_IDENTITY();
+
+            INSERT INTO detalle_compra (cantidad, costo, id_producto, id_compra, estado)
+            VALUES (@Cantidad, @Costo, @IdProducto, @IdCompra, 'A');
+
+            FETCH NEXT FROM producto_cursor INTO
+                @IdEsquemaProducto, @Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, @IdPresentacion, @Cantidad, @Costo, @IdEstanteria;
+        END
+
+        CLOSE producto_cursor;
+        DEALLOCATE producto_cursor;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+
+CREATE or alter VIEW vw_stock_producto AS
+SELECT 
+	ep.id_esquema_producto,
+    ep.codigo_producto,
+    ep.nombre_producto,
+    ep.descripcion,
+    SUM(p.stock) AS stock_total,
+	ep.estado
+FROM 
+    esquema_producto ep
+JOIN 
+    producto p ON ep.id_esquema_producto = p.id_esquema_producto
+WHERE 
+    ep.estado = 'A'
+    AND p.estado = 'A'
+GROUP BY 
+	ep.id_esquema_producto,
+    ep.codigo_producto,
+    ep.nombre_producto,
+    ep.descripcion,
+	ep.estado;
+
+
+	CREATE OR ALTER   VIEW vw_detalle_compra AS
+SELECT 
+    c.id_compra,
+	CONVERT(date, c.fecha_compra) AS fecha_compra,
+    tc.nombre_tipo_compra,
+    p.nombre_proveedor,
+    SUM(dc.cantidad) AS cantidad,
+    SUM(dc.cantidad * dc.costo) AS total_compra,
+	c.estado
+FROM 
+    compra c
+JOIN 
+    tipo_compra tc ON c.id_tipo_compra = tc.id_tipo_compra
+JOIN 
+    detalle_compra dc ON c.id_compra = dc.id_compra
+JOIN 
+    producto pr ON dc.id_producto = pr.id_producto
+JOIN 
+    proveedor p ON pr.id_proveedor = p.id_proveedor
+GROUP BY 
+    c.id_compra, c.fecha_compra, tc.nombre_tipo_compra, p.nombre_proveedor, c.estado;
+
+
+
+	CREATE OR ALTER PROCEDURE [dbo].[VerificarCambioContrasena] 
+    @id_usuario INT
+AS
+BEGIN
+    DECLARE @fecha_ultimo_cambio DATETIME;
+    DECLARE @dias_permitidos INT;
+    DECLARE @dias_transcurridos INT;
+    DECLARE @requiere_cambio BIT;
+
+    SELECT TOP 1 @fecha_ultimo_cambio = fecha_registro
+    FROM bitacora
+    WHERE id_usuario = @id_usuario
+    ORDER BY fecha_registro DESC;
+
+    SELECT @dias_permitidos = dias
+    FROM usuario
+    WHERE id_usuario = @id_usuario;
+
+    IF @fecha_ultimo_cambio IS NULL
+    BEGIN
+        SET @requiere_cambio = 1;
+    END
+    ELSE
+    BEGIN
+        SET @dias_transcurridos = DATEDIFF(DAY, @fecha_ultimo_cambio, GETDATE());
+
+        IF @dias_transcurridos >= @dias_permitidos
+            SET @requiere_cambio = 1;
+        ELSE
+            SET @requiere_cambio = 0;
+    END
+
+    SELECT @requiere_cambio AS cambio;
+END;
+
+-----------------------------------
