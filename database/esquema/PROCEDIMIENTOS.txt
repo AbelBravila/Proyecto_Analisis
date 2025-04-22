@@ -536,17 +536,17 @@ CREATE TYPE TipoProductos AS TABLE
     Costo NUMERIC(12,2)
 );
 
-
 CREATE OR ALTER PROCEDURE sp_RegistrarCompra
-    @FechaCompra DATETIME,                   -- Fecha de compra
-    @IdTipoCompra INT,                       -- ID del tipo de compra
-    @IdProveedor INT,                        -- ID del proveedor
-    @Productos TipoProductos READONLY         -- Tabla con los productos
+    @FechaCompra DATETIME,
+    @IdTipoCompra INT,
+    @IdProveedor INT,
+    @Productos TipoProductos READONLY,
+    @IdEmpresa INT
 AS
 BEGIN
-    DECLARE @IdCompra INT;                   -- ID de la compra
-    DECLARE @IdLote INT;                     -- ID del lote
-    DECLARE @IdProducto INT;                 -- ID del producto
+    DECLARE @IdCompra INT;
+    DECLARE @IdLote INT;
+    DECLARE @IdProducto INT;
     DECLARE @IdEsquemaProducto INT;
     DECLARE @Lote NVARCHAR(50);
     DECLARE @Fabricante NVARCHAR(100);
@@ -555,72 +555,56 @@ BEGIN
     DECLARE @IdPresentacion INT;
     DECLARE @Cantidad INT;
     DECLARE @Costo NUMERIC(12,2);
-    DECLARE @Precio NUMERIC(12,2);           -- Precio de venta calculado
+    DECLARE @Precio NUMERIC(12,2);
 
-    -- Iniciar una transacción
     BEGIN TRANSACTION;
-    
+
     BEGIN TRY
-        -- Paso 1: Registrar la compra
         INSERT INTO compra (id_tipo_compra, fecha_compra, estado)
-        VALUES (@IdTipoCompra, @FechaCompra, 'A'); -- 'A' para activo
+        VALUES (@IdTipoCompra, @FechaCompra, 'A');
         
-        -- Obtener el ID de la compra recién insertada
         SET @IdCompra = SCOPE_IDENTITY();
         
-        -- Paso 2: Registrar los productos
         DECLARE producto_cursor CURSOR FOR
         SELECT IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo
         FROM @Productos;
 
         OPEN producto_cursor;
-        
         FETCH NEXT FROM producto_cursor INTO
             @IdEsquemaProducto, @Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, @IdPresentacion, @Cantidad, @Costo;
-        
-        -- Loop para insertar cada producto
+
         WHILE @@FETCH_STATUS = 0
         BEGIN
-            -- Calcular el precio con un 30% de ganancia
             SET @Precio = @Costo * 1.30;
-            
-            -- Registrar el lote
+
             INSERT INTO lote (lote, fabricante, fecha_fabricacion, fecha_vencimiento, estado)
-            VALUES (@Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, 'A');  -- 'A' para activo
-            
-            -- Obtener el ID del lote recién insertado
+            VALUES (@Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, 'A');
+
             SET @IdLote = SCOPE_IDENTITY();
-            
-            -- Registrar el producto con el precio calculado
-            INSERT INTO producto (id_esquema_producto, precio, costo, stock, id_lote, id_proveedor, id_presentacion, estado, fecha_registro)
-            VALUES (@IdEsquemaProducto, @Precio, @Costo, @Cantidad, @IdLote, @IdProveedor, @IdPresentacion, 'A', GETDATE());
-            
-            -- Obtener el ID del producto recién insertado
+
+            INSERT INTO producto (id_esquema_producto, precio, costo, stock, id_lote, id_proveedor, id_presentacion, estado, fecha_registro, id_empresa)
+            VALUES (@IdEsquemaProducto, @Precio, @Costo, @Cantidad, @IdLote, @IdProveedor, @IdPresentacion, 'A', GETDATE(), @IdEmpresa);
+
             SET @IdProducto = SCOPE_IDENTITY();
-            
-            -- Registrar el detalle de la compra
+
             INSERT INTO detalle_compra (cantidad, costo, id_producto, id_compra, estado)
-            VALUES (@Cantidad, @Costo, @IdProducto, @IdCompra, 'A');  -- 'A' para activo
+            VALUES (@Cantidad, @Costo, @IdProducto, @IdCompra, 'A');
 
             FETCH NEXT FROM producto_cursor INTO
                 @IdEsquemaProducto, @Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, @IdPresentacion, @Cantidad, @Costo;
         END
-        
-        -- Cerrar el cursor
+
         CLOSE producto_cursor;
         DEALLOCATE producto_cursor;
-        
-        -- Confirmar la transacción
+
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
-        -- Si ocurre un error, deshacer la transacción
         ROLLBACK TRANSACTION;
-        
-        -- Devolver el error
         THROW;
     END CATCH
 END;
+
 
 --------------------------------------------- isaac proveedor 
 
