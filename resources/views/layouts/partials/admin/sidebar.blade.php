@@ -66,6 +66,12 @@
         'route' => 'pedidos',
         'active' => request()->routeIs('pedidos')
     ],
+    [
+        'name' => 'Ver Pedidos',
+        'icon' => 'fa-solid fa-receipt',
+        'route' => 'pedidos.realizados',
+        'active' => request()->routeIs('pedidos.realizados')
+    ],
     
     [
     'header' => 'Devoluciones',

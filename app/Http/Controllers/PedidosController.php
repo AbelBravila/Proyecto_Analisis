@@ -70,4 +70,9 @@
  
          return response()->json(['nombre_producto' => $producto->nombre_producto ?? 'Producto no encontrado']);
      }
+
+     public function VerPedido()
+     {
+        return view('admin.VerPedidos');
+     }
  }
