@@ -19,7 +19,7 @@ class ComprasController extends Controller
     {
         $buscar = $request->input('buscador');
 
-        $compras = DB::table('vw_detalle_compra')
+        $compras = DB::table('vw_detalle_compra') ->where('estado', '=', 'A') 
             ->when($buscar, function ($query, $buscar) {
                 return $query->where('nombre_proveedor', 'LIKE', "%{$buscar}%")
                             ->orWhere('id_compra', 'LIKE', "%{$buscar}%");
@@ -124,7 +124,7 @@ class ComprasController extends Controller
                 @Productos = @Productos, 
                 @IdEmpresa = ?;
             ", [
-                Carbon::parse($request->input('fecha_compra'))->toDateString(), // ✅  '2025-04-11'
+                Carbon::parse($request->input('fecha_compra'))->toDateString(), 
                 $request->input('id_tipo_compra'),
                 $request->input('id_proveedor'),
                 $idEmpresa
@@ -135,6 +135,13 @@ class ComprasController extends Controller
     
         // Redirigir con un mensaje de éxito
         return redirect()->route('compras')->with('success', 'Compra registrada exitosamente.');
+    }
+
+    public function anular($id)
+    {
+        DB::statement('EXEC sp_anularCompra ?', [$id]);
+
+        return redirect()->route('compras')->with('success', 'Compra Anulada');
     }
     
 

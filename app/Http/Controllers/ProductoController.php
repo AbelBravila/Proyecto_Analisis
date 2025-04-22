@@ -16,8 +16,6 @@ class ProductoController extends Controller
     {
         $productos = EsquemaProducto::where('estado', 'A')->get();
         return view('compras.producto', compact('productos'));
-
-
     }
 
     public function index_producto(Request $request)
@@ -110,7 +108,7 @@ class ProductoController extends Controller
     }
 
     public function show($id)
-{
+    {
     $total_productos = DB::table('producto')
         ->join('esquema_producto', 'producto.id_esquema_producto', '=', 'esquema_producto.id_esquema_producto')
         ->join('lote', 'producto.id_lote', '=', 'lote.id_lote')

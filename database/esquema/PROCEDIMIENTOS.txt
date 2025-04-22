@@ -661,3 +661,56 @@ BEGIN
     SET estado = 'I'
     WHERE id_proveedor = @id_proveedor;
 END
+
+-------------------------------------------- anular compra
+CREATE or ALTER PROCEDURE sp_anularCompra
+    @id_compra INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM compra WHERE id_compra = @id_compra AND estado = 'A')
+    BEGIN
+        -- Cambiar estado de la compra
+        UPDATE compra
+        SET estado = 'I'
+        WHERE id_compra = @id_compra;
+
+        -- Cambiar estado de los detalles de compra
+        UPDATE detalle_compra
+        SET estado = 'I'
+        WHERE id_compra = @id_compra;
+
+        -- Revertir stock de los productos
+        UPDATE producto
+        SET stock = stock - dc.cantidad
+        FROM producto p
+        INNER JOIN detalle_compra dc ON p.id_producto = dc.id_producto
+        WHERE dc.id_compra = @id_compra;
+
+        -- Inactivar productos relacionados a esta compra
+        UPDATE producto
+        SET estado = 'I'
+        WHERE id_producto IN (
+            SELECT id_producto
+            FROM detalle_compra
+            WHERE id_compra = @id_compra
+        );
+
+        -- Inactivar lotes relacionados a los productos de esta compra
+        UPDATE lote
+        SET estado = 'I'
+        WHERE id_lote IN (
+            SELECT p.id_lote
+            FROM producto p
+            INNER JOIN detalle_compra dc ON p.id_producto = dc.id_producto
+            WHERE dc.id_compra = @id_compra
+        );
+
+        PRINT 'Compra y elementos relacionados anulados correctamente.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'La compra no existe o ya está anulada.';
+    END
+END;
