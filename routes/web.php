@@ -103,3 +103,7 @@ Route::prefix('devoluciones')->name('devoluciones.')->group(function () {
 Route::put('/estanteria/{id}', [EstanteController::class, 'update'])->name('Estanteria.update');
 
 Route::get('/admin/Tipo_Inventario', [Tipo_InventarioController::class, 'index_Tipo_Inventario'])->name('Tipo_Inventario')->middleware('auth');
+
+
+Route::get('/compras/producto/{id}/detalles', [ProductoController::class, 'show'])->name('esquema.show');
+Route::get('/producto/{id}/detalles', [ProductoController::class, 'mostrarDetalles']);
