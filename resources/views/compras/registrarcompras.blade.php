@@ -51,6 +51,7 @@
                             <th class="px-6 py-3">Presentación</th>
                             <th class="px-6 py-3">Cantidad</th>
                             <th class="px-6 py-3">Costo</th>
+                            <th class="px-6 py-3">Estantería</th> 
                             <th class="px-6 py-3">Acciones</th>
                         </tr>
                     </thead>
@@ -82,6 +83,14 @@
                             </td>
                             <td><input type="number" name="productos[0][cantidad]" class="form-control" required></td>
                             <td><input type="number" name="productos[0][costo]" class="form-control" required></td>
+                            <td>
+                                <select name="productos[0][id_estanteria]" class="form-control" required>
+                                    <option value="">Seleccionar Estantería</option>
+                                    @foreach ($estanterias as $estanteria)
+                                        <option value="{{ $estanteria->id_estanteria }}">{{ $estanteria->codigo_estanteria }}</option>
+                                    @endforeach
+                                </select>
+                            </td> 
                             <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
                         </tr>
                     </tbody>
@@ -136,6 +145,14 @@
                 </td>
                 <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required></td>
                 <td><input type="number" name="productos[${rowIndex}][costo]" class="form-control" required></td>
+                <td>
+                    <select name="productos[${rowIndex}][id_estanteria]" class="form-control" required>
+                        <option value="">Seleccionar Estantería</option>
+                        @foreach ($estanterias as $estanteria)
+                            <option value="{{ $estanteria->id_estanteria }}">{{ $estanteria->codigo_estanteria }}</option>
+                        @endforeach
+                    </select>
+                </td>
                 <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
             `;
             tableBody.appendChild(newRow);

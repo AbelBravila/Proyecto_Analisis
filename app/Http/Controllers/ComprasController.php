@@ -12,6 +12,7 @@ use App\Models\EsquemaProducto;
 use App\Models\Producto;
 use App\Models\TipoCompra;
 use App\Models\Presentacion;
+use App\Models\Estanteria;
 
 class ComprasController extends Controller
 {
@@ -35,7 +36,8 @@ class ComprasController extends Controller
         $tipo_compra = TipoCompra::where('estado', 'A')->get();
         $productos = EsquemaProducto::where('estado', 'A')->get(); 
         $presentaciones = Presentacion::where('estado', 'A')->get();
-        return view('compras.registrarcompras', compact('productos', 'presentaciones', 'tipo_compra', 'proveedores'));
+        $estanterias = Estanteria::where('estado', 'A')->get();
+        return view('compras.registrarcompras', compact('productos', 'presentaciones', 'tipo_compra', 'proveedores', 'estanterias'));
         
     }
 
@@ -43,6 +45,7 @@ class ComprasController extends Controller
     {
         // Recoger los productos y otros datos de la solicitud
         $productos = $request->input('productos');  // Un array de productos
+        $estanteria = $request->input('estanteria'); // Recoger el dato de la estantería
     
         // Crear una tabla temporal de productos en SQL Server
         $productosTable = [];
@@ -74,6 +77,7 @@ class ComprasController extends Controller
                 'IdPresentacion' => $producto['id_presentacion'],
                 'Cantidad' => $producto['cantidad'],
                 'Costo' => $producto['costo'],
+                'Estanteria' => $producto['id_estanteria'] 
             ];
         }
     
@@ -89,7 +93,8 @@ class ComprasController extends Controller
                 $producto['FechaVencimiento'],
                 $producto['IdPresentacion'],
                 $producto['Cantidad'],
-                $producto['Costo']
+                $producto['Costo'],
+                $producto['Estanteria']
             );     
             
         }
@@ -157,4 +162,22 @@ class ComprasController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        $total_detalle = DB::table('vw_productos_comprados')
+            ->where('id_compra', $id)
+            ->get();
+
+            return view('compras.partials.detalle_modal', compact('total_detalle'));
+    }
+
+
+    public function mostrarDetalle($id)
+    {
+        $total_detalle = DB::table('vw_productos_comprados')
+            ->where('id_compra', $id)
+            ->get();
+
+        return view('compras.partials.detalle_modal', compact('total_detalle'));
+    }
 }
