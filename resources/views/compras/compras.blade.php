@@ -53,6 +53,8 @@
                             <td scope="col" class="px-6 py-3 dark:text-black">
                                 <a class="fa fa-pencil fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline" class="text-blue-600"></a>
                                 <a class="fa fa-trash fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?')"></a>
+                                <a class="fa-solid fa-list fa-lg text-blue-600 hover:underline ver-detalles cursor-pointer"
+                                data-id="{{ $compra->id_compra }}"></a>
                             </td>
                         </tr>
                     @endforeach
