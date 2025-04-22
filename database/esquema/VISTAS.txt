@@ -1,11 +1,12 @@
 ----------------------Vista Compras-------------------
-CREATE OR ALTER VIEW vw_detalle_compra AS
+CREATE OR ALTER   VIEW vw_detalle_compra AS
 SELECT 
     c.id_compra,
     tc.nombre_tipo_compra,
     p.nombre_proveedor,
-    SUM(dc.cantidad) AS total_cantidad,
-    SUM(dc.cantidad * dc.costo) AS total_compra
+    SUM(dc.cantidad) AS cantidad,
+    SUM(dc.cantidad * dc.costo) AS total_compra,
+	c.estado
 FROM 
     compra c
 JOIN 
@@ -17,7 +18,8 @@ JOIN
 JOIN 
     proveedor p ON pr.id_proveedor = p.id_proveedor
 GROUP BY 
-    c.id_compra, tc.nombre_tipo_compra, p.nombre_proveedor;
+    c.id_compra, tc.nombre_tipo_compra, p.nombre_proveedor, c.estado;
+GO
 
 
 
