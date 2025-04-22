@@ -48,9 +48,9 @@ class ComprasController extends Controller
         $productosTable = [];
         foreach ($productos as $producto) {
             // Convertir las fechas con Carbon y asegurarse de que estén en el formato correcto
-            $fechaFabricacion = Carbon::parse($producto['fecha_fabricacion'])->format('Y-m-d');
-            $fechaVencimiento = Carbon::parse($producto['fecha_vencimiento'])->format('Y-m-d');
-            
+            $fechaFabricacion = Carbon::parse($producto['fecha_fabricacion'])->format('Ymd');
+            $fechaVencimiento = Carbon::parse($producto['fecha_vencimiento'])->format('Ymd');           
+
             // Log para verificar las fechas
             \Log::info("Producto ID: {$producto['id_esquema_producto']} - Fecha Fabricación: {$fechaFabricacion} - Fecha Vencimiento: {$fechaVencimiento}");
     
@@ -81,7 +81,7 @@ class ComprasController extends Controller
         $insertValues = [];
         foreach ($productosTable as $producto) {
             $insertValues[] = sprintf(
-                "('%d', '%s', '%s', '%s', '%s', '%d', '%d', '%f')",
+                "(%d, '%s', '%s', '%s', '%s', %d, %d, %.2f)",
                 $producto['IdEsquemaProducto'],
                 $producto['Lote'],
                 $producto['Fabricante'],
@@ -90,33 +90,48 @@ class ComprasController extends Controller
                 $producto['IdPresentacion'],
                 $producto['Cantidad'],
                 $producto['Costo']
-            );
+            );     
+            
         }
         $insertQuery = implode(', ', $insertValues);
         \Log::info("Insert Query: " . $insertQuery);
-    
+        // Obtener la empresa del usuario actual
+        $idEmpresa = Auth::user()->empresa()->where('estado', 'A')->first()?->id_empresa;
+
+        if (!$idEmpresa) {
+            return back()->with('error', 'No se encontró una empresa asociada al usuario.');
+        }
+        
+        $fechaCompra = $request->input('fecha_compra');
+        $hoy = Carbon::now()->format('Y-m-d');
+
+        if ($fechaCompra > $hoy) {
+            return back()->with('error', 'La fecha de compra no puede ser mayor a la fecha actual.');
+        }
+
         // Ejecutar el procedimiento almacenado usando una tabla temporal
-        DB::transaction(function () use ($request, $insertQuery) {
-            DB::statement('
-                DECLARE @Productos TipoProductos;
-                
-                -- Llenar la variable de tabla @Productos
-                INSERT INTO @Productos (IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo)
-                VALUES ' . $insertQuery . ';
-                
-                -- Llamar al procedimiento almacenado con los parámetros
-                EXEC sp_RegistrarCompra 
-                    @FechaCompra = ?, 
-                    @IdTipoCompra = ?, 
-                    @IdProveedor = ?, 
-                    @Productos = @Productos;
-            ', [
-                // Asegurarse de formatear la fecha de compra correctamente
-                Carbon::parse($request->input('fecha_compra'))->format('Y-m-d'),  // Formatear fecha de compra
+        DB::transaction(function () use ($request, $insertQuery, $idEmpresa) {
+            DB::statement("
+            DECLARE @Productos TipoProductos;
+
+            INSERT INTO @Productos (IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo)
+            VALUES $insertQuery;
+
+            EXEC sp_RegistrarCompra 
+                @FechaCompra = ?, 
+                @IdTipoCompra = ?, 
+                @IdProveedor = ?, 
+                @Productos = @Productos, 
+                @IdEmpresa = ?;
+            ", [
+                Carbon::parse($request->input('fecha_compra'))->toDateString(), // ✅  '2025-04-11'
                 $request->input('id_tipo_compra'),
                 $request->input('id_proveedor'),
+                $idEmpresa
             ]);
+
         });
+        
     
         // Redirigir con un mensaje de éxito
         return redirect()->route('compras')->with('success', 'Compra registrada exitosamente.');

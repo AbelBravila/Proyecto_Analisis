@@ -4,10 +4,14 @@
     <form action="{{ route('compras.crear') }}" method="POST">
         @csrf
 
+        @php
+            $hoy = \Carbon\Carbon::now()->format('Y-m-d');
+        @endphp
+
         <!-- Fecha de compra -->
         <div class="mb-3">
             <label for="fecha_compra" class="form-label">Fecha de Compra</label>
-            <input type="date" name="fecha_compra" id="fecha_compra" class="form-control" required>
+            <input type="date" name="fecha_compra" id="fecha_compra" class="form-control" required max="{{ $hoy }}">
         </div>
 
         <!-- Tipo de compra -->
@@ -30,11 +34,10 @@
                     <option value="{{ $proveedor->id_proveedor }}">{{ $proveedor->nombre_proveedor }}</option>
                 @endforeach
             </select>
-        </div>
 
+        <br>
         <!-- Productos -->
         <div class="mb-3">
-            <h4>Productos</h4>
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table id="productos_table" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-white">
                     <thead class="text-m text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-white">
@@ -48,6 +51,7 @@
                             <th class="px-6 py-3">Presentación</th>
                             <th class="px-6 py-3">Cantidad</th>
                             <th class="px-6 py-3">Costo</th>
+                            <th class="px-6 py-3">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="w-full text-sm text-left text-gray-500 dark:text-black">
@@ -78,14 +82,16 @@
                             </td>
                             <td><input type="number" name="productos[0][cantidad]" class="form-control" required></td>
                             <td><input type="number" name="productos[0][costo]" class="form-control" required></td>
+                            <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <button type="button" class="btn btn-secondary" id="addProductBtn">Agregar Producto</button>
+            <br>
+            <button type="button" class="btn btn-outline-secondary btn-lg text-blue-600 dark:text-blue-500 hover:underline" id="addProductBtn">Agregar Producto</button>
         </div>
 
-        <button type="submit" class="btn btn-primary">Registrar Compra</button>
+        <button type="submit" class="btn btn-outline-primary text-blue-600 dark:text-blue-500 hover:underline">Registrar Compra</button>
     </form>
 
     <!-- Script para agregar productos y autocompletar el nombre del producto -->
@@ -130,8 +136,14 @@
                 </td>
                 <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required></td>
                 <td><input type="number" name="productos[${rowIndex}][costo]" class="form-control" required></td>
+                <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
             `;
             tableBody.appendChild(newRow);
         });
+
+        function eliminarFila(button) {
+        const row = button.closest('tr');
+        row.remove();
+        }
     </script>
 </x-admin-layout>

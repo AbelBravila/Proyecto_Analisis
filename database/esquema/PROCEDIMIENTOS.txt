@@ -523,6 +523,7 @@ BEGIN
 END;
 
 ------------PROCEDIMIENTO REGISTRAR COMPRAS-------------
+
 CREATE TYPE TipoProductos AS TABLE
 (
     IdEsquemaProducto INT,
