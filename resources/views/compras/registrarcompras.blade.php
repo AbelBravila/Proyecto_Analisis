@@ -71,8 +71,8 @@
                             <td><input type="text" name="productos[0][nombre_producto]" class="form-control" readonly></td>
                             <td><input type="text" name="productos[0][lote]" class="form-control" required></td>
                             <td><input type="text" name="productos[0][fabricante]" class="form-control" required></td>
-                            <td><input type="date" name="productos[0][fecha_fabricacion]" class="form-control" required></td>
-                            <td><input type="date" name="productos[0][fecha_vencimiento]" class="form-control" required></td>
+                            <td><input type="date" name="productos[0][fecha_fabricacion]" class="form-control" required max="{{ $hoy }}"></td>
+                            <td><input type="date" name="productos[0][fecha_vencimiento]" class="form-control" required min="{{ $hoy }}"></td>
                             <td>
                                 <select name="productos[0][id_presentacion]" class="form-control" required>
                                     <option value="">Seleccionar Presentación</option>
@@ -81,8 +81,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="productos[0][cantidad]" class="form-control" required></td>
-                            <td><input type="number" name="productos[0][costo]" class="form-control" required></td>
+                            <td><input type="number" name="productos[0][cantidad]" class="form-control" required min=0></td>
+                            <td><input type="number" name="productos[0][costo]" class="form-control" required min=0></td>
                             <td>
                                 <select name="productos[0][id_estanteria]" class="form-control" required>
                                     <option value="">Seleccionar Estantería</option>
@@ -133,8 +133,8 @@
                 <td><input type="text" name="productos[${rowIndex}][nombre_producto]" class="form-control" readonly></td>
                 <td><input type="text" name="productos[${rowIndex}][lote]" class="form-control" required></td>
                 <td><input type="text" name="productos[${rowIndex}][fabricante]" class="form-control" required></td>
-                <td><input type="date" name="productos[${rowIndex}][fecha_fabricacion]" class="form-control" required></td>
-                <td><input type="date" name="productos[${rowIndex}][fecha_vencimiento]" class="form-control" required></td>
+                <td><input type="date" name="productos[${rowIndex}][fecha_fabricacion]" class="form-control" required max="{{ $hoy }}"></td>
+                <td><input type="date" name="productos[${rowIndex}][fecha_vencimiento]" class="form-control" required min="{{ $hoy }}"></td>
                 <td>
                     <select name="productos[${rowIndex}][id_presentacion]" class="form-control" required>
                         <option value="">Seleccionar Presentación</option>
@@ -143,8 +143,8 @@
                         @endforeach
                     </select>
                 </td>
-                <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required></td>
-                <td><input type="number" name="productos[${rowIndex}][costo]" class="form-control" required></td>
+                <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min=0></td>
+                <td><input type="number" name="productos[${rowIndex}][costo]" class="form-control" required min=0></td>
                 <td>
                     <select name="productos[${rowIndex}][id_estanteria]" class="form-control" required>
                         <option value="">Seleccionar Estantería</option>

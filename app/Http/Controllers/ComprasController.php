@@ -45,8 +45,6 @@ class ComprasController extends Controller
     {
         // Recoger los productos y otros datos de la solicitud
         $productos = $request->input('productos');  // Un array de productos
-        $estanteria = $request->input('estanteria'); // Recoger el dato de la estantería
-    
         // Crear una tabla temporal de productos en SQL Server
         $productosTable = [];
         foreach ($productos as $producto) {
@@ -77,7 +75,7 @@ class ComprasController extends Controller
                 'IdPresentacion' => $producto['id_presentacion'],
                 'Cantidad' => $producto['cantidad'],
                 'Costo' => $producto['costo'],
-                'Estanteria' => $producto['id_estanteria'] 
+                'IdEstanteria' => $producto['id_estanteria'] 
             ];
         }
     
@@ -85,7 +83,7 @@ class ComprasController extends Controller
         $insertValues = [];
         foreach ($productosTable as $producto) {
             $insertValues[] = sprintf(
-                "(%d, '%s', '%s', '%s', '%s', %d, %d, %.2f)",
+                "(%d, '%s', '%s', '%s', '%s', %d, %d, %.2f, %d)",
                 $producto['IdEsquemaProducto'],
                 $producto['Lote'],
                 $producto['Fabricante'],
@@ -94,7 +92,7 @@ class ComprasController extends Controller
                 $producto['IdPresentacion'],
                 $producto['Cantidad'],
                 $producto['Costo'],
-                $producto['Estanteria']
+                $producto['IdEstanteria']
             );     
             
         }
@@ -119,7 +117,7 @@ class ComprasController extends Controller
             DB::statement("
             DECLARE @Productos TipoProductos;
 
-            INSERT INTO @Productos (IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo)
+            INSERT INTO @Productos (IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo, IdEstanteria)
             VALUES $insertQuery;
 
             EXEC sp_RegistrarCompra 

@@ -29,6 +29,9 @@
                             Compra
                         </th>
                         <th scope="col" class="px-6 py-3">
+                            Fecha
+                        </th>
+                        <th scope="col" class="px-6 py-3">
                             Tipo de Compra
                         </th>
                         <th scope="col" class="px-6 py-3">
@@ -49,6 +52,7 @@
                     @foreach ($compras as $compra)
                         <tr>
                             <td class="px-6 py-3">{{ $compra->id_compra }}</td>
+                            <td class="px-6 py-3">{{ $compra->fecha_compra}}</td>
                             <td class="px-6 py-3">{{ $compra->nombre_tipo_compra }}</td>
                             <td class="px-6 py-3">{{ $compra->nombre_proveedor }}</td>
                             <td class="px-6 py-3">{{ $compra->cantidad }}</td>

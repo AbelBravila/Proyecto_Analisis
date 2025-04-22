@@ -115,6 +115,9 @@
                         Descripcion
                     </th>
                     <th scope="col" class="px-6 py-3">
+                        Stock
+                    </th>
+                    <th scope="col" class="px-6 py-3">
                         Acciones
                     </th>
                 </tr>
@@ -126,6 +129,7 @@
                         <td scope="col" class="px-6 py-3 dark:text-black">{{ $producto->codigo_producto }}</td>
                         <td scope="col" class="px-6 py-3 dark:text-black">{{ $producto->nombre_producto }}</td>
                         <td scope="col" class="px-6 py-3 dark:text-black">{{ $producto->descripcion }}</td>
+                        <td scope="col" class="px-6 py-3 dark:text-black">{{ $producto->stock_total }}</td>
                         <td scope="col" class="px-6 py-3 dark:text-black">
                             <a class="fa fa-pencil fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                 data-modal-target="editar-modal-producto-{{ $producto->id_esquema_producto }}"

@@ -23,7 +23,7 @@ class ProductoController extends Controller
         $buscar = $request->input('buscador');  // Recibe el término de búsqueda
 
         // Filtra los productos por el término de búsqueda o muestra todos
-        $productos = EsquemaProducto::where('estado', 'A')
+        $productos = DB::table('vw_stock_producto') -> where('estado', 'A')
             ->when($buscar, function ($query, $buscar) {
                 return $query->where('codigo_producto', 'LIKE', "%{$buscar}%")
                              ->orWhere('nombre_producto', 'LIKE', "%{$buscar}%");
