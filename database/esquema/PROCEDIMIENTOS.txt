@@ -473,6 +473,15 @@ EXEC sp_RegistrarDevolucion
 
 
 ------PROCEDIMIENTO PEDIDOS-------------
+CREATE TYPE DetallePedidoType AS TABLE (
+    cantidad INT NULL,
+    costo NUMERIC(12,2) NULL,
+    codigo_producto NVARCHAR(15) NULL,
+    id_pedido INT NULL,
+    estado CHAR(1) NULL
+);
+
+
 CREATE OR ALTER PROCEDURE sp_InsertarPedidoConDetalles
     @DetallesPedido DetallePedidoType READONLY
 AS
