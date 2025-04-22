@@ -33,13 +33,25 @@
                         Fecha de Pedido
                     </th>
                     <th scope="col" class="px-6 py-3">
+                        Estado
+                    </th>
+                    <th scope="col" class="px-6 py-3">
                         Acciones
                     </th>
                 </tr>
             </thead>
             <tbody>
-                    
-                
+            @foreach ($pedidos as $pedido)
+                    <tr>
+                        <td scope="col" class="px-6 py-3 dark:text-black">{{ $pedido->id_pedido }}</td>
+                        <td scope="col" class="px-6 py-3 dark:text-black">{{ $pedido->fecha_pedido }}</td>
+                        <td scope="col" class="px-6 py-3 dark:text-black">{{ $pedido->estado }}</td>
+                        <td scope="col" class="px-6 py-3 dark:text-black">
+                        <a class="fa fa-pencil fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline" data-modal-target="editar-modal-proveedor-{{$pedido->id_pedido}}" data-modal-toggle="editar-modal-proveedor-{{ $pedido->id_pedido }}" class="text-blue-600"></a>
+                        <a class="fa fa-trash fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline" href="{{ route('proveedor.cambiar_estado', ['id' => $pedido->id_pedido]) }}" onclick="return confirm('¿Estás seguro de que deseas eliminar este proveedor?')"></a>
+                    </td>
+                    </tr>
+                @endforeach 
             </tbody>
         </table>
     </div>
