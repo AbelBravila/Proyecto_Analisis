@@ -92,6 +92,34 @@
         'route' => 'Tipo_Inventario',
         'active' => request()->routeIs('Tipo_Inventario')
     ],
+    [
+        'header' => 'Cajas',
+    ],
+    [
+        'name' => 'Cajas',
+        'icon' => 'fa-regular fa-pen-to-square',
+        'route' => 'Tipo_Inventario',
+        'active' => request()->routeIs('Tipo_Inventario')
+    ],
+    [
+        'name' => 'Apertura de Caja',
+        'icon' => 'fa-regular fa-pen-to-square',
+        'route' => 'Tipo_Inventario',
+        'active' => request()->routeIs('Tipo_Inventario')
+    ],
+    [
+        'name' => 'Cierre de Caja',
+        'icon' => 'fa-regular fa-pen-to-square',
+        'route' => 'Tipo_Inventario',
+        'active' => request()->routeIs('Tipo_Inventario')
+    ],
+    [
+        'name' => 'Turno',
+        'icon' => 'fa-regular fa-pen-to-square',
+        'route' => 'Tipo_Inventario',
+        'active' => request()->routeIs('Tipo_Inventario')
+    ],
+    
 
 
     ]    
