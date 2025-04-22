@@ -52,11 +52,11 @@ Route::get('/dashboard', function () {
 Route::get('/index', [UsuarioController::class, 'showRegistrationForm'])->name('Usuario')->middleware('auth');
 Route::post('/index', [UsuarioController::class, 'register'])->middleware('auth');
 
-Route::get('/admin/proveedores', [ProveedorController::class, 'index_proveedor'])->name('Proveedores')->middleware('auth');
-Route::post('/admin/proveedores', [ProveedorController::class, 'store'])->name('Proveedores.Guardar')->middleware('auth');
-Route::get('/admin/proveedores/editar', [ProveedorController::class, 'editar'])->name('Proveedores.Editar')->middleware('auth');
-Route::put('/admin/proveedores', [ProveedorController::class, 'update'])->name('Proveedores.Actualizar')->middleware('auth');
-Route::delete('/admin/proveedores', [ProveedorController::class, 'destroy'])->name('Proveedores.Eliminar')->middleware('auth');
+Route::get('/proveedor/proveedor', [ProveedorController::class, 'index_proveedor'])->name('proveedor')->middleware('auth');
+Route::post('/proveedor/proveedor', [ProveedorController::class, 'agregar'])->middleware('auth');
+Route::get('/proveedor/proveedor/editar_proveedor/{id}', [ProveedorController::class, 'editar_proveedor'])->name('proveedor.editar_proveedor')->middleware('auth');
+Route::put('/proveedor/proveedor/{id}', [ProveedorController::class, 'actualizar_proveedor'])->name('proveedor.actualizar_proveedor')->middleware('auth');
+Route::get('/proveedor/proveedor/{id}', [ProveedorController::class, 'cambiar_estado'])->name('proveedor.cambiar_estado')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     Route::get('/admin/pedidos', [PedidosController::class, 'index_pedidos'])->name('pedidos');
@@ -68,7 +68,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/compras/compras', [ComprasController::class, 'index_compras'])->name('compras')->middleware('auth');
 Route::get('/compras/registrar', [ComprasController::class, 'index_resgistrar'])->name('compras.registrar')->middleware('auth');
-
+Route::post('/compras/crear', [ComprasController::class, 'crearCompra'])->name('compras.crear')->middleware('auth');
 
 
 Route::get('/compras/producto', [ProductoController::class, 'index_producto'])->name('producto')->middleware('auth');
@@ -76,7 +76,6 @@ Route::post('/compras/producto', [ProductoController::class, 'agregar'])->middle
 Route::get('/compras/producto/editar_producto/{id}', [ProductoController::class, 'editar_producto'])->name('producto.editar_producto')->middleware('auth');
 Route::put('/compras/producto/{id}', [ProductoController::class, 'actualizar_producto'])->name('producto.actualizar_producto')->middleware('auth');
 Route::get('/compras/producto/{id}', [ProductoController::class, 'cambiar_estado'])->name('producto.cambiar_estado')->middleware('auth');
-
 
 Route::get('/pasillo', [PasilloController::class, 'index_pasillo'])->name('Pasillo')->middleware('auth');
 Route::post('/pasillo', [PasilloController::class, 'ingreso_P'])->middleware('auth');

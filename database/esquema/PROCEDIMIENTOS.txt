@@ -283,17 +283,6 @@ BEGIN
     PRINT 'Pasillo insertado exitosamente.'
 END
 
-
-
-
-
-
-
-
-
-
-
-
 /*------------------ ALVARO DEVOLUCIONES ----------------------*/
 
 
@@ -523,3 +512,158 @@ BEGIN
     -- Eliminar tabla temporal
     DROP TABLE #TempDetallePedido;
 END;
+
+------------PROCEDIMIENTO REGISTRAR COMPRAS-------------
+CREATE TYPE TipoProductos AS TABLE
+(
+    IdEsquemaProducto INT,
+    Lote NVARCHAR(50),
+    Fabricante NVARCHAR(100),
+    FechaFabricacion DATETIME,
+    FechaVencimiento DATETIME,
+    IdPresentacion INT,
+    Cantidad INT,
+    Costo NUMERIC(12,2)
+);
+
+
+CREATE OR ALTER PROCEDURE sp_RegistrarCompra
+    @FechaCompra DATETIME,                   -- Fecha de compra
+    @IdTipoCompra INT,                       -- ID del tipo de compra
+    @IdProveedor INT,                        -- ID del proveedor
+    @Productos TipoProductos READONLY         -- Tabla con los productos
+AS
+BEGIN
+    DECLARE @IdCompra INT;                   -- ID de la compra
+    DECLARE @IdLote INT;                     -- ID del lote
+    DECLARE @IdProducto INT;                 -- ID del producto
+    DECLARE @IdEsquemaProducto INT;
+    DECLARE @Lote NVARCHAR(50);
+    DECLARE @Fabricante NVARCHAR(100);
+    DECLARE @FechaFabricacion DATETIME;
+    DECLARE @FechaVencimiento DATETIME;
+    DECLARE @IdPresentacion INT;
+    DECLARE @Cantidad INT;
+    DECLARE @Costo NUMERIC(12,2);
+    DECLARE @Precio NUMERIC(12,2);           -- Precio de venta calculado
+
+    -- Iniciar una transacción
+    BEGIN TRANSACTION;
+    
+    BEGIN TRY
+        -- Paso 1: Registrar la compra
+        INSERT INTO compra (id_tipo_compra, fecha_compra, estado)
+        VALUES (@IdTipoCompra, @FechaCompra, 'A'); -- 'A' para activo
+        
+        -- Obtener el ID de la compra recién insertada
+        SET @IdCompra = SCOPE_IDENTITY();
+        
+        -- Paso 2: Registrar los productos
+        DECLARE producto_cursor CURSOR FOR
+        SELECT IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo
+        FROM @Productos;
+
+        OPEN producto_cursor;
+        
+        FETCH NEXT FROM producto_cursor INTO
+            @IdEsquemaProducto, @Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, @IdPresentacion, @Cantidad, @Costo;
+        
+        -- Loop para insertar cada producto
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            -- Calcular el precio con un 30% de ganancia
+            SET @Precio = @Costo * 1.30;
+            
+            -- Registrar el lote
+            INSERT INTO lote (lote, fabricante, fecha_fabricacion, fecha_vencimiento, estado)
+            VALUES (@Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, 'A');  -- 'A' para activo
+            
+            -- Obtener el ID del lote recién insertado
+            SET @IdLote = SCOPE_IDENTITY();
+            
+            -- Registrar el producto con el precio calculado
+            INSERT INTO producto (id_esquema_producto, precio, costo, stock, id_lote, id_proveedor, id_presentacion, estado, fecha_registro)
+            VALUES (@IdEsquemaProducto, @Precio, @Costo, @Cantidad, @IdLote, @IdProveedor, @IdPresentacion, 'A', GETDATE());
+            
+            -- Obtener el ID del producto recién insertado
+            SET @IdProducto = SCOPE_IDENTITY();
+            
+            -- Registrar el detalle de la compra
+            INSERT INTO detalle_compra (cantidad, costo, id_producto, id_compra, estado)
+            VALUES (@Cantidad, @Costo, @IdProducto, @IdCompra, 'A');  -- 'A' para activo
+
+            FETCH NEXT FROM producto_cursor INTO
+                @IdEsquemaProducto, @Lote, @Fabricante, @FechaFabricacion, @FechaVencimiento, @IdPresentacion, @Cantidad, @Costo;
+        END
+        
+        -- Cerrar el cursor
+        CLOSE producto_cursor;
+        DEALLOCATE producto_cursor;
+        
+        -- Confirmar la transacción
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Si ocurre un error, deshacer la transacción
+        ROLLBACK TRANSACTION;
+        
+        -- Devolver el error
+        THROW;
+    END CATCH
+END;
+
+--------------------------------------------- isaac proveedor 
+
+CREATE PROCEDURE sp_Insert_Proveedor
+    @nombre_proveedor NVARCHAR(100),
+    @nit NVARCHAR(15),
+    @correo NVARCHAR(100),
+	@telefono NVARCHAR(16),
+	@direccion NVARCHAR(100)
+AS
+BEGIN
+    INSERT INTO proveedor (nombre_proveedor, nit, correo, telefono, direccion,estado)
+    VALUES (@nombre_proveedor, @nit, @correo, @telefono, @direccion,'A')
+END
+
+select * from proveedor
+
+--------------------------------------------- isaac proveedor 
+-- actualizart proveedor
+CREATE PROCEDURE sp_actualizar_proveedor
+    @id_proveedor INT,
+    @nombre_proveedor NVARCHAR(100),
+    @nit NVARCHAR(15),
+    @correo NVARCHAR(100),
+	@telefono NVARCHAR(16),
+	@direccion NVARCHAR(100)
+
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM proveedor WHERE id_proveedor = @id_proveedor)
+    BEGIN
+        UPDATE proveedor
+        SET
+            nombre_proveedor = @nombre_proveedor,
+            nit = @nit,
+            correo = @correo,
+            telefono = @telefono,
+            direccion = @direccion
+        WHERE id_proveedor = @id_proveedor;
+    END
+    ELSE
+    BEGIN
+        RAISERROR('Proveedor no encontrado.', 16, 1);
+    END
+END
+
+--------------------------------------------- isaac proveedor 
+-- cambiar estado 
+CREATE PROCEDURE sp_cambiarEstadoProveedor
+    @id_proveedor INT
+AS
+BEGIN
+    UPDATE proveedor
+    SET estado = 'I'
+    WHERE id_proveedor = @id_proveedor;
+END
