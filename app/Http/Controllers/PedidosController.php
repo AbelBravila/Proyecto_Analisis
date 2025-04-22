@@ -75,4 +75,13 @@
      {
         return view('admin.VerPedidos');
      }
+
+    public function Mostrar()
+    {
+        $pedidos = DB::table('pedidos')
+            ->select('id', 'fecha')
+            ->get();
+
+        return response()->json(['pedidos' => $pedidos]);
+    }
  }
