@@ -43,6 +43,15 @@
         'active' => request()->routeIs('compras')
     ],
     [
+        'header' => 'Ventas',
+    ],
+    [
+        'name' => 'Ventas',
+        'icon' => 'fa-solid fa-tags',
+        'route' => 'ventas',
+        'active' => request()->routeIs('ventas')
+    ],
+    [
         'header' => 'Ubicaciones',
     ],
     [
