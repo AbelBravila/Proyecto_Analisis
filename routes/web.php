@@ -12,6 +12,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\PasilloController;
 use App\Http\Controllers\EstanteController;
 use App\Http\Controllers\Tipo_InventarioController;
+use App\Http\Controllers\VentaController;
 
 
 use Illuminate\Support\Facades\Mail;
@@ -69,6 +70,7 @@ Route::middleware('auth')->group(function () {
     //Route::get('/admin/pedidos/editar/{id}', [PedidosController::class, 'editar'])->name('pedidos.editar');
 });
 
+//COMPRAS
 Route::get('/compras/compras', [ComprasController::class, 'index_compras'])->name('compras')->middleware('auth');
 Route::get('/compras/registrar', [ComprasController::class, 'index_resgistrar'])->name('compras.registrar')->middleware('auth');
 Route::post('/compras/crear', [ComprasController::class, 'crearCompra'])->name('compras.crear')->middleware('auth');
@@ -77,11 +79,20 @@ Route::get('/compras/compras/{id}/detalle', [ComprasController::class, 'show'])-
 Route::get('/compras/{id}/detalle', [ComprasController::class, 'mostrarDetalle']);
 
 
+//PRODUCTO
 Route::get('/compras/producto', [ProductoController::class, 'index_producto'])->name('producto')->middleware('auth');
 Route::post('/compras/producto', [ProductoController::class, 'agregar'])->middleware('auth');
 Route::get('/compras/producto/editar_producto/{id}', [ProductoController::class, 'editar_producto'])->name('producto.editar_producto')->middleware('auth');
 Route::put('/compras/producto/{id}', [ProductoController::class, 'actualizar_producto'])->name('producto.actualizar_producto')->middleware('auth');
 Route::get('/compras/producto/{id}', [ProductoController::class, 'cambiar_estado'])->name('producto.cambiar_estado')->middleware('auth');
+
+//VENTAS
+Route::get('/ventas/ventas', [VentaController::class, 'index_ventas'])->name('ventas')->middleware('auth');
+Route::get('/ventas/registrar', [VentaController::class, 'index_registrar'])->name('ventas.registrar')->middleware('auth');
+Route::post('/ventas/crear', [VentaController::class, 'crearVenta'])->name('ventas.crear')->middleware('auth');
+Route::get('/ventas/ventas/anular/{id}', [VentaController::class, 'anular'])->name('ventas.anular')->middleware('auth');
+Route::get('/ventas/ventas/{id}/detalle', [VentaController::class, 'show'])->name('ventas.show');
+Route::get('/ventas/{id}/detalle', [VentaController::class, 'mostrarDetalle']);
 
 Route::get('/pasillo', [PasilloController::class, 'index_pasillo'])->name('Pasillo')->middleware('auth');
 Route::post('/pasillo', [PasilloController::class, 'ingreso_P'])->middleware('auth');

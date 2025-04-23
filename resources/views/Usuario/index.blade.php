@@ -71,7 +71,7 @@
                         </div>
                         <div class="col-span-2">
                             <label for="numero" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Teléfono</label>
-                            <input type="number" id="numero" name="numero" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            <input type="number" id="numero" name="numero" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required min = 0>
                             @error('numero')
                                 <span class="error text-red-500 text-sm">{{ $message }}</span>
                             @enderror
