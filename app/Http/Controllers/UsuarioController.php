@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\EnviarCorreo;
 use App\Mail\ContrasenaTemp;
+use APP\Models\User;
 
 
 class UsuarioController extends Controller
@@ -22,20 +25,35 @@ class UsuarioController extends Controller
         return view('Usuario.index', compact('usuarios'));
     }
 
-    public function showRegistrationForm()
+    public function showRegistrationForm(Request $request)
     {
-        $usuarios = DB::table('usuario')->where('estado', 'A')->get();
-        return view('Usuario.index', compact('usuarios'));
+        
+        $buscar = $request->input('buscador');  // Recibe el término de búsqueda
+
+        // Filtra los productos por el término de búsqueda o muestra todos
+        $usuarios = DB::table('usuario')->where('estado', 'A')
+            ->when($buscar, function ($query, $buscar) {
+                return $query->where('codigo_usuario', 'LIKE', "%{$buscar}%")
+                             ->orWhere('nombre_usuario', 'LIKE', "%{$buscar}%");
+            })
+            ->get();  // Puedes cambiarlo por `paginate()` si deseas paginación
+
+        return view('Usuario.index', compact('usuarios', 'buscar'));
     }
 
-    public function register(Request $request)
+    private function validateUsuario(Request $request)
     {
         $request->validate([
             'codigo' => 'required|string',
             'nombre' => 'required|string|max:100',
             'correo_u' => 'required|string|email|max:100',
-            'numero' => 'required|string|max:16'
+            'numero' => 'required|string|max:8'
         ]);
+    }
+
+    public function register(Request $request)
+    {
+        $this->validateUsuario($request);
 
         $usuarioExistente = DB::table('usuario')->where('correo', $request->correo_u)->first();
 
@@ -43,16 +61,17 @@ class UsuarioController extends Controller
             return redirect()->route('Usuario')->with('error', 'El correo ya está registrado.');
         }
 
-        $respuesta = NULL;
-        $estado = 'A';
-        $nivel = 2;
-        $pregunta = NULL;
-        $intentos = NULL;
-        $temporal = '1';
-        $dias = 30;
+
     
         // Generar una contraseña temporal aleatoria
         $contraseñaTemporal = Str::random(10);
+
+        $empresa = Auth::user()->empresa()->where('estado', 'A')->first()?->id_empresa;
+
+        if (!$empresa) {
+            return back()->with('error', 'No se encontró una empresa asociada al usuario.');
+        }
+        
     
         // Ejecutar el procedimiento almacenado para registrar el usuario con contraseña encriptada
         DB::statement("EXEC sp_RegistrarUsuarioConContrasenaEncriptada 
@@ -61,14 +80,9 @@ class UsuarioController extends Controller
             @correo_u = ?, 
             @numero = ?, 
             @contrasenaTemporal = ?,
-            @respuesta = ?, 
-            @estado = ?, 
             @id_nivel = ?, 
-            @id_pregunta = ?, 
-            @intentos = ?, 
-            @temporal = ?, 
-            @dias = ? ", 
-            [$request->codigo, $request->nombre, $request->correo_u, $request->numero, $contraseñaTemporal, $respuesta,  $estado, $nivel,  $pregunta, $intentos, $temporal, $dias]
+            @empresa = ? ", 
+            [$request->codigo, $request->nombre, $request->correo_u, $request->numero, $contraseñaTemporal, $request->nivel, $empresa]
         );
         
         // Enviar correo al usuario con la contraseña generada
@@ -82,5 +96,53 @@ class UsuarioController extends Controller
         Mail::to($correo_u)->send(new ContrasenaTemp($contraseñaTemporal, $correo_u, $usuario));
 
         return redirect()->route('Usuario')->with('success', 'Usuario registrado exitosamente');
+    }
+
+    public function cambiar_estado($id)
+    {
+        DB::statement('EXEC sp_cambiarEstadoUsuario ?', [$id]);
+
+        return redirect()->route('Usuario')->with('success', 'Estado del usuario actualizado');
+    }
+
+    public function editar_usuario($id)
+    {
+        $productos = User::findOrFail($id);
+
+        return view('Usuario.index', compact('usuario'));
+    }
+
+    public function actualizar_usuario(Request $request, $id)
+    {
+        $this->validateUsuario($request, [
+            'codigo_usuario' => [
+                'required', 
+                'string', 
+                'max:255', 
+                Rule::unique('usuario')->ignore($id, 'id_usuario') 
+            ],
+        ]);
+    
+  
+        DB::statement('EXEC sp_actualizar_usuario
+            @id_usuario = ?, 
+            @codigo = ?, 
+            @nombre = ?, 
+            @correo_u = ?, 
+            @numero = ?,  
+            @id_nivel = ?',
+            [
+                $id, 
+                $request->codigo_usuario, 
+                $request->nombre_usuario, 
+                $request->correo, 
+                $request->numero,
+                $request->nivel
+            ]
+        );
+    
+        // Redirigir con éxito
+        return redirect()->route('Usuario')->with('success', 'Usuario actualizado exitosamente.');
+        
     }
 }

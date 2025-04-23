@@ -51,6 +51,9 @@ Route::get('/dashboard', function () {
 
 Route::get('/index', [UsuarioController::class, 'showRegistrationForm'])->name('Usuario')->middleware('auth');
 Route::post('/index', [UsuarioController::class, 'register'])->middleware('auth');
+Route::get('/index/{id}', [UsuarioController::class, 'cambiar_estado'])->name('Usuario.cambiar_estado')->middleware('auth');
+Route::get('/index/editar_usuario/{id}', [UsuarioController::class, 'editar_usuario'])->name('Usuario.editar_usuario')->middleware('auth');
+Route::put('/index/{id}', [UsuarioController::class, 'actualizar_usuario'])->name('Usuario.actualizar_usuario')->middleware('auth');
 
 Route::get('/proveedor/proveedor', [ProveedorController::class, 'index_proveedor'])->name('proveedor')->middleware('auth');
 Route::post('/proveedor/proveedor', [ProveedorController::class, 'agregar'])->middleware('auth');
