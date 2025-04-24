@@ -17,6 +17,7 @@ use App\Http\Controllers\VentaController;
 use App\Http\Controllers\TipoDocumentoController;
 use App\Http\Controllers\TipoVentaController;
 use App\Http\Controllers\TipoPagoController;
+use App\Http\Controllers\PresentacionController;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EnviarCorreo;
@@ -129,6 +130,11 @@ Route::get('/tipo_venta/{id}', [TipoVentaController::class, 'cambiar_estado'])->
 Route::get('/tipo_venta/editar_documento/{id}', [TipoVentaController::class, 'editar_Tventa'])->name('Tventa.editar_Tventa')->middleware('auth');
 Route::put('/tipo_venta/{id}', [TipoVentaController::class, 'actualizar_Tventa'])->name('Tventa.actualizar_Tventa')->middleware('auth');
 
+Route::get('/presentacion', [PresentacionController::class, 'index_presentacion'])->name('Presentacion')->middleware('auth');
+Route::post('/presentacion', [PresentacionController::class, 'ingreso_presentacion'])->middleware('auth');
+Route::get('/presentacion/{id}', [PresentacionController::class, 'cambiar_estado'])->name('Presentacion.cambiar_estado')->middleware('auth');
+Route::get('/presentacion/editar_documento/{id}', [PresentacionController::class, 'editar_presentacion'])->name('Presentacion.editar_presentacion')->middleware('auth');
+Route::put('/presentacion/{id}', [PresentacionController::class, 'actualizar_presentacion'])->name('Presentacion.actualizar_presentacion')->middleware('auth');
 
 
 Route::get('/admin/devoluciones', [DevolucionesController::class, 'index_devoluciones'])->name('devoluciones')->middleware('auth');

@@ -120,6 +120,12 @@
         'active' => request()->routeIs('Tipo_Documento')
     ],
     [
+        'name' => 'Tipo Presentacion',
+        'icon' => 'fa-regular fa-pen-to-square',
+        'route' => 'Presentacion',
+        'active' => request()->routeIs('Tipo_Presentacion')
+    ],
+    [
         'header' => 'Cajas',
     ],
     [
