@@ -125,8 +125,8 @@
     [
         'name' => 'Cajas',
         'icon' => 'fa-regular fa-pen-to-square',
-        'route' => 'Tipo_Inventario',
-        'active' => request()->routeIs('Tipo_Inventario')
+        'route' => 'cajas',
+        'active' => request()->routeIs('cajas')
     ],
     [
         'name' => 'Apertura de Caja',

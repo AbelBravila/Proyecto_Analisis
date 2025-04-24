@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\CajasController;
 use App\Http\Controllers\PedidosController;
 use App\Http\Controllers\ComprasController;
 use App\Http\Controllers\DevolucionController;
@@ -67,7 +68,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/pedidos', [PedidosController::class, 'store'])->name('pedidos.guardar');
     Route::post('/admin/pedidos/buscar', [PedidosController::class, 'buscar'])->name('pedidos.buscar');
     Route::get('/admin/pedidos-realizados', [PedidosController::class, 'VerPedido'])->name('pedidos.realizados');
-    //Route::get('/admin/pedidos/editar/{id}', [PedidosController::class, 'editar'])->name('pedidos.editar');
+    Route::put('/admin/pedidos/editar/{id}', [PedidosController::class, 'editar'])->name('pedidos.editar');
+    Route::get('/pedidos/{id}/detalles', [PedidosController::class, 'mostrarDetalles']);
+
 });
 
 //COMPRAS
@@ -132,3 +135,10 @@ Route::get('/admin/Tipo_Inventario', [Tipo_InventarioController::class, 'index_T
 
 Route::get('/compras/producto/{id}/detalles', [ProductoController::class, 'show'])->name('esquema.show');
 Route::get('/producto/{id}/detalles', [ProductoController::class, 'mostrarDetalles']);
+
+
+Route::get('/caja/caja', [CajasController::class, 'index_cajas'])->name('cajas')->middleware('auth');
+Route::post('/caja/caja', [CajasController::class, 'agregar'])->middleware('auth');
+Route::get('/caja/caja/editar_caja/{id}', [CajasController::class, 'editar_caja'])->name('cajas.editar_caja')->middleware('auth');
+Route::put('/caja/caja/{id}', [CajasController::class, 'actualizar_cajas'])->name('cajas.actualizar_cajas')->middleware('auth');
+Route::get('/caja/caja/{id}', [CajasController::class, 'cambiar_estado'])->name('cajas.cambiar_estado')->middleware('auth');
