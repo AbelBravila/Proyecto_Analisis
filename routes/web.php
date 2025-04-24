@@ -96,9 +96,15 @@ Route::get('/ventas/{id}/detalle', [VentaController::class, 'mostrarDetalle']);
 
 Route::get('/pasillo', [PasilloController::class, 'index_pasillo'])->name('Pasillo')->middleware('auth');
 Route::post('/pasillo', [PasilloController::class, 'ingreso_P'])->middleware('auth');
+Route::get('/pasillo/{id}', [PasilloController::class, 'cambiar_estado'])->name('Pasillo.cambiar_estado')->middleware('auth');
+Route::get('/pasillo/editar_pasillo/{id}', [PasilloController::class, 'editar_pasillo'])->name('Pasillo.editar_pasillo')->middleware('auth');
+Route::put('/pasillo/{id}', [PasilloController::class, 'actualizar_pasillo'])->name('Pasillo.actualizar_pasillo')->middleware('auth');
 
 Route::get('/estante', [EstanteController::class, 'index_estante'])->name('Estanteria')->middleware('auth');
 Route::post('/estante', [EstanteController::class, 'ingreso_Estante'])->middleware('auth');
+Route::get('/estante/{id}', [EstanteController::class, 'cambiar_estado'])->name('Estanteria.cambiar_estado')->middleware('auth');
+Route::get('/estante/editar_estante/{id}', [EstanteController::class, 'editar_usuario'])->name('Estanteria.editar_estante')->middleware('auth');
+Route::put('/estante/{id}', [EstanteController::class, 'actualizar_estante'])->name('Estanteria.actualizar_estante')->middleware('auth');
 
 
 

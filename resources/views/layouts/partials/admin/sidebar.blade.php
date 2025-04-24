@@ -93,13 +93,31 @@
         'active' => request()->routeIs('devoluciones.*')
     ],
     [
-        'header' => 'Tipo Inventario',
+        'header' => 'Tipos',
     ],
     [
-        'name' => 'Tipo_Inventario',
+        'name' => 'Tipo Inventario',
         'icon' => 'fa-regular fa-pen-to-square',
         'route' => 'Tipo_Inventario',
         'active' => request()->routeIs('Tipo_Inventario')
+    ],
+    [
+        'name' => 'Tipo Pago',
+        'icon' => 'fa-regular fa-pen-to-square',
+        'route' => 'Tipo_Pago',
+        'active' => request()->routeIs('Tipo_Pago')
+    ],
+    [
+        'name' => 'Tipo Venta',
+        'icon' => 'fa-regular fa-pen-to-square',
+        'route' => 'Tipo_Venta',
+        'active' => request()->routeIs('Tipo_Venta')
+    ],
+    [
+        'name' => 'Tipo Documento',
+        'icon' => 'fa-regular fa-pen-to-square',
+        'route' => 'Tipo_Documento',
+        'active' => request()->routeIs('Tipo_Documento')
     ],
     [
         'header' => 'Cajas',

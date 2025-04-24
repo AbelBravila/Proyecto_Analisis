@@ -107,7 +107,7 @@ class UsuarioController extends Controller
 
     public function editar_usuario($id)
     {
-        $productos = User::findOrFail($id);
+        $usuario = User::findOrFail($id);
 
         return view('Usuario.index', compact('usuario'));
     }
@@ -133,9 +133,9 @@ class UsuarioController extends Controller
             @id_nivel = ?',
             [
                 $id, 
-                $request->codigo_usuario, 
-                $request->nombre_usuario, 
-                $request->correo, 
+                $request->codigo, 
+                $request->nombre, 
+                $request->correo_u, 
                 $request->numero,
                 $request->nivel
             ]
