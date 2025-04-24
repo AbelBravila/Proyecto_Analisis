@@ -121,7 +121,7 @@ class VentaController extends Controller
                 INSERT INTO @Productos (id_producto, cantidad, precio, id_presentacion_venta)
                 VALUES 
                 " . implode(', ', array_map(function ($producto) {
-                    return "({$producto['id_producto']}, {$producto['cantidad']}, {$producto['precio_p']}, {$producto['id_presentacion_venta']})";
+                    return "({$producto['id_producto']}, {$producto['cantidad']}, {$producto['precio']}, {$producto['id_presentacion_venta']})";
                 }, $productosTable)) . ";
 
                 -- Llamar al procedimiento almacenado
@@ -156,7 +156,7 @@ class VentaController extends Controller
 
         });
 
-        return redirect()->route('ventas.ventas')->with('success', 'Venta registrada exitosamente.');
+        return redirect()->route('ventas')->with('success', 'Venta registrada exitosamente.');
     }
 
 
