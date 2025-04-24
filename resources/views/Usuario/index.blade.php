@@ -120,6 +120,9 @@
                     Telefono
                 </th>
                 <th scope="col" class="px-6 py-3">
+                    Nivel
+                </th>
+                <th scope="col" class="px-6 py-3">
                         Acciones
                 </th>
             </tr>
@@ -132,6 +135,7 @@
                     <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->nombre_usuario }}</td>
                     <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->correo}}</td>
                     <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->telefono}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $usuario->id_nivel}}</td>
                     <td scope="col" class="px-6 py-3 dark:text-black">
                     <a class="fa fa-pencil fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                 data-modal-target="editar-modal-usuario-{{ $usuario->id_usuario }}"
@@ -176,36 +180,36 @@
                                     @method('PUT')
                                     <div class="grid gap-4 mb-4 grid-cols-2">
                                         <div class="col-span-2">
-                                            <label for="codigo_usuario"
+                                            <label for="codigo"
                                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Codigo
                                                 del Usuario</label>
-                                            <input type="text" id="codigo_usuario" name="codigo_usuario"
+                                            <input type="text" id="codigo" name="codigo"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                                 required
-                                                value="{{ old('codigo_usuario', $usuario->codigo_usuario) }}">
-                                            @error('codigo_usuario')
+                                                value="{{ old('codigo', $usuario->codigo_usuario) }}">
+                                            @error('codigo')
                                                 <span class="error text-red-500 text-sm">{{ $message }}</span>
                                             @enderror
                                         </div>
                                         <div class="col-span-2">
-                                            <label for="nombre_usuario"
+                                            <label for="nombre"
                                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre
                                                 del Usuario</label>
-                                            <input type="text" id="nombre_usuario" name="nombre_usuario"
+                                            <input type="text" id="nombre" name="nombre"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                                 required
-                                                value="{{ old('nombre_usuario', $usuario->nombre_usuario) }}">
-                                            @error('nombre_usuario')
+                                                value="{{ old('nombre', $usuario->nombre_usuario) }}">
+                                            @error('nombre')
                                                 <span class="error text-red-500 text-sm">{{ $message }}</span>
                                             @enderror
                                         </div>
                                         <div class="col-span-2">
-                                            <label for="correo"
+                                            <label for="correo_u"
                                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo</label>
-                                            <input type="text" id="correo" name="correo"
+                                            <input type="text" id="correo_u" name="correo_u"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                                 required
-                                                value="{{ old('correo', $usuario->correo) }}">
+                                                value="{{ old('correo_u', $usuario->correo) }}">
                                             @error('correo')
                                                 <span class="error text-red-500 text-sm">{{ $message }}</span>
                                             @enderror
@@ -225,9 +229,10 @@
                                             <label for="nivel" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nivel</label>
                                             <select id="nivel" name="nivel" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
                                                 <option value="">Selecciona un nivel</option>
-                                                <option value="2">Representante</option>
-                                                <option value="3">Vendedor</option>
+                                                <option value="2" {{ old('nivel', $usuario->id_nivel) == 2 ? 'selected' : '' }}>Representante</option>
+                                                <option value="3" {{ old('nivel', $usuario->id_nivel) == 3 ? 'selected' : '' }}>Vendedor</option>
                                             </select>
+
                                             @error('nivel')
                                                 <span class="error text-red-500 text-sm">{{ $message }}</span>
                                             @enderror

@@ -112,26 +112,20 @@
         [
             'name' => 'Apertura de Caja',
             'icon' => 'fa-regular fa-pen-to-square',
-            'route' => 'apertura-caja.index',
-            'active' => request()->routeIs('apertura-caja.index'),
+            'route' => 'Tipo_Inventario',
+            'active' => request()->routeIs('Tipo_Inventario'),
         ],
         [
-            'name' => 'Cajas Cerradas',
+            'name' => 'Cierre de Caja',
             'icon' => 'fa-regular fa-pen-to-square',
-            'route' => 'cierre-caja.index',
-            'active' => request()->routeIs('cierre-caja.index'),
-        ],
-        [
-            'name' => 'Asignación Caja',
-            'icon' => 'fa-regular fa-pen-to-square',
-            'route' => 'asignacion-caja.index',
-            'active' => request()->routeIs('asignacion-caja.index'),
+            'route' => 'Tipo_Inventario',
+            'active' => request()->routeIs('Tipo_Inventario'),
         ],
         [
             'name' => 'Turno',
             'icon' => 'fa-regular fa-pen-to-square',
-            'route' => 'turnos',
-            'active' => request()->routeIs('turnos'),
+            'route' => 'Tipo_Inventario',
+            'active' => request()->routeIs('Tipo_Inventario'),
         ],
     ];
 @endphp

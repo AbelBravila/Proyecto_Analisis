@@ -107,7 +107,7 @@ class UsuarioController extends Controller
 
     public function editar_usuario($id)
     {
-        $productos = User::findOrFail($id);
+        $usuario = User::findOrFail($id);
 
         return view('Usuario.index', compact('usuario'));
     }

@@ -21,6 +21,9 @@ class Venta extends Model
         'id_cliente',
         'id_usuario',
         'fecha_venta',
+        'subtotal_venta',
+        'total_descuento',
+        'total_venta',
         'estado'
     ];
 

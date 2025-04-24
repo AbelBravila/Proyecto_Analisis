@@ -18,7 +18,10 @@ use App\Http\Controllers\PasilloController;
 use App\Http\Controllers\EstanteController;
 use App\Http\Controllers\Tipo_InventarioController;
 use App\Http\Controllers\VentaController;
-
+use App\Http\Controllers\TipoDocumentoController;
+use App\Http\Controllers\TipoVentaController;
+use App\Http\Controllers\TipoPagoController;
+use App\Http\Controllers\PresentacionController;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EnviarCorreo;
@@ -72,7 +75,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/pedidos', [PedidosController::class, 'store'])->name('pedidos.guardar');
     Route::post('/admin/pedidos/buscar', [PedidosController::class, 'buscar'])->name('pedidos.buscar');
     Route::get('/admin/pedidos-realizados', [PedidosController::class, 'VerPedido'])->name('pedidos.realizados');
-    //Route::get('/admin/pedidos/editar/{id}', [PedidosController::class, 'editar'])->name('pedidos.editar');
+    Route::put('/admin/pedidos/editar/{id}', [PedidosController::class, 'editar'])->name('pedidos.editar');
+    Route::get('/pedidos/{id}/detalles', [PedidosController::class, 'mostrarDetalles']);
+
 });
 
 //COMPRAS
@@ -101,11 +106,39 @@ Route::get('/ventas/{id}/detalle', [VentaController::class, 'mostrarDetalle']);
 
 Route::get('/pasillo', [PasilloController::class, 'index_pasillo'])->name('Pasillo')->middleware('auth');
 Route::post('/pasillo', [PasilloController::class, 'ingreso_P'])->middleware('auth');
+Route::get('/pasillo/{id}', [PasilloController::class, 'cambiar_estado'])->name('Pasillo.cambiar_estado')->middleware('auth');
+Route::get('/pasillo/editar_pasillo/{id}', [PasilloController::class, 'editar_pasillo'])->name('Pasillo.editar_pasillo')->middleware('auth');
+Route::put('/pasillo/{id}', [PasilloController::class, 'actualizar_pasillo'])->name('Pasillo.actualizar_pasillo')->middleware('auth');
 
 Route::get('/estante', [EstanteController::class, 'index_estante'])->name('Estanteria')->middleware('auth');
 Route::post('/estante', [EstanteController::class, 'ingreso_Estante'])->middleware('auth');
+Route::get('/estante/{id}', [EstanteController::class, 'cambiar_estado'])->name('Estanteria.cambiar_estado')->middleware('auth');
+Route::get('/estante/editar_estante/{id}', [EstanteController::class, 'editar_usuario'])->name('Estanteria.editar_estante')->middleware('auth');
+Route::put('/estante/{id}', [EstanteController::class, 'actualizar_estante'])->name('Estanteria.actualizar_estante')->middleware('auth');
 
+Route::get('/tipo_documento', [TipoDocumentoController::class, 'index_documento'])->name('Documento')->middleware('auth');
+Route::post('/tipo_documento', [TipoDocumentoController::class, 'ingreso_Documento'])->middleware('auth');
+Route::get('/tipo_documento/{id}', [TipoDocumentoController::class, 'cambiar_estado'])->name('Documento.cambiar_estado')->middleware('auth');
+Route::get('/tipo_documento/editar_documento/{id}', [TipoDocumentoController::class, 'editar_documento'])->name('Documento.editar_documento')->middleware('auth');
+Route::put('/pasitipo_documentolo/{id}', [TipoDocumentoController::class, 'actualizar_documento'])->name('Documento.actualizar_documento')->middleware('auth');
 
+Route::get('/tipo_pago', [TipoPagoController::class, 'index_pago'])->name('Pago')->middleware('auth');
+Route::post('/tipo_pago', [TipoPagoController::class, 'ingreso_Pago'])->middleware('auth');
+Route::get('/tipo_pago/{id}', [TipoPagoController::class, 'cambiar_estado'])->name('Pago.cambiar_estado')->middleware('auth');
+Route::get('/tipo_pago/editar_documento/{id}', [TipoPagoController::class, 'editar_pago'])->name('Pago.editar_pago')->middleware('auth');
+Route::put('/tipo_pago/{id}', [TipoPagoController::class, 'actualizar_pago'])->name('Pago.actualizar_pago')->middleware('auth');
+
+Route::get('/tipo_venta', [TipoVentaController::class, 'index_Tventa'])->name('Tventa')->middleware('auth');
+Route::post('/tipo_venta', [TipoVentaController::class, 'ingreso_Tventa'])->middleware('auth');
+Route::get('/tipo_venta/{id}', [TipoVentaController::class, 'cambiar_estado'])->name('Tventa.cambiar_estado')->middleware('auth');
+Route::get('/tipo_venta/editar_documento/{id}', [TipoVentaController::class, 'editar_Tventa'])->name('Tventa.editar_Tventa')->middleware('auth');
+Route::put('/tipo_venta/{id}', [TipoVentaController::class, 'actualizar_Tventa'])->name('Tventa.actualizar_Tventa')->middleware('auth');
+
+Route::get('/presentacion', [PresentacionController::class, 'index_presentacion'])->name('Presentacion')->middleware('auth');
+Route::post('/presentacion', [PresentacionController::class, 'ingreso_presentacion'])->middleware('auth');
+Route::get('/presentacion/{id}', [PresentacionController::class, 'cambiar_estado'])->name('Presentacion.cambiar_estado')->middleware('auth');
+Route::get('/presentacion/editar_documento/{id}', [PresentacionController::class, 'editar_presentacion'])->name('Presentacion.editar_presentacion')->middleware('auth');
+Route::put('/presentacion/{id}', [PresentacionController::class, 'actualizar_presentacion'])->name('Presentacion.actualizar_presentacion')->middleware('auth');
 
 
 Route::get('/admin/devoluciones', [DevolucionesController::class, 'index_devoluciones'])->name('devoluciones')->middleware('auth');

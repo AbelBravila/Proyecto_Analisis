@@ -1,25 +1,25 @@
 <x-admin-layout>
 
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-        <b>
-            <h1 class="text-lg text-center dark:text-black">ESTANTES</h1>
-        </b>
+    <b>
+        <h1 class="text-lg text-center dark:text-black">PRESENTACIONES</h1>
+    </b>
 
-        <form method="GET" action="{{ route('Estanteria') }}" class="mb-4">
-            <div class="flex space-x-2">
-                <input type="text" name="buscador" placeholder="Buscar por código"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                <button type="submit"
-                    class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                    Buscar
-                </button>
-            </div>
-        </form>
+    <form method="GET" action="{{ route('Presentacion') }}" class="mb-4">
+        <div class="flex space-x-2">
+            <input type="text" name="buscador" placeholder="Buscar por nombre"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+            <button type="submit"
+                class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                Buscar
+            </button>
+        </div>
+    </form>
 
     <!-- Modal toggle -->
     <button data-modal-target="crud-modal" data-modal-toggle="crud-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
-        Agregar Entanteria
+        Agregar Tipo de Presentacion
       </button>
 
       <br>
@@ -32,7 +32,7 @@
                   <!-- Modal header -->
                   <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
                           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                              Ingresar un Nueva Estanteria
+                              Ingresar un Nuevo Tipo de Presentacion
                           </h3>
                           <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
                               <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -48,26 +48,13 @@
             <p class="success">{{ session('success') }}</p>
             @endif
 
-            <form class="p-4 md:p-5" action="{{ route('Estanteria') }}" method="POST">
+            <form class="p-4 md:p-5" action="{{ route('Presentacion') }}" method="POST">
             @csrf
             <div class="grid gap-4 mb-4 grid-cols-2">
                         <div class="col-span-2">
-                            <label for="codigo_estanteria" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Codigo Estanteria</label>
-                            <input type="text" id="codigo_estanteria" name="codigo_estanteria" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            @error('codigo_estanteria')
-                                <span class="error text-red-500 text-sm">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        <div class="col-span-2">
-                            <label for="pasillo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pasillo</label>
-                            <select id="pasillo" name="pasillo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                <option value="">Selecciona un pasillo</option>
-                                @foreach ($pasillos as $pasillo)
-                                <option value="{{$pasillo-> id_pasillo}}">{{$pasillo-> codigo_pasillo}}</option>
-                                @endforeach
-
-                            </select>
-                            @error('pasillo')
+                            <label for="presentacion" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre de presentacion</label>
+                            <input type="text" id="presentacion" name="presentacion" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            @error('presentacion')
                                 <span class="error text-red-500 text-sm">{{ $message }}</span>
                             @enderror
                         </div>
@@ -91,13 +78,10 @@
                    ID
                 </th>
                 <th scope="col" class="px-6 py-3">
-                   Codigo del Estante
+                   Nombre de Presentacion
                 </th>
                 <th scope="col" class="px-6 py-3">
-                   Pasillo
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Estado 
+                    Estado
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Acciones 
@@ -105,26 +89,24 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($estantes as $estante)
+            @foreach ($presentaciones as $presentacion)
                 <tr>
-                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $estante->id_estanteria}}</td>
-                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $estante->codigo_estanteria}}</td>
-                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $estante->codigo_pasillo }}</td>
-                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $estante->estado}}</td>
-                    
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $presentacion->id_presentacion}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $presentacion->presentacion}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $presentacion->estado }}</td>
                     <td scope="col" class="px-6 py-3 dark:text-black">
                     <a class="fa fa-pencil fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                data-modal-target="editar-modal-estante-{{ $estante->id_estanteria }}"
-                                data-modal-toggle="editar-modal-estante-{{ $estante->id_estanteria }}"
+                                data-modal-target="editar-modal-presentacion-{{ $presentacion->id_presentacion }}"
+                                data-modal-toggle="editar-modal-presentacion-{{ $presentacion->id_presentacion }}"
                                 class="text-blue-600">
                     </a>
                     <a class="fa fa-trash fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                href="{{ route('Estanteria.cambiar_estado', ['id' => $estante->id_estanteria]) }}"
-                                onclick="return confirm('¿Estás seguro de que deseas eliminar este estante?')">
+                                href="{{ route('Presentacion.cambiar_estado', ['id' => $presentacion->id_presentacion]) }}"
+                                onclick="return confirm('¿Estás seguro de que deseas eliminar este tipo de presentacion?')">
                     </a>
                     </td>
                 </tr>
-                <div id="editar-modal-estante-{{$estante->id_estanteria }}" tabindex="-1"
+                <div id="editar-modal-presentacion-{{ $presentacion->id_presentacion }}" tabindex="-1"
                         aria-hidden="true"
                         class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
                         <div class="relative p-4 w-full max-w-md max-h-full">
@@ -133,11 +115,11 @@
                                 <!-- Modal header -->
                                 <div
                                     class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Editar Estanteria
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Editar Tipo de Presentacion
                                     </h3>
                                     <button type="button"
                                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                        data-modal-toggle="editar-modal-estante-{{ $estante->id_estanteria }}">
+                                        data-modal-toggle="editar-modal-presentacion-{{ $presentacion->id_presentacion }}">
                                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                             fill="none" viewBox="0 0 14 14">
                                             <path stroke="currentColor" stroke-linecap="round"
@@ -149,39 +131,22 @@
                                 </div>
                                 <!-- Modal body -->
                                 <form
-                                    action="{{ route('Estanteria.actualizar_estante', $estante->id_estanteria) }}"
+                                    action="{{ route('Presentacion.actualizar_presentacion', $presentacion->id_presentacion) }}"
                                     method="POST">
                                     @csrf
                                     @method('PUT')
                                     <div class="grid gap-4 mb-4 grid-cols-2">
                                         <div class="col-span-2">
-                                            <label for="codigo_estanteria"
-                                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Codigo
-                                                del Estante</label>
-                                            <input type="text" id="codigo_estanteria" name="codigo_estanteria"
+                                            <label for="presentacion"
+                                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre del tipo de Presentacion</label>
+                                            <input type="text" id="presentacion" name="presentacion"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                                 required
-                                                value="{{ old('codigo_estanteria', $estante->codigo_estanteria) }}">
-                                            @error('codigo_estanteria')
+                                                value="{{ old('presentacion', $presentacion->presentacion) }}">
+                                            @error('codigo')
                                                 <span class="error text-red-500 text-sm">{{ $message }}</span>
                                             @enderror
                                         </div>
-                                        <div class="col-span-2">
-                                            <label for="pasillo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pasillo</label>
-                                            <select id="pasillo" name="pasillo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                                <option value="">Selecciona un pasillo</option>
-                                                @foreach ($pasillos as $pasillo)
-                                                <option value="{{ $pasillo->id_pasillo }}" 
-                                                {{ (int) old('pasillo', $selectedPasillo ?? '') === $pasillo->id_pasillo ? 'selected' : '' }}>
-                                                {{ $pasillo->codigo_pasillo }}
-                                            </option>
-                                                @endforeach
-                                            </select>
-                                            @error('pasillo')
-                                                <span class="error text-red-500 text-sm">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-
 
                                     </div>
                                     <button type="submit"

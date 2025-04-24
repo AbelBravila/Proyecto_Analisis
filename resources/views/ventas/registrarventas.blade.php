@@ -17,11 +17,10 @@
         <!-- Cliente -->
         <div class="mb-3">
             <label for="id_cliente" class="form-label">Cliente</label>
-            <select name="id_cliente" id="id_cliente" class="form-control" required>
+            <select name="id_cliente" id="id_cliente" class="form-control" required onchange="updateClienteDescuento()">
                 <option value="">Seleccionar Cliente</option>
                 @foreach ($clientesConDescuento as $cliente)
-                    <option value="{{ $cliente->id_cliente }}" 
-                        data-descuento="{{ $cliente->descuento }}">
+                    <option value="{{ $cliente->id_cliente }}" data-descuento="{{ $cliente->descuento }}">
                         {{ $cliente->nombre_cliente }}
                     </option>
                 @endforeach
@@ -38,7 +37,7 @@
                 @endforeach
             </select>
         </div>
-        
+
         <!-- Tipo de pago -->
         <div class="mb-3">
             <label for="id_tipo_pago" class="form-label">Tipo de Pago</label>
@@ -73,31 +72,43 @@
                             <th class="px-6 py-3">Precio</th>
                             <th class="px-6 py-3">Presentación</th>
                             <th class="px-6 py-3">Lote</th>
+                            <th class="px-6 py-3">Total Producto</th>
                             <th class="px-6 py-3">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="w-full text-sm text-left text-dark-500 dark:text-black">
+                    <tbody id="productos_body" class="w-full text-sm text-left text-gray-500 dark:text-black">
                         <tr>
                             <td>
-                                <select name="productos[0][id_producto]" class="form-control" required onchange="updateProductDetails(0)">
-                                    <option value="">Seleccionar Producto</option>
-                                    @foreach ($productos as $producto)
-                                        <option value="{{ $producto->id_producto }}" 
+                            <select name="productos[0][id_producto]" class="form-control" required onchange="updateDetails(0)">
+                                <option value="">Seleccionar Producto</option>
+                                @foreach ($productos as $producto)
+                                    <option value="{{ $producto->id_producto }}" 
                                             data-nombre="{{ $producto->esquema->nombre_producto }}" 
                                             data-precio="{{ $producto->precio }}"
-                                            data-presentacion="{{ $producto->presentacion->presentacion }}"
                                             data-lote="{{ $producto->lote->lote }}">
-                                            {{ $producto->esquema->codigo_producto }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                        {{ $producto->esquema->codigo_producto }}
+                                    </option>
+                                @endforeach
+                            </select>
                             </td>
-                            <td><input type="text" name="productos[0][nombre_producto]" class="form-control" disabled></td>
-                            <td><input type="number" name="productos[0][cantidad]" class="form-control" required></td>
-                            <td><input type="number" name="productos[0][precio]" class="form-control" disabled></td>
-                            <td><input type="text" name="productos[0][presentacion]" class="form-control" disabled></td>
-                            <td><input type="text" name="productos[0][lote]" class="form-control" disabled></td>
-                            <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td
+                            <td><input type="text" name="productos[0][nombre_producto]" class="form-control" readonly></td>
+                            <td><input type="number" name="productos[0][cantidad]" class="form-control" required min="1" onchange="updateDetails(0)"></td>
+                            <td><input type="number" name="productos[0][precio_p]" class="form-control" readonly required min=0></td>
+                            <td>
+                            <select name="productos[0][id_presentacion_venta]" class="form-control" required onchange="updateDetails(0)">
+                                <option value="">Seleccionar Presentación</option>
+                                @foreach ($presentaciones as $presentacion)
+                                    <option value="{{ $presentacion->id_presentacion_venta }}" 
+                                            data-cantidad="{{ $presentacion->cantidad }}" 
+                                            data-descuento="{{ $presentacion->descuento }}">
+                                        {{ $presentacion->nombre_presentacion }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            </td>
+                            <td><input type="text" name="productos[0][lote]" class="form-control" readonly></td>
+                            <td><input type="text" name="productos[0][total_producto]" class="form-control" readonly></td>
+                            <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
                         </tr>
                     </tbody>
                 </table>
@@ -106,7 +117,8 @@
         <div class="mb-3">
             <button type="button" class="btn btn-outline-secondary btn-lg text-blue-600 dark:text-blue-500 hover:underline" id="addProductBtn">Agregar Producto</button>
         </div>
-        <!-- Total y descuento -->
+
+        <!-- Totales -->
         <div class="form-group">
             <label for="subtotal">Subtotal</label>
             <input type="text" id="subtotal" class="form-control" value="{{ old('subtotal', 0) }}" readonly>
@@ -123,64 +135,80 @@
         </div>
 
         <div class="mb-3 text-center">
-            <button type="submit" class="btn btn-primary">Registrar Venta</button>
+            <button type="submit" class="btn btn-outline-secondary btn-lg text-blue-600 dark:text-blue-500 hover:underline" >Registrar Venta</button>
         </div>
     </form>
 
-
-
     <script>
-        // Función para actualizar los detalles del producto (nombre, precio, presentación, lote)
-        function updateProductDetails(index) {
-            var selectElement = document.querySelector(`select[name="productos[${index}][id_producto]"]`);
-            var selectedOption = selectElement.options[selectElement.selectedIndex];
+        // Variable global para el descuento
+        let descuentoGlobal = 0;
+
+        // Función que se llama cuando se selecciona un cliente
+        function updateClienteDescuento() {
+            const clienteSelect = document.getElementById('id_cliente');
+            const selectedOption = clienteSelect.options[clienteSelect.selectedIndex];
+            descuentoGlobal = parseFloat(selectedOption.getAttribute('data-descuento')) || 0;
+
+            // No actualizar el campo de descuento visualmente
+            // document.getElementById('descuento').value = descuentoGlobal.toFixed(2);
+            
+            // Actualizamos los totales con el nuevo descuento
+            updateTotals();
+        }
+
+        // Función para actualizar los detalles de la presentación (descuento y cantidad)
+        function updateDetails(index) {
+            var selectProducto = document.querySelector(`select[name="productos[${index}][id_producto]"]`);
+            var selectedOption = selectProducto.options[selectProducto.selectedIndex];
+            var selectPresentation = document.querySelector(`select[name="productos[${index}][id_presentacion_venta]"]`);
+            var selectedPresentation = selectPresentation.options[selectPresentation.selectedIndex];
 
             var productName = selectedOption.getAttribute('data-nombre');
-            var productPrice = parseFloat(selectedOption.getAttribute('data-precio')) || 0; // Asegúrate de que el precio esté definido
-            var productPresentation = selectedOption.getAttribute('data-presentacion');
+            var productPrice = parseFloat(selectedOption.getAttribute('data-precio').replace(',', '.')) || 0;
             var productLot = selectedOption.getAttribute('data-lote');
+            var presentationQuantity = parseInt(selectedPresentation.getAttribute('data-cantidad')) || 1;
+            var presentationDiscount = parseFloat(selectedPresentation.getAttribute('data-descuento')) || 0;
 
+            // Calculamos el precio ajustado por la cantidad y el descuento de la presentación
+            var adjustedPrice = (productPrice * presentationQuantity) * (1 - (presentationDiscount / 100));
+
+            // Actualizamos el precio unitario
+            document.querySelector(`input[name="productos[${index}][precio_p]"]`).value = adjustedPrice.toFixed(2);
             document.querySelector(`input[name="productos[${index}][nombre_producto]"]`).value = productName;
-            document.querySelector(`input[name="productos[${index}][precio]"]`).value = productPrice;
-            document.querySelector(`input[name="productos[${index}][presentacion]"]`).value = productPresentation;
             document.querySelector(`input[name="productos[${index}][lote]"]`).value = productLot;
 
-            updateTotals(); // Actualizar los totales cuando se cambia el producto
+            updateTotalProducto(index); // Actualizamos el total por producto
         }
-        document.addEventListener('DOMContentLoaded', function() {
-            updateTotals(0); // Llamar con descuento 0 cuando la página cargue sin productos
-        });
+
+
+
+        // Función para calcular el total por producto
+        function updateTotalProducto(index) {
+            const cantidad = parseFloat(document.querySelector(`input[name="productos[${index}][cantidad]"]`).value) || 0;
+            const precio = parseFloat(document.querySelector(`input[name="productos[${index}][precio_p]"]`).value) || 0;
+            const totalProducto = cantidad * precio; // Calculamos el total para esa fila
+            document.querySelector(`input[name="productos[${index}][total_producto]"]`).value = totalProducto.toFixed(2);
+        }
 
         // Función para actualizar los totales (Subtotal, Descuento, Total)
-        function updateTotals(descuento = 0) {
+        function updateTotals() {
             let subtotal = 0;
+            let descuentoMonto = 0;
+            let total = 0;
 
-            // Verificamos si hay productos en la tabla
+            // Sumar los totales de todos los productos
             const rows = document.querySelectorAll('#productos_table tbody tr');
-            if (rows.length === 0) {
-                // Si no hay productos, establecemos los valores en 0
-                document.getElementById('subtotal').value = (0).toFixed(2);
-                document.getElementById('descuento').value = (0).toFixed(2);
-                document.getElementById('total').value = (0).toFixed(2);
-                return; // No continuamos con los cálculos si no hay productos
-            }
-
-            // Iteramos sobre las filas para calcular el subtotal
             rows.forEach((row, index) => {
-                let cantidad = parseFloat(row.querySelector(`input[name="productos[${index}][cantidad]"]`).value) || 0;
-                let precio = parseFloat(row.querySelector(`input[name="productos[${index}][precio]"]`).value) || 0;
-                subtotal += cantidad * precio;
+                let totalProducto = parseFloat(row.querySelector(`input[name="productos[${index}][total_producto]"]`).value) || 0;
+                subtotal += totalProducto; // Acumulamos el subtotal
             });
+
+            descuentoMonto = subtotal * (descuentoGlobal / 100);
+            total = subtotal - descuentoMonto;
 
             // Mostrar el subtotal
             document.getElementById('subtotal').value = subtotal.toFixed(2);
-
-            // Calcular y mostrar el descuento
-            let descuentoMonto = subtotal * (descuento / 100);
-            document.getElementById('descuento').value = descuentoMonto.toFixed(2);
-
-            // Calcular y mostrar el total
-            let total = subtotal - descuentoMonto;
+            document.getElementById('descuento').value = descuentoMonto.toFixed(2); // Esto es opcional, si quieres mostrar el descuento.
             document.getElementById('total').value = total.toFixed(2);
         }
 
@@ -191,25 +219,7 @@
             updateTotals(); // Actualizar los totales después de eliminar una fila
         }
 
-        document.getElementById('id_cliente').addEventListener('change', function() {
-            var tipoCliente = this.value; // Obtener el tipo de cliente seleccionado
-
-            let descuento = 0;
-            // Verificar si hay un cliente seleccionado
-            if (tipoCliente) {
-                // Obtener el descuento del cliente seleccionado (si está disponible)
-                const cliente = @json($clientes); // Datos del cliente ya disponibles en la vista
-                const clienteSeleccionado = cliente.find(c => c.id_cliente == tipoCliente);
-
-                if (clienteSeleccionado) {
-                    descuento = clienteSeleccionado.descuento;
-                }
-            }
-
-            // Recalcular los totales
-            updateTotals(descuento); // Llamar a la función de actualización de totales con el descuento actualizado
-        });
-
+        // Agregar producto
         document.getElementById('addProductBtn').addEventListener('click', function() {
             var tableBody = document.querySelector('#productos_table tbody');
             var rowIndex = tableBody.rows.length;
@@ -217,30 +227,40 @@
             var newRow = document.createElement('tr');
             newRow.innerHTML = `
                 <td>
-                    <select name="productos[${rowIndex}][id_producto]" class="form-control" required onchange="updateProductDetails(${rowIndex})">
+                    <select name="productos[${rowIndex}][id_producto]" class="form-control" required onchange="updateDetails(${rowIndex})">
                         <option value="">Seleccionar Producto</option>
                         @foreach ($productos as $producto)
                             <option value="{{ $producto->id_producto }}" 
-                                data-nombre="{{ $producto->esquema->nombre_producto }}" 
-                                data-precio="{{ $producto->precio }}" 
-                                data-presentacion="{{ $producto->presentacion->presentacion }} "
-                                data-lote="{{ $producto->lote->lote }}">
+                                    data-nombre="{{ $producto->esquema->nombre_producto }}" 
+                                    data-precio="{{ $producto->precio }} "
+                                    data-lote="{{ $producto->lote->lote }}">
                                 {{ $producto->esquema->codigo_producto }}
                             </option>
                         @endforeach
                     </select>
                 </td>
                 <td><input type="text" name="productos[${rowIndex}][nombre_producto]" class="form-control" readonly></td>
-                <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min="1" onchange="updateTotals()"></td>
-                <td><input type="number" name="productos[${rowIndex}][precio]" class="form-control" required min="0" step="0.01" readonly></td>
-                <td><input type="text" name="productos[${rowIndex}][presentacion]" class="form-control" readonly></td>
+                <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min="1" onchange="updateDetails(${rowIndex})"></td>
+                <td><input type="number" name="productos[${rowIndex}][precio_p]" class="form-control" readonly required min=0></td>
+                <td>
+                    <select name="productos[${rowIndex}][id_presentacion_venta]" class="form-control" required onchange="updateDetails(${rowIndex})">
+                        <option value="">Seleccionar Presentación</option>
+                        @foreach ($presentaciones as $presentacion)
+                            <option value="{{ $presentacion->id_presentacion_venta }}" 
+                                    data-cantidad="{{ $presentacion->cantidad }}" 
+                                    data-descuento="{{ $presentacion->descuento }}">
+                                {{ $presentacion->nombre_presentacion }}
+                            </option>
+                        @endforeach
+                    </select>
+                </td>
                 <td><input type="text" name="productos[${rowIndex}][lote]" class="form-control" readonly></td>
+                <td><input type="text" name="productos[${rowIndex}][total_producto]" class="form-control" readonly></td>
                 <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
             `;
             tableBody.appendChild(newRow);
-            updateTotals(); // Actualizar totales al agregar un producto
+            updateTotals();
         });
-
 
     </script>
 </x-admin-layout>
