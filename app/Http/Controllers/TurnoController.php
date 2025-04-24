@@ -13,9 +13,8 @@ class TurnoController extends Controller
 {
     public function index_turno(Request $request)
     {
-        $buscar = $request->input('buscador');  // Recibe el término de búsqueda
+        $buscar = $request->input('buscador');
 
-        // Filtra los productos por el término de búsqueda o muestra todos
         $turnos = Turno::where('estado', 'A')
             ->when($buscar, function ($query, $buscar) {
                 return $query->where('id_turno', 'LIKE', "%{$buscar}%")
@@ -27,7 +26,7 @@ class TurnoController extends Controller
         return view('cajas.turno', compact('turnos', 'buscar'));
     }
 
-    private function validateTurno(Request $request)
+    private function validateCaja(Request $request)
     {
         $request->validate([
             'descripcion_turno' => 'required|string|max:100'
@@ -40,7 +39,7 @@ class TurnoController extends Controller
 
         DB::statement("EXEC sp_Insert_Turno
             @descripcion_turno = ?",
-            [$request->nombre_caja]
+            [$request->descripcion_turno]
         );
 
         return redirect()->route('turnos')->with('success', 'Turno registrado exitosamente');

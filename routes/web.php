@@ -5,6 +5,10 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\CajasController;
+use App\Http\Controllers\TurnoController;
+use App\Http\Controllers\AperturaCajaController;
+use App\Http\Controllers\AsignacionSatController;
+use App\Http\Controllers\CierreCajaController;
 use App\Http\Controllers\PedidosController;
 use App\Http\Controllers\ComprasController;
 use App\Http\Controllers\DevolucionController;
@@ -134,3 +138,28 @@ Route::post('/caja/caja', [CajasController::class, 'agregar'])->middleware('auth
 Route::get('/caja/caja/editar_caja/{id}', [CajasController::class, 'editar_caja'])->name('cajas.editar_caja')->middleware('auth');
 Route::put('/caja/caja/{id}', [CajasController::class, 'actualizar_cajas'])->name('cajas.actualizar_cajas')->middleware('auth');
 Route::get('/caja/caja/{id}', [CajasController::class, 'cambiar_estado'])->name('cajas.cambiar_estado')->middleware('auth');
+
+Route::get('/turno/turno', [TurnoController::class, 'index_turno'])->name('turnos')->middleware('auth');
+Route::post('/turno/turno', [TurnoController::class, 'agregar'])->middleware('auth');
+Route::get('/turno/turno/editar_turno/{id}', [TurnoController::class, 'editar_turno'])->name('turnos.editar_turno')->middleware('auth');
+Route::put('/turno/turno/{id}', [TurnoController::class, 'actualizar_turnos'])->name('turnos.actualizar_turnos')->middleware('auth');
+Route::post('/turno/turno/{id}', [TurnoController::class, 'cambiar_estado'])->name('turnos.cambiar_estado')->middleware('auth');
+
+// Route::get('/cajas-disponibles', [AperturaCajaController::class, 'obtenerCajasDisponibles']);
+// Route::post('/apertura-caja', [TuControlador::class, 'store'])->name('apertura-caja.store');
+
+Route::get('/asignacion-caja', [AsignacionSatController::class, 'index'])->name('asignacion-caja.index');
+Route::post('/asignacion-caja', [AsignacionSatController::class, 'store'])->name('asignacion-caja.store');
+Route::put('/asignacion-caja/{id}', [AsignacionSatController::class, 'update'])->name('asignacion-caja.update');
+Route::get('/asignacion-caja-delete/{id}', [AsignacionSatController::class, 'destroy'])->name('asignacion-caja.destroy');
+
+Route::get('/apertura-caja/{id}/cajas', [AperturaCajaController::class, 'cajasPorUsuario']);
+
+Route::get('/apertura-caja/{id}/movimientos-json', [AperturaCajaController::class, 'movimientosJson']);
+Route::get('/caja/cerrar/{id}', [AperturaCajaController::class, 'cerrarCaja'])->name('caja.cerrar');
+
+Route::get('/cierre-caja', [CierreCajaController::class, 'index'])->name('cierre-caja.index');
+
+Route::get('/apertura-caja', [AperturaCajaController::class, 'index'])->name('apertura-caja.index');
+Route::post('/apertura-caja', [AperturaCajaController::class, 'store'])->name('apertura-caja.store');
+Route::delete('/apertura-caja/{id}', [AperturaCajaController::class, 'destroy'])->name('apertura-caja.destroy');

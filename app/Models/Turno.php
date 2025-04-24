@@ -35,4 +35,3 @@ class Turno extends Model
         return $query->where('estado', 'A');
     }
 }
-}
