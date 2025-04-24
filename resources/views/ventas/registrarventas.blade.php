@@ -91,7 +91,7 @@
                                 @endforeach
                             </select>
                             </td>
-                            <td><input type="text" name="productos[0][nombre_producto]" class="form-control" disabled></td>
+                            <td><input type="text" name="productos[0][nombre_producto]" class="form-control" readonly></td>
                             <td><input type="number" name="productos[0][cantidad]" class="form-control" required min="1" onchange="updateDetails(0)"></td>
                             <td><input type="number" name="productos[0][precio_p]" class="form-control" readonly required min=0></td>
                             <td>
@@ -106,8 +106,8 @@
                                 @endforeach
                             </select>
                             </td>
-                            <td><input type="text" name="productos[0][lote]" class="form-control" disabled></td>
-                            <td><input type="text" name="productos[0][total_producto]" class="form-control" disabled></td>
+                            <td><input type="text" name="productos[0][lote]" class="form-control" readonly></td>
+                            <td><input type="text" name="productos[0][total_producto]" class="form-control" readonly></td>
                             <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
                         </tr>
                     </tbody>
@@ -239,7 +239,7 @@
                         @endforeach
                     </select>
                 </td>
-                <td><input type="text" name="productos[${rowIndex}][nombre_producto]" class="form-control" disabled></td>
+                <td><input type="text" name="productos[${rowIndex}][nombre_producto]" class="form-control" readonly></td>
                 <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min="1" onchange="updateDetails(${rowIndex})"></td>
                 <td><input type="number" name="productos[${rowIndex}][precio_p]" class="form-control" readonly required min=0></td>
                 <td>
@@ -254,8 +254,8 @@
                         @endforeach
                     </select>
                 </td>
-                <td><input type="text" name="productos[${rowIndex}][lote]" class="form-control" disabled></td>
-                <td><input type="text" name="productos[${rowIndex}][total_producto]" class="form-control" disabled></td>
+                <td><input type="text" name="productos[${rowIndex}][lote]" class="form-control" readonly></td>
+                <td><input type="text" name="productos[${rowIndex}][total_producto]" class="form-control" readonly></td>
                 <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
             `;
             tableBody.appendChild(newRow);
