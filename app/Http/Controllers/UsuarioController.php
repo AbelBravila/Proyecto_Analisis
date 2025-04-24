@@ -133,9 +133,9 @@ class UsuarioController extends Controller
             @id_nivel = ?',
             [
                 $id, 
-                $request->codigo, 
-                $request->nombre, 
-                $request->correo_u, 
+                $request->codigo_usuario, 
+                $request->nombre_usuario, 
+                $request->correo, 
                 $request->numero,
                 $request->nivel
             ]

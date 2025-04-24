@@ -65,7 +65,7 @@ class PasilloController extends Controller
     {
         $pasillo = Pasillo::findOrFail($id);
 
-        return view('Ubicaciones.pasill', compact('pasillo'));
+        return view('Ubicaciones.pasillo', compact('pasillo'));
     }
 
     public function actualizar_pasillo(Request $request, $id)

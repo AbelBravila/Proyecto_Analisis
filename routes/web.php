@@ -14,7 +14,9 @@ use App\Http\Controllers\PasilloController;
 use App\Http\Controllers\EstanteController;
 use App\Http\Controllers\Tipo_InventarioController;
 use App\Http\Controllers\VentaController;
-
+use App\Http\Controllers\TipoDocumentoController;
+use App\Http\Controllers\TipoVentaController;
+use App\Http\Controllers\TipoPagoController;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EnviarCorreo;
@@ -109,6 +111,23 @@ Route::get('/estante/{id}', [EstanteController::class, 'cambiar_estado'])->name(
 Route::get('/estante/editar_estante/{id}', [EstanteController::class, 'editar_usuario'])->name('Estanteria.editar_estante')->middleware('auth');
 Route::put('/estante/{id}', [EstanteController::class, 'actualizar_estante'])->name('Estanteria.actualizar_estante')->middleware('auth');
 
+Route::get('/tipo_documento', [TipoDocumentoController::class, 'index_documento'])->name('Documento')->middleware('auth');
+Route::post('/tipo_documento', [TipoDocumentoController::class, 'ingreso_Documento'])->middleware('auth');
+Route::get('/tipo_documento/{id}', [TipoDocumentoController::class, 'cambiar_estado'])->name('Documento.cambiar_estado')->middleware('auth');
+Route::get('/tipo_documento/editar_documento/{id}', [TipoDocumentoController::class, 'editar_documento'])->name('Documento.editar_documento')->middleware('auth');
+Route::put('/pasitipo_documentolo/{id}', [TipoDocumentoController::class, 'actualizar_documento'])->name('Documento.actualizar_documento')->middleware('auth');
+
+Route::get('/tipo_pago', [TipoPagoController::class, 'index_pago'])->name('Pago')->middleware('auth');
+Route::post('/tipo_pago', [TipoPagoController::class, 'ingreso_Pago'])->middleware('auth');
+Route::get('/tipo_pago/{id}', [TipoPagoController::class, 'cambiar_estado'])->name('Pago.cambiar_estado')->middleware('auth');
+Route::get('/tipo_pago/editar_documento/{id}', [TipoPagoController::class, 'editar_pago'])->name('Pago.editar_pago')->middleware('auth');
+Route::put('/tipo_pago/{id}', [TipoPagoController::class, 'actualizar_pago'])->name('Pago.actualizar_pago')->middleware('auth');
+
+Route::get('/tipo_venta', [TipoVentaController::class, 'index_Tventa'])->name('Tventa')->middleware('auth');
+Route::post('/tipo_venta', [TipoVentaController::class, 'ingreso_Tventa'])->middleware('auth');
+Route::get('/tipo_venta/{id}', [TipoVentaController::class, 'cambiar_estado'])->name('Tventa.cambiar_estado')->middleware('auth');
+Route::get('/tipo_venta/editar_documento/{id}', [TipoVentaController::class, 'editar_Tventa'])->name('Tventa.editar_Tventa')->middleware('auth');
+Route::put('/tipo_venta/{id}', [TipoVentaController::class, 'actualizar_Tventa'])->name('Tventa.actualizar_Tventa')->middleware('auth');
 
 
 
