@@ -92,13 +92,37 @@
             'active' => request()->routeIs('devoluciones.*'),
         ],
         [
-            'header' => 'Tipo Inventario',
+            'header' => 'Tipos',
         ],
         [
-            'name' => 'Tipo_Inventario',
+            'name' => 'Tipo Inventario',
             'icon' => 'fa-regular fa-pen-to-square',
             'route' => 'Tipo_Inventario',
             'active' => request()->routeIs('Tipo_Inventario'),
+        ],
+        [
+            'name' => 'Tipo Pago',
+            'icon' => 'fa-regular fa-pen-to-square',
+            'route' => 'Pago',
+            'active' => request()->routeIs('Tipo_Pago'),
+        ],
+        [
+            'name' => 'Tipo Venta',
+            'icon' => 'fa-regular fa-pen-to-square',
+            'route' => 'Tventa',
+            'active' => request()->routeIs('Tipo_Venta'),
+        ],
+        [
+            'name' => 'Tipo Documento',
+            'icon' => 'fa-regular fa-pen-to-square',
+            'route' => 'Documento',
+            'active' => request()->routeIs('Tipo_Documento'),
+        ],
+        [
+            'name' => 'Tipo Presentacion',
+            'icon' => 'fa-regular fa-pen-to-square',
+            'route' => 'Presentacion',
+            'active' => request()->routeIs('Tipo_Presentacion'),
         ],
         [
             'header' => 'Cajas',
@@ -112,20 +136,26 @@
         [
             'name' => 'Apertura de Caja',
             'icon' => 'fa-regular fa-pen-to-square',
-            'route' => 'Tipo_Inventario',
-            'active' => request()->routeIs('Tipo_Inventario'),
+            'route' => 'apertura-caja.index',
+            'active' => request()->routeIs('apertura-caja.index'),
         ],
         [
-            'name' => 'Cierre de Caja',
+            'name' => 'Cajas Cerradas',
             'icon' => 'fa-regular fa-pen-to-square',
-            'route' => 'Tipo_Inventario',
-            'active' => request()->routeIs('Tipo_Inventario'),
+            'route' => 'cierre-caja.index',
+            'active' => request()->routeIs('cierre-caja.index'),
+        ],
+        [
+            'name' => 'Asignacion de Caja',
+            'icon' => 'fa-regular fa-pen-to-square',
+            'route' => 'asignacion-caja.index',
+            'active' => request()->routeIs('asignacion-caja.index'),
         ],
         [
             'name' => 'Turno',
             'icon' => 'fa-regular fa-pen-to-square',
-            'route' => 'Tipo_Inventario',
-            'active' => request()->routeIs('Tipo_Inventario'),
+            'route' => 'turnos',
+            'active' => request()->routeIs('turnos'),
         ],
     ];
 @endphp
