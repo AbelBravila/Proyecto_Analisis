@@ -70,14 +70,16 @@ class VentaController extends Controller
                 return response()->json(['error' => 'La cantidad debe ser mayor a 0.'], 400);
             }
         
-            // Calcular subtotal de la venta
-            $subtotal += $producto['cantidad'] * $producto['precio'];
+            $precioUnitario = floatval($producto['precio_p']);
+            $cantidad = floatval($producto['cantidad']);
         
-            // Formatear los datos de los productos para el procedimiento almacenado
+            // Calcular subtotal
+            $subtotal += $cantidad * $precioUnitario;
+        
             $productosTable[] = [
                 'id_producto' => $producto['id_producto'],
-                'cantidad' => $producto['cantidad'],
-                'precio' => $producto['precio'],
+                'cantidad' => $cantidad,
+                'precio' => $precioUnitario, // ESTE es el precio final que el usuario ve
                 'id_presentacion_venta' => $producto['id_presentacion_venta'],
             ];
         }
