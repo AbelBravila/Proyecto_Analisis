@@ -1,5 +1,5 @@
 <x-admin-layout>
-    <b><h1 class="text-lg text-center dark:text-black">Registrar Venta</h1></b>
+    <b><h1 class="text-lg text-center dark:text-black ">Registrar Venta</h1></b>
 
     <form action="{{ route('ventas.crear') }}" method="POST">
         @csrf
@@ -10,19 +10,20 @@
 
         <style>
         .form-control {
-            border-radius: 10px; /* Cambia el valor según la redondez que desees */
-        }
+            border-radius: 10px; /* Para bordes redondeados */
+        } 
+
         </style>
 
         <!-- Fecha de venta -->
         <div class="mb-3">
-            <label for="fecha_venta" class="form-label">Fecha de Venta</label>
+            <label for="fecha_venta" class="form-label">Fecha de Venta</label>&ensp;
             <input type="date" name="fecha_venta" id="fecha_venta" class="form-control" required max="{{ $hoy }}">
         </div>
 
         <!-- Cliente -->
         <div class="mb-3">
-            <label for="id_cliente" class="form-label">Cliente</label>
+            <label for="id_cliente" class="form-label">Cliente</label>&ensp;
             <select name="id_cliente" id="id_cliente" class="form-control" required onchange="updateClienteDescuento()">
                 <option value="">Seleccionar Cliente</option>
                 @foreach ($clientesConDescuento as $cliente)
@@ -35,7 +36,7 @@
 
         <!-- Tipo de venta -->
         <div class="mb-3">
-            <label for="id_tipo_venta" class="form-label">Tipo de Venta</label>
+            <label for="id_tipo_venta" class="form-label">Tipo de Venta</label>&ensp;
             <select name="id_tipo_venta" id="id_tipo_venta" class="form-control" required>
                 <option value="">Seleccionar Tipo de Venta</option>
                 @foreach ($tipo_venta as $tipo)
@@ -46,7 +47,7 @@
 
         <!-- Tipo de pago -->
         <div class="mb-3">
-            <label for="id_tipo_pago" class="form-label">Tipo de Pago</label>
+            <label for="id_tipo_pago" class="form-label">Tipo de Pago</label> &ensp;
             <select name="id_tipo_pago" id="id_tipo_pago" class="form-control" required>
                 <option value="">Seleccionar Tipo de Pago</option>
                 @foreach ($tipo_pago as $tipo_p)
@@ -57,7 +58,7 @@
 
         <!-- Tipo de documento -->
         <div class="mb-3">
-            <label for="id_tipo_documento" class="form-label">Tipo de Documento</label>
+            <label for="id_tipo_documento" class="form-label">Tipo de Documento</label>&ensp;
             <select name="id_tipo_documento" id="id_tipo_documento" class="form-control" required>
                 <option value="">Seleccionar Tipo de Documento</option>
                 @foreach ($tipo_documento as $tipo_d)
@@ -114,34 +115,40 @@
                             </td>
                             <td><input type="text" name="productos[0][lote]" class="form-control" readonly></td>
                             <td><input type="text" name="productos[0][total_producto]" class="form-control" readonly></td>
-                            <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
+                            <td class="px-6 py-3 dark:text-black"><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
         <div class="mb-3">
-            <button type="button" class="btn btn-outline-secondary btn-lg text-blue-600 dark:text-blue-500 hover:underline" id="addProductBtn">Agregar Producto</button>
+            <button type="button" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" id="addProductBtn">
+            <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+                Agregar Producto
+            </button>
         </div>
 
         <!-- Totales -->
         <div class="form-group">
-            <label for="subtotal">Subtotal</label>
+            <label for="subtotal">Subtotal</label>&ensp;
             <input type="text" id="subtotal" class="form-control" value="{{ old('subtotal', 0) }}" readonly>
         </div>
         <br>
         <div class="form-group">
-            <label for="descuento">Descuento</label>
+            <label for="descuento">Descuento</label>&ensp;
             <input type="text" id="descuento" class="form-control" value="{{ old('descuento', 0) }}" readonly>
         </div>
         <br>
         <div class="form-group">
-            <label for="total">Total</label>
+            <label for="total">Total</label>&ensp;
             <input type="text" id="total" class="form-control" value="{{ old('total', 0) }}" readonly>
         </div>
         <br>
         <div class="mb-3 text-center">
-            <button type="submit" class="btn btn-outline-secondary btn-lg text-blue-600 dark:text-blue-500 hover:underline" >Registrar Venta</button>
+            <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" >
+            <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+                Registrar Venta
+            </button>
         </div>
     </form>
 
@@ -263,7 +270,7 @@
                 </td>
                 <td><input type="text" name="productos[${rowIndex}][lote]" class="form-control" readonly></td>
                 <td><input type="text" name="productos[${rowIndex}][total_producto]" class="form-control" readonly></td>
-                <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
+                <td class="px-6 py-3 dark:text-black" ><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
             `;
             tableBody.appendChild(newRow);
         });
