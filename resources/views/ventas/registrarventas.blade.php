@@ -8,6 +8,12 @@
             $hoy = \Carbon\Carbon::now()->format('Y-m-d');
         @endphp
 
+        <style>
+        .form-control {
+            border-radius: 10px; /* Cambia el valor según la redondez que desees */
+        }
+        </style>
+
         <!-- Fecha de venta -->
         <div class="mb-3">
             <label for="fecha_venta" class="form-label">Fecha de Venta</label>
@@ -123,17 +129,17 @@
             <label for="subtotal">Subtotal</label>
             <input type="text" id="subtotal" class="form-control" value="{{ old('subtotal', 0) }}" readonly>
         </div>
-
+        <br>
         <div class="form-group">
             <label for="descuento">Descuento</label>
             <input type="text" id="descuento" class="form-control" value="{{ old('descuento', 0) }}" readonly>
         </div>
-
+        <br>
         <div class="form-group">
             <label for="total">Total</label>
             <input type="text" id="total" class="form-control" value="{{ old('total', 0) }}" readonly>
         </div>
-
+        <br>
         <div class="mb-3 text-center">
             <button type="submit" class="btn btn-outline-secondary btn-lg text-blue-600 dark:text-blue-500 hover:underline" >Registrar Venta</button>
         </div>
