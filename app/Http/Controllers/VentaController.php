@@ -159,6 +159,30 @@ class VentaController extends Controller
         return redirect()->route('ventas')->with('success', 'Venta registrada exitosamente.');
     }
 
+    public function anular($id)
+    {
+        DB::statement('EXEC sp_anularVenta ?', [$id]);
 
+        return redirect()->route('ventas')->with('success', 'Venta Anulada');
+    }
+
+    public function show($id)
+    {
+        $total_detalle = DB::table('vw_productos_vendidos')
+            ->where('id_venta', $id)
+            ->get();
+
+            return view('ventas.partials.detalle_modal', compact('total_detalle'));
+    }
+
+
+    public function mostrarDetalle($id)
+    {
+        $total_detalle = DB::table('vw_productos_vendidos')
+            ->where('id_venta', $id)
+            ->get();
+
+        return view('ventas.partials.detalle_modal', compact('total_detalle'));
+    }
 }
 
