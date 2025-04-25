@@ -184,6 +184,7 @@
             document.querySelector(`input[name="productos[${index}][lote]"]`).value = productLot;
 
             updateTotalProducto(index); // Actualizamos el total por producto
+            updateTotals();
         }
 
 
@@ -265,7 +266,6 @@
                 <td><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
             `;
             tableBody.appendChild(newRow);
-            updateTotals();
         });
 
     </script>
