@@ -12,6 +12,7 @@ use App\Models\EsquemaProducto;
 use App\Models\Producto;
 use App\Models\TipoCompra;
 use App\Models\Presentacion;
+use App\Models\Estanteria;
 
 class ComprasController extends Controller
 {
@@ -19,7 +20,7 @@ class ComprasController extends Controller
     {
         $buscar = $request->input('buscador');
 
-        $compras = DB::table('vw_detalle_compra')
+        $compras = DB::table('vw_detalle_compra') ->where('estado', '=', 'A') 
             ->when($buscar, function ($query, $buscar) {
                 return $query->where('nombre_proveedor', 'LIKE', "%{$buscar}%")
                             ->orWhere('id_compra', 'LIKE', "%{$buscar}%");
@@ -35,7 +36,8 @@ class ComprasController extends Controller
         $tipo_compra = TipoCompra::where('estado', 'A')->get();
         $productos = EsquemaProducto::where('estado', 'A')->get(); 
         $presentaciones = Presentacion::where('estado', 'A')->get();
-        return view('compras.registrarcompras', compact('productos', 'presentaciones', 'tipo_compra', 'proveedores'));
+        $estanterias = Estanteria::where('estado', 'A')->get();
+        return view('compras.registrarcompras', compact('productos', 'presentaciones', 'tipo_compra', 'proveedores', 'estanterias'));
         
     }
 
@@ -43,14 +45,13 @@ class ComprasController extends Controller
     {
         // Recoger los productos y otros datos de la solicitud
         $productos = $request->input('productos');  // Un array de productos
-    
         // Crear una tabla temporal de productos en SQL Server
         $productosTable = [];
         foreach ($productos as $producto) {
             // Convertir las fechas con Carbon y asegurarse de que estén en el formato correcto
-            $fechaFabricacion = Carbon::parse($producto['fecha_fabricacion'])->format('Y-m-d');
-            $fechaVencimiento = Carbon::parse($producto['fecha_vencimiento'])->format('Y-m-d');
-            
+            $fechaFabricacion = Carbon::parse($producto['fecha_fabricacion'])->format('Ymd');
+            $fechaVencimiento = Carbon::parse($producto['fecha_vencimiento'])->format('Ymd');           
+
             // Log para verificar las fechas
             \Log::info("Producto ID: {$producto['id_esquema_producto']} - Fecha Fabricación: {$fechaFabricacion} - Fecha Vencimiento: {$fechaVencimiento}");
     
@@ -74,6 +75,7 @@ class ComprasController extends Controller
                 'IdPresentacion' => $producto['id_presentacion'],
                 'Cantidad' => $producto['cantidad'],
                 'Costo' => $producto['costo'],
+                'IdEstanteria' => $producto['id_estanteria'] 
             ];
         }
     
@@ -81,7 +83,7 @@ class ComprasController extends Controller
         $insertValues = [];
         foreach ($productosTable as $producto) {
             $insertValues[] = sprintf(
-                "('%d', '%s', '%s', '%s', '%s', '%d', '%d', '%f')",
+                "(%d, '%s', '%s', '%s', '%s', %d, %d, %.2f, %d)",
                 $producto['IdEsquemaProducto'],
                 $producto['Lote'],
                 $producto['Fabricante'],
@@ -89,37 +91,60 @@ class ComprasController extends Controller
                 $producto['FechaVencimiento'],
                 $producto['IdPresentacion'],
                 $producto['Cantidad'],
-                $producto['Costo']
-            );
+                $producto['Costo'],
+                $producto['IdEstanteria']
+            );     
+            
         }
         $insertQuery = implode(', ', $insertValues);
         \Log::info("Insert Query: " . $insertQuery);
-    
+        // Obtener la empresa del usuario actual
+        $idEmpresa = Auth::user()->empresa()->where('estado', 'A')->first()?->id_empresa;
+
+        if (!$idEmpresa) {
+            return back()->with('error', 'No se encontró una empresa asociada al usuario.');
+        }
+        
+        $fechaCompra = $request->input('fecha_compra');
+        $hoy = Carbon::now()->format('Y-m-d');
+
+        if ($fechaCompra > $hoy) {
+            return back()->with('error', 'La fecha de compra no puede ser mayor a la fecha actual.');
+        }
+
         // Ejecutar el procedimiento almacenado usando una tabla temporal
-        DB::transaction(function () use ($request, $insertQuery) {
-            DB::statement('
-                DECLARE @Productos TipoProductos;
-                
-                -- Llenar la variable de tabla @Productos
-                INSERT INTO @Productos (IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo)
-                VALUES ' . $insertQuery . ';
-                
-                -- Llamar al procedimiento almacenado con los parámetros
-                EXEC sp_RegistrarCompra 
-                    @FechaCompra = ?, 
-                    @IdTipoCompra = ?, 
-                    @IdProveedor = ?, 
-                    @Productos = @Productos;
-            ', [
-                // Asegurarse de formatear la fecha de compra correctamente
-                Carbon::parse($request->input('fecha_compra'))->format('Y-m-d'),  // Formatear fecha de compra
+        DB::transaction(function () use ($request, $insertQuery, $idEmpresa) {
+            DB::statement("
+            DECLARE @Productos TipoProductos;
+
+            INSERT INTO @Productos (IdEsquemaProducto, Lote, Fabricante, FechaFabricacion, FechaVencimiento, IdPresentacion, Cantidad, Costo, IdEstanteria)
+            VALUES $insertQuery;
+
+            EXEC sp_RegistrarCompra 
+                @FechaCompra = ?, 
+                @IdTipoCompra = ?, 
+                @IdProveedor = ?, 
+                @Productos = @Productos, 
+                @IdEmpresa = ?;
+            ", [
+                Carbon::parse($request->input('fecha_compra'))->toDateString(), 
                 $request->input('id_tipo_compra'),
                 $request->input('id_proveedor'),
+                $idEmpresa
             ]);
+
         });
+        
     
         // Redirigir con un mensaje de éxito
         return redirect()->route('compras')->with('success', 'Compra registrada exitosamente.');
+    }
+
+    public function anular($id)
+    {
+        DB::statement('EXEC sp_anularCompra ?', [$id]);
+
+        return redirect()->route('compras')->with('success', 'Compra Anulada');
     }
     
 
@@ -135,4 +160,22 @@ class ComprasController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        $total_detalle = DB::table('vw_productos_comprados')
+            ->where('id_compra', $id)
+            ->get();
+
+            return view('compras.partials.detalle_modal', compact('total_detalle'));
+    }
+
+
+    public function mostrarDetalle($id)
+    {
+        $total_detalle = DB::table('vw_productos_comprados')
+            ->where('id_compra', $id)
+            ->get();
+
+        return view('compras.partials.detalle_modal', compact('total_detalle'));
+    }
 }

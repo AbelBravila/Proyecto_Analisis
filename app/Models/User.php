@@ -32,5 +32,11 @@ class User extends Authenticatable
         'dias'
     ];
 
+    public function empresa()
+    {
+        return $this->belongsToMany(Empresa::class, 'empresa_usuario', 'id_usuario', 'id_empresa');
+    }
+
+
     protected $hidden = ['contrasena']; 
 }

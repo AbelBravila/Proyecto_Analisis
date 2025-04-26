@@ -70,4 +70,23 @@
  
          return response()->json(['nombre_producto' => $producto->nombre_producto ?? 'Producto no encontrado']);
      }
+
+     public function VerPedido()
+     {
+        $pedidos = DB::table('pedido')
+            ->where('estado', 'A')
+            ->get();
+
+        return view('admin.VerPedidos', compact('pedidos'));
+     }
+     public function mostrarDetalles($id)
+     {
+         $detalles = DB::table('VW_Detalle_Pedidos')
+             ->where('id_pedido', $id)
+             ->get();
+     
+         return view('layouts.partials.admin.detallepedidos', compact('detalles'));
+     }
+     
+     
  }
