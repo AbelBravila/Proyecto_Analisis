@@ -1,122 +1,7 @@
 @php
-    $links = [
-<<<<<<< HEAD
-    [
-        'name' => 'Dashboard',
-        'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'welcome',
-        'active' => request()->routeIs('welcome')
-    ],
-    [
-        'header' => 'Usuarios',
-    ],
-    [
-        'name' => 'Usuarios',
-        'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'Usuario',
-        'active' => request()->routeIs('Usuario')
-    ],
-    [
-        'header' => 'Proveedores',
-    ],
-    [
-        'name' => 'Proveedores',
-        'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'proveedor',
-        'active' => request()->routeIs('proveedor')
-    ],
-    [
-        'header' => 'Clientes',
-    ],
-    [
-        'name' => 'Clientes',
-        'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'cliente',
-        'active' => request()->routeIs('cliente')
-    ],
-    [
-        'header' => 'Tipos_Compra',
-    ],
-    [
-        'name' => 'Tipos de Compra',
-        'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'tipo_compra',
-        'active' => request()->routeIs('tipo_compra')
-    ],
-    [
-        'header' => 'Tipos_Inventario',
-    ],
-    [
-        'name' => 'Tipos de Inventario',
-        'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'tipo_inventario',
-        'active' => request()->routeIs('tipo_inventario')
-    ],
-    [
-        'header' => 'Tipos_Cliente',
-    ],
-    [
-        'name' => 'Tipos de Clientes',
-        'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'tipo_cliente',
-        'active' => request()->routeIs('tipo_cliente')
-    ],
-    [
-        'header' => 'Productos',
-    ],
-    [
-        'name' => 'Productos',
-        'icon' => 'fa-solid fa-cart-plus',
-        'route' => 'producto',
-        'active' => request()->routeIs('producto')
-    ],
-    [
-        'header' => 'Compras',
-    ],
-    [
-        'name' => 'Compras',
-        'icon' => 'fa-solid fa-shopping-cart',
-        'route' => 'compras',
-        'active' => request()->routeIs('compras')
-    ],
-    [
-        'header' => 'Ubicaciones',
-    ],
-    [
-        'name' => 'Pasillos',
-        'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'Pasillo',
-        'active' => request()->routeIs('Pasillo')
-    ],
-    [
-        'name' => 'Estantes',
-        'icon' => 'fa-solid fa-gauge-high',
-        'route' => 'Estanteria',
-        'active' => request()->routeIs('Estanteria')
-    ],
-    [
-        'header' => 'Cotización Compras',
-    ],
-    [
-        'name' => 'Pedidos',
-        'icon' => 'fa-regular fa-pen-to-square',
-        'route' => 'pedidos',
-        'active' => request()->routeIs('pedidos')
-    ],
-    
-    [
-    'header' => 'Devoluciones',
-    
-    ],
-    [
-        'name' => 'Gestión de Devoluciones',
-        'icon' => 'fa-solid fa-boxes-packing',
-        'route' => 'devoluciones.index',
-        'active' => request()->routeIs('devoluciones.*')
-    ],
+    $links = 
+    [    
 
-    ]    
-=======
         [
             'name' => 'Dashboard',
             'icon' => 'fa-solid fa-gauge-high',
@@ -158,6 +43,15 @@
             'icon' => 'fa-solid fa-shopping-cart',
             'route' => 'compras',
             'active' => request()->routeIs('compras'),
+        ],
+        [
+            'header' => 'Clientes',
+        ],
+        [
+            'name' => 'Clientes',
+            'icon' => 'fa-solid fa-gauge-high',
+            'route' => 'cliente',
+            'active' => request()->routeIs('cliente'),
         ],
         [
             'header' => 'Ventas',
@@ -210,6 +104,18 @@
         ],
         [
             'header' => 'Tipos',
+        ],
+        [
+            'name' => 'Tipos de Compra',
+            'icon' => 'fa-solid fa-pen-to-square',
+            'route' => 'tipo_compra',
+            'active' => request()->routeIs('tipo_compra')
+        ],
+        [
+            'name' => 'Tipos de Clientes',
+            'icon' => 'fa-solid fa-pen-to-square',
+            'route' => 'tipo_cliente',
+            'active' => request()->routeIs('tipo_cliente')
         ],
         [
             'name' => 'Tipo Inventario',
@@ -275,7 +181,7 @@
             'active' => request()->routeIs('turnos'),
         ],
     ];
->>>>>>> 701b7b9d4f7cce2af03047f9ac0d959042d6205e
+
 @endphp
 
 <aside id="logo-"

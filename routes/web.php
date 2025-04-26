@@ -17,17 +17,17 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\PasilloController;
 use App\Http\Controllers\EstanteController;
 use App\Http\Controllers\Tipo_InventarioController;
-<<<<<<< HEAD
+
 use App\Http\Controllers\Tipo_ClienteController;
 use App\Http\Controllers\ClienteController;
-=======
+
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\TipoDocumentoController;
 use App\Http\Controllers\TipoVentaController;
 use App\Http\Controllers\TipoPagoController;
 use App\Http\Controllers\PresentacionController;
 
->>>>>>> 701b7b9d4f7cce2af03047f9ac0d959042d6205e
+
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EnviarCorreo;
 use App\Http\Controllers\RecuperacionController;
