@@ -25,6 +25,42 @@
         'active' => request()->routeIs('proveedor')
     ],
     [
+        'header' => 'Clientes',
+    ],
+    [
+        'name' => 'Clientes',
+        'icon' => 'fa-solid fa-gauge-high',
+        'route' => 'cliente',
+        'active' => request()->routeIs('cliente')
+    ],
+    [
+        'header' => 'Tipos_Compra',
+    ],
+    [
+        'name' => 'Tipos de Compra',
+        'icon' => 'fa-solid fa-gauge-high',
+        'route' => 'tipo_compra',
+        'active' => request()->routeIs('tipo_compra')
+    ],
+    [
+        'header' => 'Tipos_Inventario',
+    ],
+    [
+        'name' => 'Tipos de Inventario',
+        'icon' => 'fa-solid fa-gauge-high',
+        'route' => 'tipo_inventario',
+        'active' => request()->routeIs('tipo_inventario')
+    ],
+    [
+        'header' => 'Tipos_Cliente',
+    ],
+    [
+        'name' => 'Tipos de Clientes',
+        'icon' => 'fa-solid fa-gauge-high',
+        'route' => 'tipo_cliente',
+        'active' => request()->routeIs('tipo_cliente')
+    ],
+    [
         'header' => 'Productos',
     ],
     [
@@ -77,16 +113,6 @@
         'route' => 'devoluciones.index',
         'active' => request()->routeIs('devoluciones.*')
     ],
-    [
-        'header' => 'Tipo Inventario',
-    ],
-    [
-        'name' => 'Tipo_Inventario',
-        'icon' => 'fa-regular fa-pen-to-square',
-        'route' => 'Tipo_Inventario',
-        'active' => request()->routeIs('Tipo_Inventario')
-    ],
-
 
     ]    
 @endphp

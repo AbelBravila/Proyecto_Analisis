@@ -12,12 +12,12 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\PasilloController;
 use App\Http\Controllers\EstanteController;
 use App\Http\Controllers\Tipo_InventarioController;
-
-
+use App\Http\Controllers\Tipo_ClienteController;
+use App\Http\Controllers\ClienteController;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EnviarCorreo;
 use App\Http\Controllers\RecuperacionController;
-
+use App\Http\Controllers\Tipo_CompraController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -57,6 +57,35 @@ Route::post('/proveedor/proveedor', [ProveedorController::class, 'agregar'])->mi
 Route::get('/proveedor/proveedor/editar_proveedor/{id}', [ProveedorController::class, 'editar_proveedor'])->name('proveedor.editar_proveedor')->middleware('auth');
 Route::put('/proveedor/proveedor/{id}', [ProveedorController::class, 'actualizar_proveedor'])->name('proveedor.actualizar_proveedor')->middleware('auth');
 Route::get('/proveedor/proveedor/{id}', [ProveedorController::class, 'cambiar_estado'])->name('proveedor.cambiar_estado')->middleware('auth');
+
+// Tipo Compra (Isaac)
+Route::get('/tipo_compra/tipo_compra', [Tipo_CompraController::class, 'index_tipo_compra'])->name('tipo_compra')->middleware('auth');
+Route::post('/tipo_compra/tipo_compra', [Tipo_CompraController::class, 'agregar'])->middleware('auth');
+Route::get('/tipo_compra/tipo_compra/editar_tipo_compra/{id}', [Tipo_CompraController::class, 'editar_tipo_compra'])->name('tipo_compra.editar_tipo_compra')->middleware('auth');
+Route::put('/tipo_compra/tipo_compra/{id}', [Tipo_CompraController::class, 'actualizar_tipo_compra'])->name('tipo_compra.actualizar_tipo_compra')->middleware('auth');
+Route::get('/tipo_compra/tipo_compra/{id}', [Tipo_CompraController::class, 'cambiar_estado'])->name('tipo_compra.cambiar_estado')->middleware('auth');
+
+
+// Tipo Inventario (Isaac)
+Route::get('/tipo_inventario/tipo_inventario', [Tipo_InventarioController::class, 'index_tipo_inventario'])->name('tipo_inventario')->middleware('auth');
+Route::post('/tipo_inventario/tipo_inventario', [Tipo_InventarioController::class, 'agregar'])->middleware('auth');
+Route::get('/tipo_inventario/tipo_inventario/editar_tipo_inventario/{id}', [Tipo_InventarioController::class, 'editar_tipo_inventario'])->name('tipo_inventario.editar_tipo_inventario')->middleware('auth');
+Route::put('/tipo_inventario/tipo_inventario/{id}', [Tipo_InventarioController::class, 'actualizar_tipo_inventario'])->name('tipo_inventario.actualizar_tipo_inventario')->middleware('auth');
+Route::get('/tipo_inventario/tipo_inventario/{id}', [Tipo_InventarioController::class, 'cambiar_estado'])->name('tipo_inventario.cambiar_estado')->middleware('auth');
+
+// Tipo Clinte (Isaac)
+Route::get('/tipo_cliente/tipo_cliente', [Tipo_ClienteController::class, 'index_tipo_cliente'])->name('tipo_cliente')->middleware('auth');
+Route::post('/tipo_cliente/tipo_cliente', [Tipo_ClienteController::class, 'agregar'])->middleware('auth');
+Route::get('/tipo_cliente/tipo_cliente/editar_tipo_cliente/{id}', [Tipo_ClienteController::class, 'editar_tipo_cliente'])->name('tipo_cliente.editar_tipo_cliente')->middleware('auth');
+Route::put('/tipo_cliente/tipo_cliente/{id}', [Tipo_ClienteController::class, 'actualizar_tipo_cliente'])->name('tipo_cliente.actualizar_tipo_cliente')->middleware('auth');
+Route::get('/tipo_cliente/tipo_cliente/{id}', [Tipo_ClienteController::class, 'cambiar_estado'])->name('tipo_cliente.cambiar_estado')->middleware('auth');
+
+// Cliente
+Route::get('/cliente/cliente', [ClienteController::class, 'index_cliente'])->name('cliente')->middleware('auth');
+Route::post('/cliente/cliente', [ClienteController::class, 'agregar'])->middleware('auth');
+Route::get('/cliente/cliente/editar_cliente/{id}', [ClienteController::class, 'editar_cliente'])->name('cliente.editar_cliente')->middleware('auth');
+Route::put('/cliente/cliente/{id}', [ClienteController::class, 'actualizar_cliente'])->name('cliente.actualizar_cliente')->middleware('auth');
+Route::get('/cliente/cliente/{id}', [ClienteController::class, 'cambiar_estado'])->name('cliente.cambiar_estado')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     Route::get('/admin/pedidos', [PedidosController::class, 'index_pedidos'])->name('pedidos');
