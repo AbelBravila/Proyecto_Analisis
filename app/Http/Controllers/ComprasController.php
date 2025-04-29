@@ -20,7 +20,7 @@ class ComprasController extends Controller
     {
         $buscar = $request->input('buscador');
 
-        $compras = DB::table('vw_detalle_compra') ->where('estado', '=', 'A') 
+        $compras = DB::table('vw_detalle_compra') ->where('estado', '!=', 'I') 
             ->when($buscar, function ($query, $buscar) {
                 return $query->where('nombre_proveedor', 'LIKE', "%{$buscar}%")
                             ->orWhere('id_compra', 'LIKE', "%{$buscar}%");
