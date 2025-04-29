@@ -97,10 +97,16 @@
             'header' => 'Devoluciones',
         ],
         [
-            'name' => 'Gestión de Devoluciones',
+            'name' => 'Devoluciones de Compras',
             'icon' => 'fa-solid fa-boxes-packing',
             'route' => 'devoluciones.index',
             'active' => request()->routeIs('devoluciones.*'),
+        ],
+        [
+            'name' => 'Devoluciones de Ventas',
+            'icon' => 'fa-solid fa-boxes-packing',
+            'route' => 'devoluciones_venta.index',
+            'active' => request()->routeIs('devoluciones_venta.*'),
         ],
         [
             'header' => 'Tipos',

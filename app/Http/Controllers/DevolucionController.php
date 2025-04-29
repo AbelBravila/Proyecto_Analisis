@@ -4,13 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Devolucion;
-use App\Models\DetalleDevolucion;
 use App\Models\Compra;
-use App\Models\Producto;
 use App\Models\Proveedor;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-
 
 class DevolucionController extends Controller
 {

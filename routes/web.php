@@ -20,7 +20,7 @@ use App\Http\Controllers\Tipo_InventarioController;
 
 use App\Http\Controllers\Tipo_ClienteController;
 use App\Http\Controllers\ClienteController;
-
+use App\Http\Controllers\DevolucionVentaController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\TipoDocumentoController;
 use App\Http\Controllers\TipoVentaController;
@@ -188,7 +188,21 @@ Route::prefix('devoluciones')->name('devoluciones.')->group(function () {
     // Mueve esta ruta al final
     Route::get('/{id}', [DevolucionController::class, 'show'])->name('show');
 });
-    
+
+Route::prefix('devoluciones_venta')->name('devoluciones_venta.')->group(function () {
+    Route::get('/', [DevolucionVentaController::class, 'index'])->name('index');
+    Route::get('/create', [DevolucionVentaController::class, 'create'])->name('create');
+    Route::post('/store', [DevolucionVentaController::class, 'store'])->name('store');
+    // Rutas AJAX para búsqueda de ventas
+    Route::get('/', [DevolucionVentaController::class, 'index'])->name('index');
+    Route::post('/buscar', [DevolucionVentaController::class, 'buscar'])->name('buscar');
+    Route::get('/buscar-ventas', [DevolucionVentaController::class, 'buscarVentas'])->name('buscar-ventas');
+    Route::get('/detalle/{id}', [DevolucionVentaController::class, 'detalle'])->name('venta.detalle');
+// Detalle de venta seleccionada
+    Route::get('/venta/{id}/detalle', [DevolucionVentaController::class, 'detalleVenta'])->name('venta.detalle');
+    // Ver detalles de una devolución específica (última ruta por convención)
+    Route::get('/{id}', [DevolucionVentaController::class, 'show'])->name('show');
+});
 
 
 Route::put('/estanteria/{id}', [EstanteController::class, 'update'])->name('Estanteria.update');

@@ -14,7 +14,7 @@ class DetalleDevolucion extends Model
         'id_devolucion',
         'id_producto',
         'cantidad',
-        'costo'
+        'precio'
     ];
 
     public function devolucion()

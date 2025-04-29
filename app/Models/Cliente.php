@@ -24,7 +24,7 @@ class Cliente extends Model
         'nombre_cliente',
         'dpi',
         'nit',
-        'teléfono',
+        'telefono',
         'correo',
         'estado'
     ];
