@@ -15,6 +15,7 @@ class DevolucionVenta extends Model
         'id_venta',
         'estado'
     ];
+    protected $dates = ['fecha_devolucion_venta'];
 
     public function detalles()
     {
@@ -23,6 +24,12 @@ class DevolucionVenta extends Model
 
     public function venta()
     {
-        return $this->belongsTo(Venta::class, 'id_venta');
+        return $this->belongsTo(Venta::class, 'id_venta'); // Verifica que la FK sea correcta
     }
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class, 'id_cliente');
+    }
+
 }

@@ -6,18 +6,19 @@ use App\Models\DevolucionVenta; // Modelo por crear
 use App\Models\Venta;
 use App\Models\Cliente;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DevolucionVentaController extends Controller
 {
     public function index()
     {
-        $devoluciones = DevolucionVenta::with(['detalles.producto.esquema', 'venta.cliente'])
-            ->orderBy('fecha_devolucion', 'desc')
-            ->paginate(10);
+        $devoluciones = DevolucionVenta::with(['detalles.producto.esquema', 'cliente']) // Cambio aquí
+        ->orderBy('fecha_devolucion_venta', 'desc')
+        ->paginate(10);
 
-        $clientes = Cliente::where('estado', 'A')->get();
+    $clientes = Cliente::where('estado', 'A')->get();
 
-        return view('devoluciones_venta.index', compact('devoluciones', 'clientes'));
+    return view('devoluciones_venta.index', compact('devoluciones', 'clientes'));
     }
 
     public function create()
@@ -35,33 +36,71 @@ class DevolucionVentaController extends Controller
     {
         $request->validate([
             'id_venta' => 'required|integer',
+            'productos' => 'required|array',
         ]);
-
+        
         // Filtrar productos con cantidad > 0
         $productosDevolver = [];
-
+        
         foreach ($request->productos as $producto) {
-            if (isset($producto['cantidad']) && $producto['cantidad'] > 0) {
+            if (isset($producto['cantidad']) && intval($producto['cantidad']) > 0) {
                 $productosDevolver[] = [
                     'nombre_producto' => $producto['nombre_producto'],
-                    'cantidad' => $producto['cantidad']
+                    'cantidad' => intval($producto['cantidad'])
                 ];
             }
         }
-
+        
+        if (empty($productosDevolver)) {
+            return redirect()->back()
+                ->with('error', 'Debe seleccionar al menos un producto para devolver.')
+                ->withInput();
+        }
+        
         // Convertir a JSON
-        $productosJSON = json_encode($productosDevolver);
-
+        $productosJSON = json_encode($productosDevolver, JSON_UNESCAPED_UNICODE);
+        
         try {
+            // Log para debug
+            Log::info('Ejecutando devolución de venta', [
+                'id_venta' => $request->id_venta,
+                'productos' => $productosJSON
+            ]);
+            
             // Ejecutar procedimiento almacenado
-            DB::statement('EXEC sp_RegistrarDevolucionVenta @id_venta = ?, @ProductosDevolver = ?', [
+            $result = DB::select('EXEC sp_RegistrarDevolucionVenta @id_venta = ?, @ProductosDevolver = ?', [
                 $request->id_venta,
                 $productosJSON
             ]);
-
+            
+            // Verificar el resultado
+            Log::info('Resultado del procedimiento', ['result' => $result]);
+            
+            // Analizar mensajes de respuesta del procedimiento
+            $mensajeError = null;
+            foreach ($result as $row) {
+                // Si alguna fila contiene un mensaje de error, lo capturamos
+                if (property_exists($row, 'Mensaje') && strpos($row->Mensaje, 'Error:') === 0) {
+                    $mensajeError = $row->Mensaje;
+                    break;
+                }
+            }
+            
+            if ($mensajeError) {
+                return redirect()->back()
+                    ->with('error', $mensajeError)
+                    ->withInput();
+            }
+            
             return redirect()->route('devoluciones_venta.index')
                 ->with('success', 'Devolución de venta registrada correctamente');
+                
         } catch (\Exception $e) {
+            Log::error('Error al registrar devolución de venta', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return redirect()->back()
                 ->with('error', 'Error al registrar la devolución de venta: ' . $e->getMessage())
                 ->withInput();
@@ -78,7 +117,7 @@ class DevolucionVentaController extends Controller
 
     public function show($id)
     {
-        $devolucion = DevolucionVenta::with(['detalles.producto.esquema', 'venta.cliente'])
+        $devolucion = DevolucionVenta::with(['detalles.producto.esquema', 'venta.cliente','venta.detalle.producto'])
             ->findOrFail($id);
 
         return view('devoluciones_venta.show', compact('devolucion'));

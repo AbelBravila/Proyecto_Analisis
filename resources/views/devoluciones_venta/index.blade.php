@@ -23,12 +23,12 @@
                     @forelse($devoluciones as $devolucion)
                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                         <td class="px-6 py-4">{{ $devolucion->id_devolucion_venta }}</td>
-                        <td class="px-6 py-4">{{ \Carbon\Carbon::parse($devolucion->fecha_devolucion)->format('d/m/Y H:i') }}</td>
+                        <td class="px-6 py-4">{{ \Carbon\Carbon::parse($devolucion->fecha_devolucion_venta)->format('d/m/Y H:i') }}</td>
                         <td class="px-6 py-4">
-                            @if ($devolucion->venta?->cliente)
-                                {{ $devolucion->venta->cliente->nombre_cliente }}
+                            @if($devolucion->cliente)
+                                {{ $devolucion->cliente->nombre_cliente }}
                             @else
-                                Cliente no especificado
+                                Cliente no encontrado
                             @endif
                         </td>
                         <td class="px-6 py-4">

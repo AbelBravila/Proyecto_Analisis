@@ -194,7 +194,6 @@ Route::prefix('devoluciones_venta')->name('devoluciones_venta.')->group(function
     Route::get('/create', [DevolucionVentaController::class, 'create'])->name('create');
     Route::post('/store', [DevolucionVentaController::class, 'store'])->name('store');
     // Rutas AJAX para búsqueda de ventas
-    Route::get('/', [DevolucionVentaController::class, 'index'])->name('index');
     Route::post('/buscar', [DevolucionVentaController::class, 'buscar'])->name('buscar');
     Route::get('/buscar-ventas', [DevolucionVentaController::class, 'buscarVentas'])->name('buscar-ventas');
     Route::get('/detalle/{id}', [DevolucionVentaController::class, 'detalle'])->name('venta.detalle');

@@ -6,6 +6,12 @@
         </a>
     </div>
 
+    @if(session('error'))
+    <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert">
+        {{ session('error') }}
+    </div>
+    @endif
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Información de la Venta</h3>
@@ -106,35 +112,53 @@
     <script>
         function validarCantidadVenta(input) {
             const max = parseInt(input.dataset.max);
-            const valor = parseInt(input.value);
-
-            if (valor < 0) {
+            const valor = parseInt(input.value) || 0;
+    
+            if (isNaN(valor) || valor < 0) {
                 input.value = 0;
+                alert('Por favor ingrese un valor válido');
             } else if (valor > max) {
                 input.value = max;
                 alert(`No puede devolver más de ${max} unidades`);
             }
         }
-
+    
         document.getElementById('formDevolucionVenta').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Verificar si hay alguna devolución
             const inputs = document.querySelectorAll('input[name^="productos"][name$="[cantidad]"]');
             let hayDevolucion = false;
-
+            let totalDevolver = 0;
+    
             inputs.forEach(input => {
-                if (parseInt(input.value) > 0) {
+                const valor = parseInt(input.value) || 0;
+                if (valor > 0) {
                     hayDevolucion = true;
+                    totalDevolver += valor;
                 }
             });
-
+    
             if (!hayDevolucion) {
+                e.preventDefault();
                 alert('Debe seleccionar al menos un producto para devolver');
-                return;
+                return false;
             }
-
-            this.submit();
+            
+            // Confirmación de devolución
+            if (!confirm(`¿Está seguro de devolver ${totalDevolver} producto(s)? Esta acción no se puede deshacer.`)) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Deshabilitar botón para evitar envíos duplicados
+            document.getElementById('btnSubmitVenta').disabled = true;
+            document.getElementById('btnSubmitVenta').innerHTML = 'Procesando...';
+        });
+        
+        // Inicializar todas las cantidades a 0 al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input[name^="productos"][name$="[cantidad]"]');
+            inputs.forEach(input => {
+                input.value = 0;
+            });
         });
     </script>
 </x-admin-layout>
