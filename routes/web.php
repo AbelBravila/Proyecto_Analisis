@@ -17,7 +17,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\PasilloController;
 use App\Http\Controllers\EstanteController;
 use App\Http\Controllers\Tipo_InventarioController;
-
+use App\Http\Controllers\OfertasController;
 use App\Http\Controllers\Tipo_ClienteController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DevolucionVentaController;
@@ -129,6 +129,15 @@ Route::post('/compras/producto', [ProductoController::class, 'agregar'])->middle
 Route::get('/compras/producto/editar_producto/{id}', [ProductoController::class, 'editar_producto'])->name('producto.editar_producto')->middleware('auth');
 Route::put('/compras/producto/{id}', [ProductoController::class, 'actualizar_producto'])->name('producto.actualizar_producto')->middleware('auth');
 Route::get('/compras/producto/{id}', [ProductoController::class, 'cambiar_estado'])->name('producto.cambiar_estado')->middleware('auth');
+
+//OFERTAS
+Route::middleware('auth')->group(function () {
+    Route::get('/ofertas',            [OfertasController::class, 'index'])->name('ofertas');
+    Route::get('/ofertas/create',     [OfertasController::class, 'create'])->name('ofertas.create');
+    Route::post('/ofertas',           [OfertasController::class, 'store'])->name('ofertas.store');
+    Route::post('/producto/buscar',   [OfertasController::class, 'buscarPorNombre'])->name('producto.buscar.nombre');
+    Route::get('/ofertas/{id}/detalles',[OfertasController::class,'mostrarDetalles'])->name('ofertas.detalles');
+});
 
 //VENTAS
 Route::get('/ventas/ventas', [VentaController::class, 'index_ventas'])->name('ventas')->middleware('auth');

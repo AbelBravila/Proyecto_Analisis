@@ -36,6 +36,12 @@
             'active' => request()->routeIs('producto'),
         ],
         [
+            'name' => 'ofertas',
+            'icon' => 'fa-solid fa-tags',
+            'route' => 'ofertas',
+            'active' => request()->routeIs('ofertas'),
+        ],
+        [
             'header' => 'Compras',
         ],
         [
