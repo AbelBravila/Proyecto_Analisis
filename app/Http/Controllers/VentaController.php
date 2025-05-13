@@ -28,7 +28,7 @@ class VentaController extends Controller
 
         return view('ventas.ventas', compact('ventas'));
     }
-    // Mostrar el formulario para registrar una venta
+
     public function index_registrar()
     {
         $clientes = Cliente::where('estado', 'A')->get();
@@ -39,8 +39,18 @@ class VentaController extends Controller
             'esquema',  
             'lote',            
         ])->where('estado', 'A')->get();
+        $productosAgrupados = $productos->groupBy('esquema.codigo_producto')->map(function($items) {
+            return $items->map(function($p) {
+                return [
+                    'id_producto' => $p->id_producto,
+                    'codigo_producto' => $p->esquema->codigo_producto,
+                    'nombre_producto' => $p->esquema->nombre_producto,
+                    'precio' => $p->precio,
+                    'lote' => $p->lote->lote,
+                ];
+            });
+        });
 
-        // Mapear el descuento de cada cliente según el tipo de cliente
         $clientesConDescuento = $clientes->map(function ($cliente) {
             $cliente->descuento = TipoCliente::find($cliente->id_tipo_cliente)->descuento; 
             return $cliente;
@@ -49,20 +59,18 @@ class VentaController extends Controller
         $presentaciones = PresentacionVenta::where('estado', 'A')->get();
 
 
-        return view('ventas.registrarventas', compact('clientes', 'clientesConDescuento', 'tipo_venta', 'productos', 'tipo_pago', 'tipo_documento', 'presentaciones' ));
+        return view('ventas.registrarventas', compact('clientes', 'clientesConDescuento', 'tipo_venta', 'productos', 'productosAgrupados', 'tipo_pago', 'tipo_documento', 'presentaciones' ));
     }
 
     public function crearVenta(Request $request)
     {
-        $productos = $request->input('productos');  // Un array de productos con sus cantidades, precios, y presentaciones
+        $productos = $request->input('productos');  
         $productosTable = [];
         $subtotal = 0;
 
         foreach ($productos as $producto) {
-            // Verificar si el precio es mayor a 0
-            if (!isset($producto['precio_p']) || $producto['precio_p'] <= 0) {
-                // Log para ver el valor de 'precio' que está llegando
-        
+
+            if (!isset($producto['precio_p']) || $producto['precio_p'] <= 0) {       
                 return response()->json(['error' => 'El precio es obligatorio y debe ser mayor a 0.'], 400);
             }
         
@@ -79,7 +87,7 @@ class VentaController extends Controller
             $productosTable[] = [
                 'id_producto' => $producto['id_producto'],
                 'cantidad' => $cantidad,
-                'precio' => $precioUnitario, // ESTE es el precio final que el usuario ve
+                'precio' => $precioUnitario,
                 'id_presentacion_venta' => $producto['id_presentacion_venta'],
             ];
         }
@@ -90,34 +98,45 @@ class VentaController extends Controller
         $tipoCliente = TipoCliente::find($cliente->id_tipo_cliente);
         $descuento = $tipoCliente->descuento;
 
-        // Calcular el monto del descuento
         $descuentoMonto = $subtotal * ($descuento / 100);
 
-        // Calcular el total después de aplicar el descuento
         $total = $subtotal - $descuentoMonto;
 
-        // Validar la fecha de venta
         $fechaVenta = $request->input('fecha_venta');
         $hoy = Carbon::now()->format('Y-m-d');
         if ($fechaVenta > $hoy) {
             return back()->with('error', 'La fecha de venta no puede ser mayor a la fecha actual.');
         }
 
-        // Preparar los valores para el procedimiento almacenado
-        DB::transaction(function () use ($request, $productosTable, $subtotal, $descuentoMonto, $total, $idCliente, $fechaVenta) {
-            $idUsuario = Auth::id();
+        $idUsuario = Auth::id();
+        $aperturaCaja = DB::table('Apertura_Caja')
+            ->join('asignacion_sat', 'Apertura_Caja.ID_Asignacion', '=', 'asignacion_sat.id_asignacion')
+            ->where('asignacion_sat.id_usuario', $idUsuario)
+            ->where('Apertura_Caja.Estado', 'A')
+            ->exists();
+        if (!$aperturaCaja) {
+            return back()->with('error', 'El usuario no tiene una caja aperturada. No puede realizar la venta.');
+        }
+
+
+        DB::transaction(function () use ($request, $productosTable, $subtotal, $descuentoMonto, $total, $idCliente, $fechaVenta, $idUsuario) {
             $idTipoVenta = $request->input('id_tipo_venta');
             $idTipoPago = $request->input('id_tipo_pago');
             $idTipoDocumento = $request->input('id_tipo_documento');
             $fechaVenta = Carbon::parse($fechaVenta)->toDateString();
 
-            // Ejecutar el procedimiento almacenado con los datos de la venta
             DB::statement("
+                EXEC sp_movimiento_caja_venta
+                    @id_usuario = ?, 
+                    @monto = ?;
+            ", [
+                $idUsuario, 
+                $total
+                ]);
 
-                -- Declarar la variable de tipo tabla
+            DB::statement("
                 DECLARE @Productos TipoDetalleVenta;
 
-                -- Insertar los productos en la variable tipo de tabla
                 INSERT INTO @Productos (id_producto, cantidad, precio, id_presentacion_venta)
                 VALUES 
                 " . implode(', ', array_map(function ($producto) {

@@ -902,4 +902,30 @@ BEGIN
         PRINT 'La compra no existe o ya está anulada.';
     END
 END;
->>>>>>> 701b7b9d4f7cce2af03047f9ac0d959042d6205e
+
+-------------------------- movimientos caja en ventas 
+
+
+CREATE OR ALTER PROCEDURE sp_movimiento_caja_venta
+    @id_usuario INT,
+    @monto DECIMAL(10, 2)
+AS
+BEGIN
+    DECLARE @id_apertura INT;
+
+    SELECT @id_apertura = ID_Apertura
+    FROM Apertura_Caja
+    WHERE ID_Asignacion = (SELECT id_asignacion FROM asignacion_sat WHERE id_usuario = @id_usuario AND estado = 'A')
+    AND Estado = 'A';  
+
+    IF @id_apertura IS NULL
+    BEGIN
+        RAISERROR('El usuario no tiene una caja aperturada.', 16, 1);
+        RETURN;
+    END
+
+    INSERT INTO movimientos_caja (id_apertura, tipo, descripcion, monto, fecha)
+    VALUES (@id_apertura, 'Ingreso', 'Venta', @monto, GETDATE());
+
+END;
+GO

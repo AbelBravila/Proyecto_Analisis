@@ -67,6 +67,10 @@
             </select>
         </div>
 
+        <script>
+            const productosData = @json($productosAgrupados);
+        </script>
+
         <!-- Productos -->
         <div class="mb-3">
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -85,22 +89,19 @@
                     </thead>
                     <tbody id="productos_body" class="w-full text-sm text-left text-gray-500 dark:text-black">
                         <tr>
-                            <td>
-                            <select name="productos[0][id_producto]" class="form-control" required onchange="updateDetails(0)">
-                                <option value="">Seleccionar Producto</option>
-                                @foreach ($productos as $producto)
-                                    <option value="{{ $producto->id_producto }}" 
-                                            data-nombre="{{ $producto->esquema->nombre_producto }}" 
-                                            data-precio="{{ $producto->precio }}"
-                                            data-lote="{{ $producto->lote->lote }}">
-                                        {{ $producto->esquema->codigo_producto }}
-                                    </option>
-                                @endforeach
-                            </select>
+                           <td>
+                                <select name="productos[0][codigo_producto]" class="form-control" required onchange="onCodigoProductoChange(0)">
+                                    <option value="">Seleccionar Producto</option>
+                                    @foreach ($productos->unique('esquema.codigo_producto') as $producto)
+                                        <option value="{{ $producto->esquema->codigo_producto }}">{{ $producto->esquema->codigo_producto }}</option>
+                                    @endforeach
+                                </select>
                             </td>
-                            <td><input type="text" name="productos[0][nombre_producto]" class="form-control" readonly></td>
+                            <td>
+                                <input type="text" name="productos[0][nombre_producto]" class="form-control" readonly>
+                            </td>
                             <td><input type="number" name="productos[0][cantidad]" class="form-control" required min="1" onchange="updateDetails(0)"></td>
-                            <td><input type="number" name="productos[0][precio_p]" class="form-control" readonly required min=0></td>
+                            <td><input type="number" name="productos[0][precio_p]" class="form-control" readonly></td>
                             <td>
                             <select name="productos[0][id_presentacion_venta]" class="form-control" required onchange="updateDetails(0)">
                                 <option value="">Seleccionar Presentación</option>
@@ -113,7 +114,11 @@
                                 @endforeach
                             </select>
                             </td>
-                            <td><input type="text" name="productos[0][lote]" class="form-control" readonly></td>
+                            <td>
+                                <select name="productos[0][id_producto]" class="form-control" required onchange="onLoteChange(0)">
+                                    <option value="">Seleccionar Lote</option>
+                                </select>
+                            </td>
                             <td><input type="text" name="productos[0][total_producto]" class="form-control" readonly></td>
                             <td class="px-6 py-3 dark:text-black"><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
                         </tr>
@@ -161,37 +166,71 @@
             const clienteSelect = document.getElementById('id_cliente');
             const selectedOption = clienteSelect.options[clienteSelect.selectedIndex];
             descuentoGlobal = parseFloat(selectedOption.getAttribute('data-descuento')) || 0;
-
-            // No actualizar el campo de descuento visualmente
-            // document.getElementById('descuento').value = descuentoGlobal.toFixed(2);
-            
-            // Actualizamos los totales con el nuevo descuento
             updateTotals();
+        }
+
+
+        function onCodigoProductoChange(index) {
+            const codigoSelect = document.querySelector(`select[name="productos[${index}][codigo_producto]"]`);
+            const loteSelect = document.querySelector(`select[name="productos[${index}][id_producto]"]`);
+            const nombreInput = document.querySelector(`input[name="productos[${index}][nombre_producto]"]`);
+            
+            const codigo = codigoSelect.value;
+            loteSelect.innerHTML = `<option value="">Seleccionar Lote</option>`;
+
+            if (codigo && productosData[codigo]) {
+                const lotes = productosData[codigo];
+                nombreInput.value = lotes[0].nombre_producto;
+
+                lotes.forEach((item) => {
+                    const option = document.createElement('option');
+                    option.value = item.id_producto;
+                    option.text = item.lote;
+                    option.dataset.precio = item.precio;
+                    option.dataset.lote = item.lote;
+                    loteSelect.appendChild(option);
+                });
+            } else {
+                nombreInput.value = '';
+            }
+
+            // Limpia precio y lote
+            document.querySelector(`input[name="productos[${index}][precio_p]"]`).value = '';
+        }
+
+        function onLoteChange(index) {
+            const loteSelect = document.querySelector(`select[name="productos[${index}][id_producto]"]`);
+            const precio = loteSelect.options[loteSelect.selectedIndex]?.dataset?.precio || 0;
+            const lote = loteSelect.options[loteSelect.selectedIndex]?.dataset?.lote || '';
+
+            document.querySelector(`input[name="productos[${index}][precio_p]"]`).value = parseFloat(precio).toFixed(2);
+            document.querySelector(`input[name="productos[${index}][lote]"]`).value = lote;
+
+            updateDetails(index); // Para recalcular total del producto y actualizar totales
         }
 
         // Función para actualizar los detalles de la presentación (descuento y cantidad)
         function updateDetails(index) {
-            var selectProducto = document.querySelector(`select[name="productos[${index}][id_producto]"]`);
-            var selectedOption = selectProducto.options[selectProducto.selectedIndex];
-            var selectPresentation = document.querySelector(`select[name="productos[${index}][id_presentacion_venta]"]`);
-            var selectedPresentation = selectPresentation.options[selectPresentation.selectedIndex];
+            // obtenemos el select de presentación y el option seleccionado
+            const presSel = document.querySelector(`select[name="productos[${index}][id_presentacion_venta]"]`);
+            const presOpt = presSel.options[presSel.selectedIndex];
 
-            var productName = selectedOption.getAttribute('data-nombre');
-            var productPrice = parseFloat(selectedOption.getAttribute('data-precio').replace(',', '.')) || 0;
-            var productLot = selectedOption.getAttribute('data-lote');
-            var presentationQuantity = parseInt(selectedPresentation.getAttribute('data-cantidad')) || 1;
-            var presentationDiscount = parseFloat(selectedPresentation.getAttribute('data-descuento')) || 0;
+            // obtenemos el select de lote y el option seleccionado
+            const loteSel = document.querySelector(`select[name="productos[${index}][id_producto]"]`);
+            const loteOpt = loteSel.options[loteSel.selectedIndex];
 
-            // Calculamos el precio ajustado por la cantidad y el descuento de la presentación
-            var adjustedPrice = (productPrice * presentationQuantity) * (1 - (presentationDiscount / 100));
+            // base de precio (viene de dataset.precio del option de lote)
+            const basePrecio = parseFloat(loteOpt?.dataset.precio) || 0;
+            // cantidad y descuento de la presentación
+            const mult    = parseFloat(presOpt?.dataset.cantidad) || 1;
+            const descuentoPres = parseFloat(presOpt?.dataset.descuento) || 0;
 
-            // Actualizamos el precio unitario
-            document.querySelector(`input[name="productos[${index}][precio_p]"]`).value = adjustedPrice.toFixed(2);
-            document.querySelector(`input[name="productos[${index}][nombre_producto]"]`).value = productName;
-            document.querySelector(`input[name="productos[${index}][lote]"]`).value = productLot;
+            // ajustamos el precio unitario
+            const precioAjustado = (basePrecio * mult) * (1 - descuentoPres/100);
+            document.querySelector(`input[name="productos[${index}][precio_p]"]`).value = precioAjustado.toFixed(2);
 
-            updateTotalProducto(index); // Actualizamos el total por producto
-            updateTotals();
+            // recalcular total de la fila y totales generales
+            updateTotalProducto(index);
         }
 
 
@@ -202,6 +241,7 @@
             const precio = parseFloat(document.querySelector(`input[name="productos[${index}][precio_p]"]`).value) || 0;
             const totalProducto = cantidad * precio; // Calculamos el total para esa fila
             document.querySelector(`input[name="productos[${index}][total_producto]"]`).value = totalProducto.toFixed(2);
+            updateTotals();
         }
 
         // Función para actualizar los totales (Subtotal, Descuento, Total)
@@ -240,37 +280,38 @@
 
             var newRow = document.createElement('tr');
             newRow.innerHTML = `
-                <td>
-                    <select name="productos[${rowIndex}][id_producto]" class="form-control" required onchange="updateDetails(${rowIndex})">
-                        <option value="">Seleccionar Producto</option>
-                        @foreach ($productos as $producto)
-                            <option value="{{ $producto->id_producto }}" 
-                                    data-nombre="{{ $producto->esquema->nombre_producto }}" 
-                                    data-precio="{{ $producto->precio }} "
-                                    data-lote="{{ $producto->lote->lote }}">
-                                {{ $producto->esquema->codigo_producto }}
-                            </option>
-                        @endforeach
-                    </select>
-                </td>
-                <td><input type="text" name="productos[${rowIndex}][nombre_producto]" class="form-control" readonly></td>
-                <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min="1" onchange="updateDetails(${rowIndex})"></td>
-                <td><input type="number" name="productos[${rowIndex}][precio_p]" class="form-control" readonly required min=0></td>
-                <td>
-                    <select name="productos[${rowIndex}][id_presentacion_venta]" class="form-control" required onchange="updateDetails(${rowIndex})">
-                        <option value="">Seleccionar Presentación</option>
-                        @foreach ($presentaciones as $presentacion)
-                            <option value="{{ $presentacion->id_presentacion_venta }}" 
-                                    data-cantidad="{{ $presentacion->cantidad }}" 
-                                    data-descuento="{{ $presentacion->descuento }}">
-                                {{ $presentacion->nombre_presentacion }}
-                            </option>
-                        @endforeach
-                    </select>
-                </td>
-                <td><input type="text" name="productos[${rowIndex}][lote]" class="form-control" readonly></td>
-                <td><input type="text" name="productos[${rowIndex}][total_producto]" class="form-control" readonly></td>
-                <td class="px-6 py-3 dark:text-black" ><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>
+                            <td>
+                                <select name="productos[${rowIndex}][codigo_producto]" class="form-control" required onchange="onCodigoProductoChange(${rowIndex})">
+                                    <option value="">Seleccionar Producto</option>
+                                    @foreach ($productos->unique('esquema.codigo_producto') as $producto)
+                                        <option value="{{ $producto->esquema->codigo_producto }}">{{ $producto->esquema->codigo_producto }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" name="productos[${rowIndex}][nombre_producto]" class="form-control" readonly>
+                            </td>
+                            <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min="1" onchange="updateDetails(${rowIndex})"></td>
+                            <td><input type="number" name="productos[${rowIndex}][precio_p]" class="form-control" readonly></td>
+                            <td>
+                            <select name="productos[${rowIndex}][id_presentacion_venta]" class="form-control" required onchange="updateDetails(${rowIndex})">
+                                <option value="">Seleccionar Presentación</option>
+                                @foreach ($presentaciones as $presentacion)
+                                    <option value="{{ $presentacion->id_presentacion_venta }}" 
+                                            data-cantidad="{{ $presentacion->cantidad }}" 
+                                            data-descuento="{{ $presentacion->descuento }}">
+                                        {{ $presentacion->nombre_presentacion }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            </td>
+                            <td>
+                                <select name="productos[${rowIndex}][id_producto]" class="form-control" required onchange="onLoteChange(${rowIndex})">
+                                    <option value="">Seleccionar Lote</option>
+                                </select>
+                            </td>
+                            <td><input type="text" name="productos[${rowIndex}][total_producto]" class="form-control" readonly></td>
+                            <td class="px-6 py-3 dark:text-black"><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>                    
             `;
             tableBody.appendChild(newRow);
         });
