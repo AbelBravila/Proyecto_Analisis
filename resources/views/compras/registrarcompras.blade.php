@@ -43,6 +43,7 @@
             </select>
 
         <br>
+        <br>
         <!-- Productos -->
         <div class="mb-3">
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
