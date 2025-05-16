@@ -31,14 +31,24 @@ class VentaController extends Controller
 
     public function index_registrar()
     {
+        $idUsuario = Auth::id();
+
+        $aperturaCaja = DB::table('Apertura_Caja')
+            ->join('asignacion_sat', 'Apertura_Caja.ID_Asignacion', '=', 'asignacion_sat.id_asignacion')
+            ->where('asignacion_sat.id_usuario', $idUsuario)
+            ->where('Apertura_Caja.Estado', 'A')
+            ->exists();
+
+        if (!$aperturaCaja) {
+            return redirect()->route('ventas')->with('error', 'No tiene una caja aperturada. No puede registrar una venta.');
+        }
+
         $clientes = Cliente::where('estado', 'A')->get();
         $tipo_venta = TipoVenta::where('estado', 'A')->get();
         $tipo_pago = TipoPago::where('estado', 'A')->get();
         $tipo_documento = TipoDocumento::where('estado', 'A')->get();
-        $productos = Producto::with([
-            'esquema',  
-            'lote',            
-        ])->where('estado', 'A')->get();
+        $productos = Producto::with(['esquema', 'lote'])->where('estado', 'A')->get();
+
         $productosAgrupados = $productos->groupBy('esquema.codigo_producto')->map(function($items) {
             return $items->map(function($p) {
                 return [
@@ -57,7 +67,6 @@ class VentaController extends Controller
         });
 
         $presentaciones = PresentacionVenta::where('estado', 'A')->get();
-
 
         return view('ventas.registrarventas', compact('clientes', 'clientesConDescuento', 'tipo_venta', 'productos', 'productosAgrupados', 'tipo_pago', 'tipo_documento', 'presentaciones' ));
     }
