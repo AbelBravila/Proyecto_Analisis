@@ -37,7 +37,13 @@
                             <div class="grid gap-4 mb-4 grid-cols-2">
                                 <div class="col-span-2">
                                     <label for="id_tipo_cliente" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de Cliente</label>
-                                    <input type="text" id="id_tipo_cliente" name="id_tipo_cliente" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                    <select id="id_tipo_cliente" name="id_tipo_cliente" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                        <option value="">Selecciona un tipo cliente</option>
+                                        <option value="1">Mayorista</option>
+                                        <option value="2">Regular</option>
+                                        <option value="3">Plus</option>
+                                    </select>
+
                                     @error('id_tipo_cliente')
                                         <span class="error text-red-500 text-sm">{{ $message }}</span>
                                     @enderror
@@ -95,7 +101,7 @@
                    ID
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    codigo del Tipo de cleinte 
+                    Tipo de cleinte 
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Nombre del Cliente
@@ -121,7 +127,7 @@
             @foreach ($clientes as $cliente)
                 <tr>
                     <td scope="col" class="px-6 py-3 dark:text-black">{{ $cliente->id_cliente}}</td>
-                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $cliente->id_tipo_cliente}}</td>
+                    <td scope="col" class="px-6 py-3 dark:text-black">{{ $cliente->nombre_tipo_cliente}}</td>
                     <td scope="col" class="px-6 py-3 dark:text-black">{{ $cliente->nombre_cliente}}</td>
                     <td scope="col" class="px-6 py-3 dark:text-black">{{ $cliente->dpi }}</td>
                     <td scope="col" class="px-6 py-3 dark:text-black">{{ $cliente->nit }}</td>
@@ -154,7 +160,13 @@
                                 <div class="grid gap-4 mb-4 grid-cols-2">
                                     <div class="col-span-2">
                                         <label for="id_tipo_cliente" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ID del tipo de cliente</label>
-                                        <input type="text" id="id_tipo_cliente" name="id_tipo_cliente" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required value="{{ old('id_tipo_cliente', $cliente->id_tipo_cliente) }}">
+                                        <select id="id_tipo_cliente" name="id_tipo_cliente" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                            <option value="">Selecciona un tipo de cliente</option>
+                                            <option value="1" {{ old('id_tipo_cliente', $cliente->id_tipo_cliente) == 1 ? 'selected' : '' }}>Mayorista</option>
+                                            <option value="2" {{ old('id_tipo_cliente', $cliente->id_tipo_cliente) == 2 ? 'selected' : '' }}>Regular</option>
+                                            <option value="3" {{ old('id_tipo_cliente', $cliente->id_tipo_cliente) == 2 ? 'selected' : '' }}>Plus</option>
+                                        </select>
+
                                         @error('id_tipo_cliente')
                                             <span class="error text-red-500 text-sm">{{ $message }}</span>
                                         @enderror

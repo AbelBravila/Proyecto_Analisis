@@ -17,13 +17,10 @@ class ClienteController extends Controller
         $buscar = $request->input('buscador');  // Recibe el término de búsqueda
 
         // Filtra los productos por el término de búsqueda o muestra todos
-        $clientes = Cliente::where('estado', 'A')
-            ->when($buscar, function ($query, $buscar) {
-                return $query->where('id_cliente', 'LIKE', "%{$buscar}%")
-                             ->orWhere('nit', 'LIKE', "%{$buscar}%")
-                             ->orWhere('nombre_cliente', 'LIKE', "%{$buscar}%");
-            })
-            ->get();  // Puedes cambiarlo por `paginate()` si deseas paginación
+        $clientes = DB::table('vw_clientes')
+            -> where('estado','A')
+            -> get();
+              // Puedes cambiarlo por `paginate()` si deseas paginación
 
         return view('cliente.cliente', compact('clientes', 'buscar'));
     }
@@ -113,4 +110,13 @@ class ClienteController extends Controller
 
         return redirect()->route('cliente')->with('success', 'Estado del cliente actualizado');
     }
+
+    public function mostrarDetalles($id)
+     {
+         $detalles = DB::table('VW_Detalle_Pedidos')
+             ->where('id_pedido', $id)
+             ->get();
+     
+         return view('layouts.partials.admin.detallepedidos', compact('detalles'));
+     }
 }
