@@ -18,11 +18,25 @@ class VentaController extends Controller
     public function index_ventas(Request $request)
     {
         $buscar = $request->input('buscador');
+        $fecha_inicio = $request->input('fecha_inicio');
+        $fecha_fin = $request->input('fecha_fin');
 
-        $ventas = DB::table('vw_detalle_venta') ->where('estado', '=', 'A') 
+        $ventas = DB::table('vw_detalle_venta')
+            ->where('estado', '=', 'A')
             ->when($buscar, function ($query, $buscar) {
-                return $query->where('nombre_cliente', 'LIKE', "%{$buscar}%")
-                            ->orWhere('id_venta', 'LIKE', "%{$buscar}%");
+                return $query->where(function ($q) use ($buscar) {
+                    $q->where('nombre_cliente', 'LIKE', "%{$buscar}%")
+                    ->orWhere('id_venta', 'LIKE', "%{$buscar}%");
+                });
+            })
+            ->when($fecha_inicio && $fecha_fin, function ($query) use ($fecha_inicio, $fecha_fin) {
+                return $query->whereBetween('fecha_venta', [$fecha_inicio, $fecha_fin]);
+            })
+            ->when($fecha_inicio && !$fecha_fin, function ($query) use ($fecha_inicio) {
+                return $query->whereDate('fecha_venta', '>=', $fecha_inicio);
+            })
+            ->when(!$fecha_inicio && $fecha_fin, function ($query) use ($fecha_fin) {
+                return $query->whereDate('fecha_venta', '<=', $fecha_fin);
             })
             ->get();
 
