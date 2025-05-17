@@ -239,28 +239,16 @@
                                             <input type="hidden" name="id_tipo_cliente"
                                                 id="id_tipo_cliente_{{ $cliente->id_cliente }}"
                                                 value="{{ $cliente->id_tipo_cliente }}">
-                                            <button id="dropdownEditarButton_{{ $cliente->id_cliente }}"
-                                                data-dropdown-toggle="dropdownEditar_{{ $cliente->id_cliente }}"
-                                                class="text-white bg-blue-700 hover:bg-blue-800 ...">
-                                                <span
-                                                    id="selectedOptionEditar_{{ $cliente->id_cliente }}">{{ $cliente->nombre_tipo_cliente }}</span>
-                                                <!-- ícono -->
-                                            </button>
-
-                                            <div id="dropdownEditar_{{ $cliente->id_cliente }}"
-                                                class="hidden z-10 absolute bg-white shadow-sm ...">
-                                                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-                                                    @foreach ($tipos_cliente as $tipo)
-                                                        <li>
-                                                            <button type="button"
-                                                                class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600"
-                                                                onclick="seleccionarTipoClienteEditar('{{ $cliente->id_cliente }}', '{{ $tipo->id_tipo_cliente }}', '{{ $tipo->nombre_tipo_cliente }}')">
-                                                                {{ $tipo->nombre_tipo_cliente }}
-                                                            </button>
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-                                            </div>
+                                            <select id="id_usuario" name="id_usuario"
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                                required>
+                                                @foreach ($tipos_cliente as $tipo)
+                                                    <option
+                                                        {{ $tipo->id_tipo_cliente == $cliente->id_tipo_cliente ? 'selected' : '' }}
+                                                        value="{{ $tipo->id_tipo_cliente }}">
+                                                        {{ $tipo->nombre_tipo_cliente }}</option>
+                                                @endforeach
+                                            </select>
 
                                             @error('id_tipo_cliente')
                                                 <span class="error text-red-500 text-sm">{{ $message }}</span>

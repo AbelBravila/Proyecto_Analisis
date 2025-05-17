@@ -59,7 +59,7 @@ class ClienteController extends Controller
             [$request->id_tipo_cliente, $request->nombre_cliente, $request->dpi, $request->nit, $request->telefono, $request->correo]
         );
 
-        return redirect()->route('cliente')->with('success', 'Cliente registrado exitosamente');
+        return redirect()->route('cliente')->with('mensaje', 'Cliente registrado exitosamente');
     }
 
     public function editar_cliente($id)
@@ -102,7 +102,7 @@ class ClienteController extends Controller
         );
 
         // Redirigir con éxito
-        return redirect()->route('cliente')->with('success', 'Cliente actualizado exitosamente.');
+        return redirect()->route('cliente')->with('mensaje', 'Cliente actualizado exitosamente.');
     }
 
 
@@ -110,7 +110,7 @@ class ClienteController extends Controller
     {
         DB::statement('EXEC sp_cambiarEstado_Cliente ?', [$id]);
 
-        return redirect()->route('cliente')->with('success', 'Estado del cliente actualizado');
+        return redirect()->route('cliente')->with('mensaje', 'Estado del cliente actualizado');
     }
 
     public function mostrarDetalles($id)
