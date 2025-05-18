@@ -21,7 +21,7 @@ class ClienteController extends Controller
             ->where('estado', 'A')
             ->get();
         // Puedes cambiarlo por `paginate()` si deseas paginación
-        $tipos_cliente = DB::table('tipo_cliente')->get();
+        $tipos_cliente = DB::table('tipo_cliente')->where('estado', 'A')->get();
 
         return view('cliente.cliente', compact('clientes','tipos_cliente', 'buscar'));
     }
