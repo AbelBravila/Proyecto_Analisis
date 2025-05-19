@@ -49,7 +49,8 @@ class ComprasController extends Controller
         $productos = EsquemaProducto::where('estado', 'A')->get(); 
         $presentaciones = Presentacion::where('estado', 'A')->get();
         $estanterias = Estanteria::where('estado', 'A')->get();
-        return view('compras.registrarcompras', compact('productos', 'presentaciones', 'tipo_compra', 'proveedores', 'estanterias'));
+        $fecha_compra = DB::selectOne("SELECT GETDATE() AS fecha")->fecha;
+        return view('compras.registrarcompras', compact('productos', 'presentaciones', 'tipo_compra', 'proveedores', 'estanterias', 'fecha_compra'));
         
     }
 
@@ -106,14 +107,10 @@ class ComprasController extends Controller
             return back()->with('error', 'No se encontró una empresa asociada al usuario.');
         }
         
-        $fechaCompra = $request->input('fecha_compra');
-        $hoy = Carbon::now()->format('Y-m-d');
+        $fechaDesdeBD = DB::selectOne("SELECT CONVERT(datetime, GETDATE()) AS fecha")->fecha;
+        $fechaCompra = Carbon::parse($fechaDesdeBD);
 
-        if ($fechaCompra > $hoy) {
-            return back()->with('error', 'La fecha de compra no puede ser mayor a la fecha actual.');
-        }
-
-        DB::transaction(function () use ($request, $insertQuery, $idEmpresa) {
+        DB::transaction(function () use ($request, $insertQuery, $idEmpresa, $fechaCompra) {
             DB::statement("
             DECLARE @Productos TipoProductos;
 
@@ -127,7 +124,7 @@ class ComprasController extends Controller
                 @Productos = @Productos, 
                 @IdEmpresa = ?;
             ", [
-                Carbon::parse($request->input('fecha_compra'))->toDateString(), 
+                $fechaCompra, 
                 $request->input('id_tipo_compra'),
                 $request->input('id_proveedor'),
                 $idEmpresa

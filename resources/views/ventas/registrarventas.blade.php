@@ -4,10 +4,6 @@
     <form action="{{ route('ventas.crear') }}" method="POST">
         @csrf
 
-        @php
-            $hoy = \Carbon\Carbon::now()->format('Y-m-d');
-        @endphp
-
         <style>
         .form-control {
             border-radius: 10px; /* Para bordes redondeados */
@@ -18,7 +14,7 @@
         <!-- Fecha de venta -->
         <div class="mb-3">
             <label for="fecha_venta" class="form-label">Fecha de Venta</label>&ensp;
-            <input type="date" name="fecha_venta" id="fecha_venta" class="form-control" required max="{{ $hoy }}">
+            <input type="date" name="fecha_venta" id="fecha_venta" class="form-control" value="{{ \Carbon\Carbon::parse($fecha_venta)->toDateString() }}" readonly>
         </div>
 
         <!-- Cliente -->
@@ -90,17 +86,19 @@
                     <tbody id="productos_body" class="w-full text-sm text-left text-gray-500 dark:text-black">
                         <tr>
                            <td>
-                                <select name="productos[0][codigo_producto]" class="form-control" required onchange="onCodigoProductoChange(0)">
+                                <input type="text" name="productos[0][codigo_producto]" class="form-control" readonly>
+                            </td>
+                            <td>
+                                <select name="productos[0][nombre_producto]" class="form-control" required onchange="onNombreProductoChange(0)">
                                     <option value="">Seleccionar Producto</option>
                                     @foreach ($productos->unique('esquema.codigo_producto') as $producto)
-                                        <option value="{{ $producto->esquema->codigo_producto }}">{{ $producto->esquema->codigo_producto }}</option>
+                                        <option value="{{ $producto->esquema->codigo_producto }}">
+                                            {{ $producto->esquema->nombre_producto }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </td>
-                            <td>
-                                <input type="text" name="productos[0][nombre_producto]" class="form-control" readonly>
-                            </td>
-                            <td><input type="number" name="productos[0][cantidad]" class="form-control" required min="1" onchange="updateDetails(0)"></td>
+                            <td><input type="number" name="productos[0][cantidad]" class="form-control" required min="1" step="1" onchange="updateDetails(0)"></td>
                             <td><input type="number" name="productos[0][precio_p]" class="form-control" readonly></td>
                             <td>
                             <select name="productos[0][id_presentacion_venta]" class="form-control" required onchange="updateDetails(0)">
@@ -170,17 +168,17 @@
         }
 
 
-        function onCodigoProductoChange(index) {
-            const codigoSelect = document.querySelector(`select[name="productos[${index}][codigo_producto]"]`);
+        function onNombreProductoChange(index) {
+            const nombreSelect = document.querySelector(`select[name="productos[${index}][nombre_producto]"]`);
             const loteSelect = document.querySelector(`select[name="productos[${index}][id_producto]"]`);
-            const nombreInput = document.querySelector(`input[name="productos[${index}][nombre_producto]"]`);
-            
-            const codigo = codigoSelect.value;
+            const codigoInput = document.querySelector(`input[name="productos[${index}][codigo_producto]"]`);
+
+            const codigo = nombreSelect.value; // el value sigue siendo el código
             loteSelect.innerHTML = `<option value="">Seleccionar Lote</option>`;
 
             if (codigo && productosData[codigo]) {
                 const lotes = productosData[codigo];
-                nombreInput.value = lotes[0].nombre_producto;
+                codigoInput.value = codigo; // se muestra el código relacionado al nombre seleccionado
 
                 lotes.forEach((item) => {
                     const option = document.createElement('option');
@@ -191,7 +189,7 @@
                     loteSelect.appendChild(option);
                 });
             } else {
-                nombreInput.value = '';
+                codigoInput.value = '';
             }
 
             // Limpia precio y lote
@@ -281,17 +279,19 @@
             var newRow = document.createElement('tr');
             newRow.innerHTML = `
                             <td>
-                                <select name="productos[${rowIndex}][codigo_producto]" class="form-control" required onchange="onCodigoProductoChange(${rowIndex})">
+                                <input type="text" name="productos[${rowIndex}][codigo_producto]" class="form-control" readonly>
+                            </td>
+                            <td>
+                                <select name="productos[${rowIndex}][nombre_producto]" class="form-control" required onchange="onNombreProductoChange(${rowIndex})">
                                     <option value="">Seleccionar Producto</option>
                                     @foreach ($productos->unique('esquema.codigo_producto') as $producto)
-                                        <option value="{{ $producto->esquema->codigo_producto }}">{{ $producto->esquema->codigo_producto }}</option>
+                                        <option value="{{ $producto->esquema->codigo_producto }}">
+                                            {{ $producto->esquema->nombre_producto }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </td>
-                            <td>
-                                <input type="text" name="productos[${rowIndex}][nombre_producto]" class="form-control" readonly>
-                            </td>
-                            <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min="1" onchange="updateDetails(${rowIndex})"></td>
+                            <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min="1" step="1" onchange="updateDetails(${rowIndex})"></td>
                             <td><input type="number" name="productos[${rowIndex}][precio_p]" class="form-control" readonly></td>
                             <td>
                             <select name="productos[${rowIndex}][id_presentacion_venta]" class="form-control" required onchange="updateDetails(${rowIndex})">

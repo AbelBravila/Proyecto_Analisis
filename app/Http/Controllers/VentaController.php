@@ -82,7 +82,9 @@ class VentaController extends Controller
 
         $presentaciones = PresentacionVenta::where('estado', 'A')->get();
 
-        return view('ventas.registrarventas', compact('clientes', 'clientesConDescuento', 'tipo_venta', 'productos', 'productosAgrupados', 'tipo_pago', 'tipo_documento', 'presentaciones' ));
+        $fecha_venta = DB::selectOne("SELECT GETDATE() AS fecha")->fecha;
+
+        return view('ventas.registrarventas', compact('clientes', 'clientesConDescuento', 'tipo_venta', 'productos', 'productosAgrupados', 'tipo_pago', 'tipo_documento', 'presentaciones', 'fecha_venta' ));
     }
 
     public function crearVenta(Request $request)
@@ -125,11 +127,8 @@ class VentaController extends Controller
 
         $total = $subtotal - $descuentoMonto;
 
-        $fechaVenta = $request->input('fecha_venta');
-        $hoy = Carbon::now()->format('Y-m-d');
-        if ($fechaVenta > $hoy) {
-            return back()->with('error', 'La fecha de venta no puede ser mayor a la fecha actual.');
-        }
+        $fechaDesdeBD = DB::selectOne("SELECT CONVERT(datetime, GETDATE()) AS fecha")->fecha;
+        $fechaVenta = Carbon::parse($fechaDesdeBD);
 
         $idUsuario = Auth::id();
         $aperturaCaja = DB::table('Apertura_Caja')
