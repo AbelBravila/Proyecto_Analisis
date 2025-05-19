@@ -3,21 +3,24 @@
 
     <h2 class="text-xl font-bold mb-4">Nueva Oferta</h2>
 
-    <div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-4 gap-4 mb-6">
         <input type="text" id="inputNombreOferta" placeholder="Nombre Oferta" class="p-2 border rounded" required>
+        <input type="text" id="codigo_oferta" placeholder="Código Oferta" class="p-2 border rounded">
         <input type="date" id="inputFechaInicio" class="p-2 border rounded" value="{{ date('Y-m-d') }}" min="{{ date('Y-m-d') }}">
         <input type="date" id="inputFechaFin" class="p-2 border rounded" value="{{ date('Y-m-d') }}" min="{{ date('Y-m-d') }}">
     </div>
 
     <h3 class="text-lg font-semibold mb-2">Agregar producto a la oferta</h3>
-    <div class="grid grid-cols-7 gap-4 mb-4">
+    <div class="grid grid-cols-8 gap-4 mb-4">
         <input type="text" id="inputNombreProducto" placeholder="Nombre del Producto" class="p-2 border rounded">
         <select id="selectLote" class="p-2 border rounded">
             <option value="">Seleccione un lote</option>
         </select>
         <input type="text" id="stock" placeholder="En existencia" class="p-2 border rounded" readonly>
         <input type="text" id="precio" placeholder="Precio Regular" class="p-2 border rounded" readonly>
-        <input type="number" id="inputPorcentajeOferta" placeholder="% Oferta" class="p-2 border rounded">
+        <input type="number" id="inputPorcentajeOferta" placeholder="% Oferta" min="1" max="100" class="p-2 border rounded">
+        <input type="number" id="cantidadoferta" placeholder="Cantidad a Ofertar" min="1" class="p-2 border rounded">
+        <input type="number" id="unidadoferta" placeholder="Unidad Oferta" min="1" class="p-2 border rounded">
         <input type="text" id="inputPrecioOferta" placeholder="Precio Oferta" class="p-2 border rounded" readonly>
         <button id="btnAgregar" class="bg-blue-500 text-white px-4 py-2 rounded">Agregar</button>
     </div>
@@ -30,6 +33,8 @@
                 <th class="border px-4 py-2">Stock Disponible</th>
                 <th class="border px-4 py-2">Precio Regular</th>
                 <th class="border px-4 py-2">Porcentaje</th>
+                <th class="border px-4 py-2">Cantidad a Ofertar</th>
+                <th class="border px-4 py-2">Unidad Oferta</th>
                 <th class="border px-4 py-2">Precio Oferta</th>
             </tr>
         </thead>
@@ -69,9 +74,9 @@
             lotesGlobal = data.lotes;
             const select = document.getElementById("selectLote");
             select.innerHTML = '<option value="">Seleccione un lote</option>';
-            data.lotes.forEach((lote, index) => {
+            data.lotes.forEach((lote) => {
                 const option = document.createElement("option");
-                option.value = index;
+                option.value = lote.id_lote; // Guardamos el ID del lote en lugar del índice
                 option.textContent = lote.lote;
                 select.appendChild(option);
             });
@@ -83,16 +88,15 @@
     }, 500));
 
     document.getElementById("selectLote").addEventListener("change", function () {
-        const index = this.value;
-        if (index === "") {
+        const loteSeleccionado = lotesGlobal.find(l => l.id_lote == this.value);
+        if (!loteSeleccionado) {
             document.getElementById("stock").value = "";
             document.getElementById("precio").value = "";
             return;
         }
 
-        const data = lotesGlobal[index];
-        document.getElementById("stock").value = data.stock;
-        document.getElementById("precio").value = data.precio;
+        document.getElementById("stock").value = loteSeleccionado.stock;
+        document.getElementById("precio").value = loteSeleccionado.precio;
         calcularPrecioOferta();
     });
 
@@ -106,78 +110,44 @@
     }
 
     document.getElementById("btnAgregar").addEventListener("click", () => {
-        const nombre = document.getElementById("inputNombreProducto").value;
-        const loteIndex = document.getElementById("selectLote").value;
+        const nombre_producto = document.getElementById("inputNombreProducto").value;
+        const loteId = document.getElementById("selectLote").value;
         const stock = document.getElementById("stock").value;
         const precio = document.getElementById("precio").value;
         const porcentaje = document.getElementById("inputPorcentajeOferta").value;
+        const cantidad = document.getElementById("cantidadoferta").value;
+        const unidad = document.getElementById("unidadoferta").value;
         const oferta = document.getElementById("inputPrecioOferta").value;
 
-        if (!nombre || loteIndex === "" || !stock || !precio || !porcentaje || !oferta) {
+        if (!nombre_producto || !loteId || !stock || !precio || !porcentaje || !cantidad || !unidad || !oferta) {
             alert("Completa todos los campos.");
             return;
         }
 
-        const lote = lotesGlobal[loteIndex].lote;   
+        detalles.push({
+            id_producto: lotesGlobal.find(l => l.id_lote == loteId).id_producto,
+            id_lote: loteId,
+            nombre_producto,
+            stock,
+            precio_regular: precio,
+            porcentaje,
+            cantidad,
+            unidad,
+            precio_oferta: oferta
+        });
 
-        detalles.push({id_producto: lotesGlobal[loteIndex].id_producto, id_lote: lotesGlobal[loteIndex].id_lote, nombre, stock, precio_regular:precio, porcentaje, precio_oferta: oferta});  
-        const row = `
-            <tr>
-                <td class="border px-4 py-2">${nombre}</td>
-                <td class="border px-4 py-2">${lote}</td>
-                <td class="border px-4 py-2">${stock}</td>
-                <td class="border px-4 py-2">Q${parseFloat(precio).toFixed(2)}</td>
-                <td class="border px-4 py-2">${porcentaje}%</td>
-                <td class="border px-4 py-2">Q${parseFloat(oferta).toFixed(2)}</td>
-            </tr>
-        `;
-
-        document.getElementById("detalleOferta").innerHTML += row;
-
-        // Limpiar campos
-        ["inputNombreProducto", "stock", "precio", "inputPorcentajeOferta", "inputPrecioOferta"]
-            .forEach(id => document.getElementById(id).value = "");
-        document.getElementById("selectLote").innerHTML = '<option value="">Seleccione un lote</option>';
+        console.log(detalles);
     });
 
     document.getElementById("btnGuardarOferta").addEventListener("click", () => {
-        const nombre = document.getElementById("inputNombreOferta").value;
-        const inicio = document.getElementById("inputFechaInicio").value;
-        const fin = document.getElementById("inputFechaFin").value;
-
-        if (!nombre || detalles.length === 0) {
-            alert("Faltan datos para guardar la oferta.");
-            return;
-        }
-        console.log("Datos que se enviarán:", {
-            nombre_oferta: nombre,
-            fecha_inicio: inicio,
-            fecha_fin: fin,
-            productos: detalles
-        });
         fetch("{{ route('ofertas.store') }}", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": token
-            },
-            body: JSON.stringify({
-                nombre_oferta: nombre,
-                fecha_inicio: inicio,
-                fecha_fin: fin,
-                productos: detalles
-            })
+            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": token },
+            body: JSON.stringify({ nombre_oferta: document.getElementById("inputNombreOferta").value, codigo_oferta: document.getElementById("codigo_oferta").value, fecha_inicio: document.getElementById("inputFechaInicio").value, fecha_fin: document.getElementById("inputFechaFin").value, productos: detalles })
         })
         .then(res => res.json())
-        .then(() => {
-            alert("Oferta guardada.");
-            location.reload();
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error al guardar.");
-        });
+        .then(() => { alert("Oferta guardada."); location.reload(); })
+        .catch(err => { console.error(err); alert("Error al guardar."); });
     });
-</script>
-
+    </script>
 </x-admin-layout>
