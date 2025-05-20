@@ -100,4 +100,10 @@ class OfertasController extends Controller
         }
         return response()->json(['lotes' => $lotes]);
     }
+    public function eliminarOferta($id)
+    {
+        DB::statement('EXEC sp_cambiar_estado_oferta ?', [$id]);
+
+        return redirect()->route('ofertas')->with('mensaje', 'oferta eliminada exitosamente');
+    }
 }

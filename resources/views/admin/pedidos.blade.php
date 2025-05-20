@@ -101,7 +101,7 @@
             let codigoProducto = this.value.trim();
             if (!codigoProducto) return;
 
-            fetch("{{ route('pedidos.buscar') }}", {
+            fetch("{{ route('producto') }}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -138,6 +138,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/ofertas',           [OfertasController::class, 'store'])->name('ofertas.store');
     Route::post('/producto/buscar',   [OfertasController::class, 'buscarPorNombre'])->name('producto.buscar.nombre');
     Route::get('/ofertas/{id}/detalles',[OfertasController::class,'mostrarDetalles'])->name('ofertas.detalles');
+    Route::get('/ofertas/eliminar/{id}',[OfertasController::class, 'eliminarOferta'])->name('ofertas.eliminar');
+
 });
 
 //VENTAS
