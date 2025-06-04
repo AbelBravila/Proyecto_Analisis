@@ -145,7 +145,6 @@ class VentaController extends Controller
             $idTipoVenta = $request->input('id_tipo_venta');
             $idTipoPago = $request->input('id_tipo_pago');
             $idTipoDocumento = $request->input('id_tipo_documento');
-            $fechaVenta = Carbon::parse($fechaVenta)->toDateString();
 
             DB::statement("
                 EXEC sp_movimiento_caja_venta
