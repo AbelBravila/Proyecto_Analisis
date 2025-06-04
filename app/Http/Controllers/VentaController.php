@@ -22,7 +22,6 @@ class VentaController extends Controller
         $fecha_fin = $request->input('fecha_fin');
 
         $ventas = DB::table('vw_detalle_venta')
-            ->where('estado', '=', 'A')
             ->when($buscar, function ($query, $buscar) {
                 return $query->where(function ($q) use ($buscar) {
                     $q->where('nombre_cliente', 'LIKE', "%{$buscar}%")
@@ -38,7 +37,8 @@ class VentaController extends Controller
             ->when(!$fecha_inicio && $fecha_fin, function ($query) use ($fecha_fin) {
                 return $query->whereDate('fecha_venta', '<=', $fecha_fin);
             })
-            ->get();
+            ->orderBy('fecha_venta','desc')
+            ->paginate(10);
 
         return view('ventas.ventas', compact('ventas'));
     }

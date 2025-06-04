@@ -23,7 +23,6 @@ class ComprasController extends Controller
         $fechaFin = $request->input('fecha_fin');
 
         $compras = DB::table('vw_detalle_compra')
-            ->where('estado', '!=', 'I')
             ->when($buscar, function ($query, $buscar) {
                 return $query->where(function ($q) use ($buscar) {
                     $q->where('nombre_proveedor', 'LIKE', "%{$buscar}%")
@@ -36,7 +35,8 @@ class ComprasController extends Controller
             ->when($fechaFin, function ($query, $fechaFin) {
                 return $query->whereDate('fecha_compra', '<=', $fechaFin);
             })
-            ->get();
+            ->orderBy('fecha_compra','desc')
+            ->paginate(10);
 
         return view('compras.compras', compact('compras'));
     }
