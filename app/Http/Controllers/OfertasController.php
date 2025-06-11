@@ -16,7 +16,7 @@ class OfertasController extends Controller
             ->where('estado', 'A')
             ->when($buscar, function ($query, $buscar) {
                 return $query->where('nombre_oferta', 'LIKE', "%{$buscar}%")
-                             ->orWhere('fecha', 'LIKE', "%{$buscar}%");
+                    ->orWhere('fecha', 'LIKE', "%{$buscar}%");
             })
             ->get();
 
@@ -63,9 +63,9 @@ class OfertasController extends Controller
             $sql = "DECLARE @Detallesxd DetalleOfertaType2; ";
 
             foreach ($request->input('productos') as $producto) {
-                $sql .= "INSERT INTO @Detallesxd (nombre_producto, precio_regular, porcentaje_oferta, lote, cantidadoferta, unidadoferta)
-                         VALUES (N'{$producto['nombre_producto']}', {$producto['precio_regular']}, {$producto['porcentaje']}, 
-                                 {$producto['id_lote']}, {$producto['cantidad']}, {$producto['unidad']}); ";
+                $sql .= "INSERT INTO @Detallesxd (id_producto, nombre_producto, precio_regular, porcentaje_oferta, lote, cantidadoferta, unidadoferta)
+             VALUES ({$producto['id_producto']}, N'{$producto['nombre_producto']}', {$producto['precio_regular']}, {$producto['porcentaje']}, 
+                     {$producto['id_lote']}, {$producto['cantidad']}, {$producto['unidad']}); ";
             }
 
             $sql .= "EXEC sp_InsertarOfertaConDetallesCompleto  
@@ -92,6 +92,8 @@ class OfertasController extends Controller
         $nombre = $request->input('inputNombreProducto');
         $lotes = DB::table('vw_loteProducto')
             ->where('nombre_producto', 'LIKE', '%' . $nombre . '%')
+            ->where('estado', 'A')
+            ->where('stock', '>', 0)
             ->select('id_producto', 'id_lote', 'lote', 'stock', 'precio')
             ->get();
 
