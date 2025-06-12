@@ -104,7 +104,7 @@ class ComprasController extends Controller
         $idEmpresa = Auth::user()->empresa()->where('estado', 'A')->first()?->id_empresa;
 
         if (!$idEmpresa) {
-            return back()->with('error', 'No se encontró una empresa asociada al usuario.');
+            return redirect()->route('compras')->with('error', 'No se encontró una empresa asociada al usuario.');
         }
         
         $fechaDesdeBD = DB::selectOne("SELECT CONVERT(datetime, GETDATE()) AS fecha")->fecha;
@@ -133,14 +133,14 @@ class ComprasController extends Controller
         });
         
 
-        return redirect()->route('compras')->with('success', 'Compra registrada exitosamente.');
+        return redirect()->route('compras')->with('mensaje', 'Compra registrada exitosamente.');
     }
 
     public function anular($id)
     {
         DB::statement('EXEC sp_anularCompra ?', [$id]);
 
-        return redirect()->route('compras')->with('success', 'Compra Anulada');
+        return redirect()->route('compras')->with('mensaje', 'Compra Anulada');
     }
     
 

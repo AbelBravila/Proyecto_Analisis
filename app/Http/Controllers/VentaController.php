@@ -105,8 +105,7 @@ class VentaController extends Controller
         
             $precioUnitario = floatval($producto['precio_p']);
             $cantidad = floatval($producto['cantidad']);
-        
-            // Calcular subtotal
+
             $subtotal += $cantidad * $precioUnitario;
         
             $productosTable[] = [
@@ -196,14 +195,14 @@ class VentaController extends Controller
 
         });
 
-        return redirect()->route('ventas')->with('success', 'Venta registrada exitosamente.');
+        return redirect()->route('ventas')->with('mensaje', 'Venta registrada exitosamente.');
     }
 
     public function anular($id)
     {
         DB::statement('EXEC sp_anularVenta ?', [$id]);
 
-        return redirect()->route('ventas')->with('success', 'Venta Anulada');
+        return redirect()->route('ventas')->with('mensaje', 'Venta Anulada');
     }
 
     public function show($id)

@@ -12,23 +12,23 @@ use App\Models\EsquemaProducto;
 
 class ProductoController extends Controller
 {
-    public function index()
+    /*public function index()
     {
         $productos = EsquemaProducto::where('estado', 'A')->get();
         return view('compras.producto', compact('productos'));
-    }
+    }*/
 
     public function index_producto(Request $request)
     {
-        $buscar = $request->input('buscador');  // Recibe el término de búsqueda
+        $buscar = $request->input('buscador');  
 
-        // Filtra los productos por el término de búsqueda o muestra todos
         $productos = DB::table('vw_stock_producto') -> where('estado', 'A')
             ->when($buscar, function ($query, $buscar) {
                 return $query->where('codigo_producto', 'LIKE', "%{$buscar}%")
                              ->orWhere('nombre_producto', 'LIKE', "%{$buscar}%");
             })
-            ->get();  // Puedes cambiarlo por `paginate()` si deseas paginación
+            ->get();    
+            //->paginate(10);
 
         return view('compras.producto', compact('productos', 'buscar'));
     }
@@ -59,7 +59,7 @@ class ProductoController extends Controller
             [$request->codigo_product, $request->nombre_product, $request->descripcion_product]
         );
 
-        return redirect()->route('producto')->with('success', 'Producto registrado exitosamente');
+        return redirect()->route('producto')->with('mensaje', 'Producto registrado exitosamente');
     }
 
     public function editar_producto($id)
@@ -94,8 +94,7 @@ class ProductoController extends Controller
             ]
         );
     
-        // Redirigir con éxito
-        return redirect()->route('producto')->with('success', 'Producto actualizado exitosamente.');
+        return redirect()->route('producto')->with('mensaje', 'Producto actualizado exitosamente.');
         
     }
 
@@ -104,7 +103,7 @@ class ProductoController extends Controller
     {
         DB::statement('EXEC sp_cambiarEstadoEsquemaProducto ?', [$id]);
 
-        return redirect()->route('producto')->with('success', 'Estado del producto actualizado');
+        return redirect()->route('producto')->with('mensaje', 'Producto Eliminado');
     }
 
     public function show($id)
