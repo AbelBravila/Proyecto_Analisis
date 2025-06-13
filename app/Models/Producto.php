@@ -19,7 +19,8 @@ class Producto extends Model
         'id_estanteria',
         'id_empresa',
         'fecha_registro',
-        'estado'
+        'estado',
+        'oferta'
     ];
     
     protected $casts = [

@@ -38,6 +38,7 @@ class VentaController extends Controller
                 return $query->whereDate('fecha_venta', '<=', $fecha_fin);
             })
             ->orderBy('fecha_venta','desc')
+            ->orderBy('id_venta','desc')
             ->paginate(10);
 
         return view('ventas.ventas', compact('ventas'));
@@ -71,6 +72,7 @@ class VentaController extends Controller
                     'nombre_producto' => $p->esquema->nombre_producto,
                     'precio' => $p->precio,
                     'lote' => $p->lote->lote,
+                    'oferta' => $p->oferta,
                 ];
             });
         });
@@ -136,7 +138,7 @@ class VentaController extends Controller
             ->where('Apertura_Caja.Estado', 'A')
             ->exists();
         if (!$aperturaCaja) {
-            return back()->with('error', 'El usuario no tiene una caja aperturada. No puede realizar la venta.');
+            return redirect()->route('ventas.registrarventas')->with('error', 'El usuario no tiene una caja aperturada. No puede realizar la venta.');
         }
 
 
@@ -190,7 +192,7 @@ class VentaController extends Controller
             ]);
 
             if ($errorMessage) {
-                return back()->with('error', $errorMessage);
+                return redirect()->route('ventas.registrarventas')->with('error', $errorMessage);
             }
 
         });
