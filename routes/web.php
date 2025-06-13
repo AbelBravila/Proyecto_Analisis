@@ -188,32 +188,33 @@ Route::get('/admin/devoluciones', [DevolucionesController::class, 'index_devoluc
 
 
 Route::prefix('devoluciones')->name('devoluciones.')->group(function () {
-    Route::get('/', [DevolucionController::class, 'index'])->name('index');
-    Route::get('/create', [DevolucionController::class, 'create'])->name('create');
-    Route::post('/store', [DevolucionController::class, 'store'])->name('store');
-    Route::get('/buscar-compras', [DevolucionController::class, 'buscarCompras'])->name('buscar-compras');
-    Route::post('/buscar', [DevolucionController::class, 'buscarCompras'])->name('buscar');
-    Route::get('/compra/{id}/detalle', [DevolucionController::class, 'detalleCompra'])->name('compra.detalle');
+    Route::get('/', [DevolucionController::class, 'index'])->name('index')->middleware('auth');
+    Route::get('/create', [DevolucionController::class, 'create'])->name('create')->middleware('auth');
+    Route::post('/store', [DevolucionController::class, 'store'])->name('store')->middleware('auth');
+    Route::get('/buscar-compras', [DevolucionController::class, 'buscarCompras'])->name('buscar-compras')->middleware('auth');
+    Route::post('/buscar', [DevolucionController::class, 'buscarCompras'])->name('buscar')->middleware('auth');
+    Route::get('/compra/{id}/detalle', [DevolucionController::class, 'detalleCompra'])->name('compra.detalle')->middleware('auth');
     // Mueve esta ruta al final
     Route::get('/{id}', [DevolucionController::class, 'show'])->name('show');
 });
-
 Route::prefix('devoluciones_venta')->name('devoluciones_venta.')->group(function () {
-    Route::get('/', [DevolucionVentaController::class, 'index'])->name('index');
-    Route::get('/create', [DevolucionVentaController::class, 'create'])->name('create');
-    Route::post('/store', [DevolucionVentaController::class, 'store'])->name('store');
+    Route::get('/', [DevolucionVentaController::class, 'index'])->name('index')->middleware('auth');
+    Route::get('/create', [DevolucionVentaController::class, 'create'])->name('create')->middleware('auth');
+    Route::post('/store', [DevolucionVentaController::class, 'store'])->name('store')->middleware('auth');
     // Rutas AJAX para búsqueda de ventas
-    Route::post('/buscar', [DevolucionVentaController::class, 'buscar'])->name('buscar');
-    Route::get('/buscar-ventas', [DevolucionVentaController::class, 'buscarVentas'])->name('buscar-ventas');
-    Route::get('/detalle/{id}', [DevolucionVentaController::class, 'detalle'])->name('venta.detalle');
+    Route::post('/buscar', [DevolucionVentaController::class, 'buscar'])->name('buscar')->middleware('auth');
+    Route::get('/buscar-ventas', [DevolucionVentaController::class, 'buscarVentas'])->name('buscar-ventas')->middleware('auth');
+    Route::get('/detalle/{id}', [DevolucionVentaController::class, 'detalle'])->name('venta.detalle')->middleware('auth');
 // Detalle de venta seleccionada
-    Route::get('/venta/{id}/detalle', [DevolucionVentaController::class, 'detalleVenta'])->name('venta.detalle');
+    Route::get('/venta/{id}/detalle', [DevolucionVentaController::class, 'detalleVenta'])->name('venta.detalle')->middleware('auth');
     // Ver detalles de una devolución específica (última ruta por convención)
-    Route::get('/{id}', [DevolucionVentaController::class, 'show'])->name('show');
+    Route::get('/{id}', [DevolucionVentaController::class, 'show'])->name('show')->middleware('auth');
 });
 
+Route::post('/devoluciones-venta', [DevolucionVentaController::class, 'store'])
+    ->name('devoluciones_venta.store');
 
-Route::put('/estanteria/{id}', [EstanteController::class, 'update'])->name('Estanteria.update');
+Route::put('/estanteria/{id}', [EstanteController::class, 'update'])->name('Estanteria.update')->middleware('auth');
 
 Route::get('/admin/Tipo_Inventario', [Tipo_InventarioController::class, 'index_Tipo_Inventario'])->name('Tipo_Inventario')->middleware('auth');
 
