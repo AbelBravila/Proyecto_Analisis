@@ -104,13 +104,14 @@ Route::get('/cliente/cliente/editar_cliente/{id}', [ClienteController::class, 'e
 Route::put('/cliente/cliente/{id}', [ClienteController::class, 'actualizar_cliente'])->name('cliente.actualizar_cliente')->middleware('auth');
 Route::get('/cliente/cliente/{id}', [ClienteController::class, 'cambiar_estado'])->name('cliente.cambiar_estado')->middleware('auth');
 
+//PEDIDOS
 Route::middleware('auth')->group(function () {
     Route::get('/admin/pedidos', [PedidosController::class, 'index_pedidos'])->name('pedidos');
     Route::post('/admin/pedidos', [PedidosController::class, 'store'])->name('pedidos.guardar');
-    Route::post('/admin/pedidos/buscar', [PedidosController::class, 'buscar'])->name('pedidos.buscar');
     Route::get('/admin/pedidos-realizados', [PedidosController::class, 'VerPedido'])->name('pedidos.realizados');
-    Route::put('/admin/pedidos/editar/{id}', [PedidosController::class, 'editar'])->name('pedidos.editar');
+    Route::get('/admin/pedidos/eliminar/{id}', [PedidosController::class, 'eliminarPedido'])->name('pedidos.eliminar');
     Route::get('/pedidos/{id}/detalles', [PedidosController::class, 'mostrarDetalles']);
+    Route::get('/compras/desde-pedido/{id_pedido}', [ComprasController::class, 'createFromPedido'])->name('compras.fromPedido');
 
 });
 
@@ -137,6 +138,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/ofertas',           [OfertasController::class, 'store'])->name('ofertas.store');
     Route::post('/producto/buscar',   [OfertasController::class, 'buscarPorNombre'])->name('producto.buscar.nombre');
     Route::get('/ofertas/{id}/detalles',[OfertasController::class,'mostrarDetalles'])->name('ofertas.detalles');
+    Route::get('/ofertas/eliminar/{id}',[OfertasController::class, 'eliminarOferta'])->name('ofertas.eliminar');
+
 });
 
 //VENTAS

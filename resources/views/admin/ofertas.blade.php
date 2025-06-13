@@ -1,5 +1,19 @@
 <x-admin-layout>
-
+    @if (session('mensaje'))
+        <div id="alert-1"
+            class="flex items-center p-4 mb-4 text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+            role="alert">
+            <svg class="shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                viewBox="0 0 20 20">
+                <path
+                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+            </svg>
+            <span class="sr-only">Info</span>
+            <div class="ms-3 text-sm font-medium">
+                {{ session('mensaje') }}
+            </div>
+        </div>
+    @endif
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
         <h1 class="text-lg text-center dark:text-black">OFERTAS</h1>
@@ -60,8 +74,8 @@
                                 data-modal-toggle="editar-modal-producto-{{ $producto->id_oferta }}"
                                 class="text-blue-600"></a>
                             <a class="fa fa-trash fa-lg font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                href="{{ route('producto.cambiar_estado', ['id' => $producto->id_oferta]) }}"
-                                onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?')"></a>
+                                href="{{ route('ofertas.eliminar', ['id' => $producto->id_oferta]) }}"
+                                onclick="return confirm('¿Estás seguro de que deseas eliminar esta oferta?')"></a>
                             <a class="fa-solid fa-list fa-lg text-blue-600 hover:underline ver-detalles cursor-pointer"
                                 data-id="{{ $producto->id_oferta }}"></a>
                             {{-- <a class="fa-solid fa-list font-medium text-blue-600 dark:text-blue-500 hover:underline" data-modal-target="editar-modal-producto-{{ $producto->id_esquema_producto }}" data-modal-toggle="editar-modal-producto-{{ $producto->id_esquema_producto }}" class="text-blue-600"></a> --}}

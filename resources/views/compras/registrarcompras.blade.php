@@ -17,8 +17,8 @@
 
         <!-- Fecha de compra -->
         <div class="mb-3">
-            <label for="fecha_compra" class="form-label">Fecha de Compra</label>&ensp;
-            <input type="date" name="fecha_compra" id="fecha_compra" class="form-control" required max="{{ $hoy }}">
+            <label for="fecha_compra" class="form-label">Fecha de Venta</label>&ensp;
+            <input type="date" name="fecha_compra" id="fecha_compra" class="form-control" value="{{ \Carbon\Carbon::parse($fecha_compra)->toDateString() }}" readonly>
         </div>
 
         <!-- Tipo de compra -->
@@ -43,6 +43,7 @@
             </select>
 
         <br>
+        <br>
         <!-- Productos -->
         <div class="mb-3">
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -65,17 +66,17 @@
                     <tbody class="w-full text-sm text-left text-gray-500 dark:text-black">
                         <!-- Fila de ejemplo para el primer producto -->
                         <tr>
+                            <td><input type="text" name="productos[0][codigo_producto]" class="form-control" readonly></td>
                             <td>
-                                <select name="productos[0][id_esquema_producto]" class="form-control" required onchange="updateProductName(0)">
+                                <select name="productos[0][id_esquema_producto]" class="form-control" required onchange="updateProductData(0)">
                                     <option value="">Seleccionar Producto</option>
                                     @foreach ($productos as $prod)
-                                        <option value="{{ $prod->id_esquema_producto }}" data-nombre="{{ $prod->nombre_producto }}">
-                                            {{ $prod->codigo_producto }}
+                                        <option value="{{ $prod->id_esquema_producto }}" data-codigo="{{ $prod->codigo_producto }}">
+                                            {{ $prod->nombre_producto }}
                                         </option>
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="text" name="productos[0][nombre_producto]" class="form-control" readonly></td>
                             <td><input type="text" name="productos[0][lote]" class="form-control" required></td>
                             <td><input type="text" name="productos[0][fabricante]" class="form-control" required></td>
                             <td><input type="date" name="productos[0][fecha_fabricacion]" class="form-control" required max="{{ $hoy }}"></td>
@@ -88,8 +89,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="productos[0][cantidad]" class="form-control" required min=0></td>
-                            <td><input type="number" name="productos[0][costo]" class="form-control" required min=0></td>
+                            <td><input type="number" name="productos[0][cantidad]" class="form-control" required min="1" step="1"></td>
+                            <td><input type="number" name="productos[0][costo]" class="form-control" required  min="0.01" step="0.01"></td>
                             <td>
                                 <select name="productos[0][id_estanteria]" class="form-control" required>
                                     <option value="">Seleccionar Estantería</option>
@@ -111,42 +112,45 @@
             Agregar Producto
         </button><br>
 
-        <div class="mb-3 text-center">
-        <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-            <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
-            Registrar Compra
-        </button>
+        <div class="flex justify-center gap-4 divide-x divide-gray-300 items-center mb-3">
+            <button type="submit" class="text-white inline-flex items-center bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" >                <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+                Registrar Compra
+            </button>
+            <a href="{{ route('compras') }}" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    Regresar
+            </a>
         </div>
     </form>
 
-    <!-- Script para agregar productos y autocompletar el nombre del producto -->
     <script>
-        // Actualiza el nombre del producto en la columna correspondiente
-        function updateProductName(index) {
-            var selectElement = document.querySelector(`select[name="productos[${index}][id_esquema_producto]"]`);
-            var selectedOption = selectElement.options[selectElement.selectedIndex];
-            var productName = selectedOption.getAttribute('data-nombre');
-            document.querySelector(`input[name="productos[${index}][nombre_producto]"]`).value = productName;
+        function updateProductData(index) {
+            const select = document.querySelector(`select[name="productos[${index}][id_esquema_producto]"]`);
+            const selectedOption = select.options[select.selectedIndex];
+
+            const codigo = selectedOption.getAttribute('data-codigo') || '';
+            const nombre = selectedOption.getAttribute('data-nombre') || '';
+
+            document.querySelector(`input[name="productos[${index}][codigo_producto]"]`).value = codigo;
+            document.querySelector(`input[name="productos[${index}][nombre_producto]"]`).value = nombre;
         }
 
-        // Agregar una nueva fila al hacer clic en el botón "Agregar Producto"
         document.getElementById('addProductBtn').addEventListener('click', function() {
             var tableBody = document.querySelector('#productos_table tbody');
             var rowIndex = tableBody.rows.length;
 
             var newRow = document.createElement('tr');
             newRow.innerHTML = `
+                <td><input type="text" name="productos[${rowIndex}][codigo_producto]" class="form-control" readonly></td>
                 <td>
-                    <select name="productos[${rowIndex}][id_esquema_producto]" class="form-control" required onchange="updateProductName(${rowIndex})">
+                    <select name="productos[${rowIndex}][id_esquema_producto]" class="form-control" required onchange="updateProductData(${rowIndex})">
                         <option value="">Seleccionar Producto</option>
                         @foreach ($productos as $prod)
-                            <option value="{{ $prod->id_esquema_producto }}" data-nombre="{{ $prod->nombre_producto }}">
-                                {{ $prod->codigo_producto }}
+                            <option value="{{ $prod->id_esquema_producto }}" data-codigo="{{ $prod->codigo_producto }}">
+                                {{ $prod->nombre_producto }}
                             </option>
                         @endforeach
                     </select>
                 </td>
-                <td><input type="text" name="productos[${rowIndex}][nombre_producto]" class="form-control" readonly></td>
                 <td><input type="text" name="productos[${rowIndex}][lote]" class="form-control" required></td>
                 <td><input type="text" name="productos[${rowIndex}][fabricante]" class="form-control" required></td>
                 <td><input type="date" name="productos[${rowIndex}][fecha_fabricacion]" class="form-control" required max="{{ $hoy }}"></td>
@@ -159,8 +163,8 @@
                         @endforeach
                     </select>
                 </td>
-                <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min=0></td>
-                <td><input type="number" name="productos[${rowIndex}][costo]" class="form-control" required min=0></td>
+                <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required  min="1" step="1"></td>
+                <td><input type="number" name="productos[${rowIndex}][costo]" class="form-control" required  min="0.01" step="0.01"></td>
                 <td>
                     <select name="productos[${rowIndex}][id_estanteria]" class="form-control" required>
                         <option value="">Seleccionar Estantería</option>

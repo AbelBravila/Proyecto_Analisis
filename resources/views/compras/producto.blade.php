@@ -1,5 +1,10 @@
 <x-admin-layout>
-
+    @if (session('mensaje'))
+        <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Info</strong>
+            <span class="block sm:inline">{{ session('mensaje') }}</span>
+        </div>
+    @endif
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <b>

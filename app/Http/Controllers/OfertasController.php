@@ -1,24 +1,24 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\DB;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
-use Termwind\Components\Dd;
 
 class OfertasController extends Controller
 {
     public function index(Request $request)
     {
-        $buscar = $request->input('buscador');  // Recibe el término de búsqueda
-
-        // Filtra los productos por el término de búsqueda o muestra todos
-        $productos = DB::table('vw_Encabezado_oferta') -> where('estado', 'A')
+        $buscar = $request->input('buscador');
+        $productos = DB::table('vw_Encabezado_oferta')
+            ->where('estado', 'A')
             ->when($buscar, function ($query, $buscar) {
                 return $query->where('nombre_oferta', 'LIKE', "%{$buscar}%")
-                             ->orWhere('fecha', 'LIKE', "%{$buscar}%");
+                    ->orWhere('fecha', 'LIKE', "%{$buscar}%");
             })
-            ->get();  // Puedes cambiarlo por `paginate()` si deseas paginación
+            ->get();
 
         return view('admin.ofertas', compact('productos', 'buscar'));
     }
@@ -27,7 +27,8 @@ class OfertasController extends Controller
     {
         $detalles = DB::table('vw_Detalle_Ofertas')
             ->where('id_oferta', $id)
-            ->get();    
+            ->get();
+
         return view('layouts.partials.admin.detalleoferta', compact('detalles'));
     }
 
@@ -36,75 +37,75 @@ class OfertasController extends Controller
         $hoy = Carbon::now()->format('Y-m-d');
         return view('layouts.partials.admin.insertarofertamodal', compact('hoy'));
     }
+
     public function store(Request $request)
     {
-        $productos = $request->input('productos');
-        $nombreOferta = $request->input('nombre_oferta');
-        $fechaInicio = $request->input('fecha_inicio');
-        $fechaFin = $request->input('fecha_fin');
+        $request->validate([
+            'nombre_oferta' => 'required|string|max:255',
+            'codigo_oferta' => 'required|string|max:20',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'productos' => 'required|array|min:1',
+            'productos.*.id_producto' => 'required|integer',
+            'productos.*.id_lote' => 'required|integer',
+            'productos.*.nombre_producto' => 'required|string|max:255',
+            'productos.*.precio_regular' => 'required|numeric|min:0',
+            'productos.*.porcentaje' => 'required|numeric|min:0|max:100',
+            'productos.*.cantidad' => 'required|integer|min:1',
+            'productos.*.unidad' => 'required|integer|min:1',
+            'productos.*.precio_oferta' => 'required|numeric|min:0',
+        ]);
 
-        if (empty($productos)) {
-            return response()->json(['error' => 'No se recibieron productos.'], 400);
-        }
+        Log::info('Datos recibidos:', $request->all()); // Guardar el log para depuración
 
         DB::beginTransaction();
         try {
-            // Declarar la tabla tipo nueva
             $sql = "DECLARE @Detallesxd DetalleOfertaType2; ";
 
-            // Insertar los productos (nombre_producto, precio_regular, porcentaje_oferta)
-            foreach ($productos as $producto) {
-                $nombreProducto = str_replace("'", "''", $producto['nombre']); // prevenir error de comillas
-                $precio = floatval($producto['precio_regular']);
-                $porcentaje = floatval($producto['porcentaje']);
-
-                $sql .= "INSERT INTO @Detallesxd (nombre_producto, precio_regular, porcentaje_oferta)
-                        VALUES (N'$nombreProducto', $precio, $porcentaje); ";
+            foreach ($request->input('productos') as $producto) {
+                $sql .= "INSERT INTO @Detallesxd (id_producto, nombre_producto, precio_regular, porcentaje_oferta, lote, cantidadoferta, unidadoferta)
+             VALUES ({$producto['id_producto']}, N'{$producto['nombre_producto']}', {$producto['precio_regular']}, {$producto['porcentaje']}, 
+                     {$producto['id_lote']}, {$producto['cantidad']}, {$producto['unidad']}); ";
             }
 
-            // Escapar nombre de la oferta
-            $nombreOfertaEscapado = str_replace("'", "''", $nombreOferta);
-
-            // Ejecutar el procedimiento
-            $sql .= "EXEC sp_InsertarOfertaConDetalles2 
-                        @NombreOferta = N'$nombreOfertaEscapado', 
-                        @FechaInicio = '$fechaInicio', 
-                        @FechaFin = '$fechaFin', 
-                        @Detallesxd = @Detallesxd;";
+            $sql .= "EXEC sp_InsertarOfertaConDetallesCompleto  
+                     @NombreOferta = N'{$request->input('nombre_oferta')}',  
+                     @FechaInicio = '{$request->input('fecha_inicio')}',  
+                     @FechaFin = '{$request->input('fecha_fin')}',  
+                     @codigo_oferta = '{$request->input('codigo_oferta')}',  
+                     @id_empresa = 1,  
+                     @Detallesxd = @Detallesxd;";
 
             DB::statement($sql);
             DB::commit();
 
-            return response()->json(['mensaje' => 'Oferta y detalles guardados correctamente.']);
+            return response()->json(['mensaje' => 'Oferta y productos guardados correctamente.']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'error' => 'Error al guardar la oferta.',
-                'detalle' => $e->getMessage()
-            ], 500);
+            Log::error("Error al guardar la oferta: " . $e->getMessage());
+            return response()->json(['error' => 'Error al guardar la oferta.', 'detalle' => $e->getMessage()], 500);
         }
     }
-    
+
     public function buscarPorNombre(Request $request)
     {
         $nombre = $request->input('inputNombreProducto');
         $lotes = DB::table('vw_loteProducto')
-        ->where('nombre_producto', 'LIKE', '%' . $nombre . '%')
-        ->select('lote', 'stock', 'precio')
-        ->get();
+            ->where('nombre_producto', 'LIKE', '%' . $nombre . '%')
+            ->where('estado', 'A')
+            ->where('stock', '>', 0)
+            ->select('id_producto', 'id_lote', 'lote', 'stock', 'precio')
+            ->get();
+
         if ($lotes->isEmpty()) {
             return response()->json(['error' => 'Producto no encontrado'], 404);
         }
         return response()->json(['lotes' => $lotes]);
     }
-
-    public function show($id)
+    public function eliminarOferta($id)
     {
-        return view('ofertas.show', compact('id'));
-    }
+        DB::statement('EXEC sp_cambiar_estado_oferta ?', [$id]);
 
-    public function edit($id)
-    {
-        return view('ofertas.edit', compact('id'));
+        return redirect()->route('ofertas')->with('mensaje', 'oferta eliminada exitosamente');
     }
 }

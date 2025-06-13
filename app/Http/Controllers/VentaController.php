@@ -18,13 +18,28 @@ class VentaController extends Controller
     public function index_ventas(Request $request)
     {
         $buscar = $request->input('buscador');
+        $fecha_inicio = $request->input('fecha_inicio');
+        $fecha_fin = $request->input('fecha_fin');
 
-        $ventas = DB::table('vw_detalle_venta') ->where('estado', '=', 'A') 
+        $ventas = DB::table('vw_detalle_venta')
             ->when($buscar, function ($query, $buscar) {
-                return $query->where('nombre_cliente', 'LIKE', "%{$buscar}%")
-                            ->orWhere('id_venta', 'LIKE', "%{$buscar}%");
+                return $query->where(function ($q) use ($buscar) {
+                    $q->where('nombre_cliente', 'LIKE', "%{$buscar}%")
+                    ->orWhere('id_venta', 'LIKE', "%{$buscar}%");
+                });
             })
-            ->get();
+            ->when($fecha_inicio && $fecha_fin, function ($query) use ($fecha_inicio, $fecha_fin) {
+                return $query->whereBetween('fecha_venta', [$fecha_inicio, $fecha_fin]);
+            })
+            ->when($fecha_inicio && !$fecha_fin, function ($query) use ($fecha_inicio) {
+                return $query->whereDate('fecha_venta', '>=', $fecha_inicio);
+            })
+            ->when(!$fecha_inicio && $fecha_fin, function ($query) use ($fecha_fin) {
+                return $query->whereDate('fecha_venta', '<=', $fecha_fin);
+            })
+            ->orderBy('fecha_venta','desc')
+            ->orderBy('id_venta','desc')
+            ->paginate(10);
 
         return view('ventas.ventas', compact('ventas'));
     }
@@ -57,6 +72,7 @@ class VentaController extends Controller
                     'nombre_producto' => $p->esquema->nombre_producto,
                     'precio' => $p->precio,
                     'lote' => $p->lote->lote,
+                    'oferta' => $p->oferta,
                 ];
             });
         });
@@ -68,7 +84,9 @@ class VentaController extends Controller
 
         $presentaciones = PresentacionVenta::where('estado', 'A')->get();
 
-        return view('ventas.registrarventas', compact('clientes', 'clientesConDescuento', 'tipo_venta', 'productos', 'productosAgrupados', 'tipo_pago', 'tipo_documento', 'presentaciones' ));
+        $fecha_venta = DB::selectOne("SELECT GETDATE() AS fecha")->fecha;
+
+        return view('ventas.registrarventas', compact('clientes', 'clientesConDescuento', 'tipo_venta', 'productos', 'productosAgrupados', 'tipo_pago', 'tipo_documento', 'presentaciones', 'fecha_venta' ));
     }
 
     public function crearVenta(Request $request)
@@ -89,8 +107,7 @@ class VentaController extends Controller
         
             $precioUnitario = floatval($producto['precio_p']);
             $cantidad = floatval($producto['cantidad']);
-        
-            // Calcular subtotal
+
             $subtotal += $cantidad * $precioUnitario;
         
             $productosTable[] = [
@@ -111,11 +128,8 @@ class VentaController extends Controller
 
         $total = $subtotal - $descuentoMonto;
 
-        $fechaVenta = $request->input('fecha_venta');
-        $hoy = Carbon::now()->format('Y-m-d');
-        if ($fechaVenta > $hoy) {
-            return back()->with('error', 'La fecha de venta no puede ser mayor a la fecha actual.');
-        }
+        $fechaDesdeBD = DB::selectOne("SELECT CONVERT(datetime, GETDATE()) AS fecha")->fecha;
+        $fechaVenta = Carbon::parse($fechaDesdeBD);
 
         $idUsuario = Auth::id();
         $aperturaCaja = DB::table('Apertura_Caja')
@@ -124,7 +138,7 @@ class VentaController extends Controller
             ->where('Apertura_Caja.Estado', 'A')
             ->exists();
         if (!$aperturaCaja) {
-            return back()->with('error', 'El usuario no tiene una caja aperturada. No puede realizar la venta.');
+            return redirect()->route('ventas.registrarventas')->with('error', 'El usuario no tiene una caja aperturada. No puede realizar la venta.');
         }
 
 
@@ -132,7 +146,6 @@ class VentaController extends Controller
             $idTipoVenta = $request->input('id_tipo_venta');
             $idTipoPago = $request->input('id_tipo_pago');
             $idTipoDocumento = $request->input('id_tipo_documento');
-            $fechaVenta = Carbon::parse($fechaVenta)->toDateString();
 
             DB::statement("
                 EXEC sp_movimiento_caja_venta
@@ -179,19 +192,19 @@ class VentaController extends Controller
             ]);
 
             if ($errorMessage) {
-                return back()->with('error', $errorMessage);
+                return redirect()->route('ventas.registrarventas')->with('error', $errorMessage);
             }
 
         });
 
-        return redirect()->route('ventas')->with('success', 'Venta registrada exitosamente.');
+        return redirect()->route('ventas')->with('mensaje', 'Venta registrada exitosamente.');
     }
 
     public function anular($id)
     {
         DB::statement('EXEC sp_anularVenta ?', [$id]);
 
-        return redirect()->route('ventas')->with('success', 'Venta Anulada');
+        return redirect()->route('ventas')->with('mensaje', 'Venta Anulada');
     }
 
     public function show($id)

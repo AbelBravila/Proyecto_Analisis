@@ -13,7 +13,7 @@
         ],
         [
             'name' => 'Usuarios',
-            'icon' => 'fa-solid fa-gauge-high',
+            'icon' => 'fa-solid fa-user',
             'route' => 'Usuario',
             'active' => request()->routeIs('Usuario'),
         ],
@@ -22,7 +22,7 @@
         ],
         [
             'name' => 'Proveedores',
-            'icon' => 'fa-solid fa-gauge-high',
+            'icon' => 'fa-solid fa-truck',
             'route' => 'proveedor',
             'active' => request()->routeIs('proveedor'),
         ],
@@ -46,7 +46,7 @@
         ],
         [
             'name' => 'Compras',
-            'icon' => 'fa-solid fa-shopping-cart',
+            'icon' => 'fa-solid fa-cart-plus',
             'route' => 'compras',
             'active' => request()->routeIs('compras'),
         ],
@@ -55,7 +55,7 @@
         ],
         [
             'name' => 'Clientes',
-            'icon' => 'fa-solid fa-gauge-high',
+            'icon' => 'fa-solid fa-users',
             'route' => 'cliente',
             'active' => request()->routeIs('cliente'),
         ],
@@ -73,13 +73,13 @@
         ],
         [
             'name' => 'Pasillos',
-            'icon' => 'fa-solid fa-gauge-high',
+            'icon' => 'fa-solid fa-table-columns',
             'route' => 'Pasillo',
             'active' => request()->routeIs('Pasillo'),
         ],
         [
             'name' => 'Estantes',
-            'icon' => 'fa-solid fa-gauge-high',
+            'icon' => 'fa-solid fa-table-cells-large',
             'route' => 'Estanteria',
             'active' => request()->routeIs('Estanteria'),
         ],
@@ -164,31 +164,31 @@
         ],
         [
             'name' => 'Cajas',
-            'icon' => 'fa-regular fa-pen-to-square',
+            'icon' => 'fa-solid fa-box-archive',
             'route' => 'cajas',
             'active' => request()->routeIs('cajas'),
         ],
         [
             'name' => 'Apertura de Caja',
-            'icon' => 'fa-regular fa-pen-to-square',
+            'icon' => 'fa-solid fa-boxes-packing',
             'route' => 'apertura-caja.index',
             'active' => request()->routeIs('apertura-caja.index'),
         ],
         [
             'name' => 'Cajas Cerradas',
-            'icon' => 'fa-regular fa-pen-to-square',
+            'icon' => 'fa-solid fa-shop-lock',
             'route' => 'cierre-caja.index',
             'active' => request()->routeIs('cierre-caja.index'),
         ],
         [
             'name' => 'Asignacion de Caja',
-            'icon' => 'fa-regular fa-pen-to-square',
+            'icon' => 'fa-solid fa-hand-holding-dollar',
             'route' => 'asignacion-caja.index',
             'active' => request()->routeIs('asignacion-caja.index'),
         ],
         [
             'name' => 'Turno',
-            'icon' => 'fa-regular fa-pen-to-square',
+            'icon' => 'fa-solid fa-clock',
             'route' => 'turnos',
             'active' => request()->routeIs('turnos'),
         ],

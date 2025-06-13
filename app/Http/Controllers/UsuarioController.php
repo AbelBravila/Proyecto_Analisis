@@ -95,14 +95,14 @@ class UsuarioController extends Controller
         // Ahora, $usuario es un objeto válido
         Mail::to($correo_u)->send(new ContrasenaTemp($contraseñaTemporal, $correo_u, $usuario));
 
-        return redirect()->route('Usuario')->with('success', 'Usuario registrado exitosamente');
+        return redirect()->route('Usuario')->with('mensaje', 'Usuario registrado exitosamente');
     }
 
     public function cambiar_estado($id)
     {
         DB::statement('EXEC sp_cambiarEstadoUsuario ?', [$id]);
 
-        return redirect()->route('Usuario')->with('success', 'Estado del usuario actualizado');
+        return redirect()->route('Usuario')->with('mensaje', 'Estado del usuario actualizado');
     }
 
     public function editar_usuario($id)
@@ -142,7 +142,7 @@ class UsuarioController extends Controller
         );
     
         // Redirigir con éxito
-        return redirect()->route('Usuario')->with('success', 'Usuario actualizado exitosamente.');
+        return redirect()->route('Usuario')->with('mensaje', 'Usuario actualizado exitosamente.');
         
     }
 }

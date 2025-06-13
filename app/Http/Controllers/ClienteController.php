@@ -17,15 +17,13 @@ class ClienteController extends Controller
         $buscar = $request->input('buscador');  // Recibe el término de búsqueda
 
         // Filtra los productos por el término de búsqueda o muestra todos
-        $clientes = Cliente::where('estado', 'A')
-            ->when($buscar, function ($query, $buscar) {
-                return $query->where('id_cliente', 'LIKE', "%{$buscar}%")
-                             ->orWhere('nit', 'LIKE', "%{$buscar}%")
-                             ->orWhere('nombre_cliente', 'LIKE', "%{$buscar}%");
-            })
-            ->get();  // Puedes cambiarlo por `paginate()` si deseas paginación
+        $clientes = DB::table('vw_clientes')
+            ->where('estado', 'A')
+            ->get();
+        // Puedes cambiarlo por `paginate()` si deseas paginación
+        $tipos_cliente = DB::table('tipo_cliente')->where('estado', 'A')->get();
 
-        return view('cliente.cliente', compact('clientes', 'buscar'));
+        return view('cliente.cliente', compact('clientes','tipos_cliente', 'buscar'));
     }
 
     private function validateCliente(Request $request)
@@ -50,17 +48,18 @@ class ClienteController extends Controller
             return redirect()->route('cliente')->with('error', 'El nit ya pertenece a alguien mas.');
         }
 
-        DB::statement("EXEC sp_Insert_Cliente
+        DB::statement(
+            "EXEC sp_Insert_Cliente
             @id_tipo_cliente = ?,
             @nombre_cliente = ?,
             @dpi = ?,
             @nit = ?,
             @telefono = ?,
             @correo =?",
-            [$request->id_tipo_cliente,$request->nombre_cliente, $request->dpi, $request->nit, $request->telefono, $request->correo]
+            [$request->id_tipo_cliente, $request->nombre_cliente, $request->dpi, $request->nit, $request->telefono, $request->correo]
         );
 
-        return redirect()->route('cliente')->with('success', 'Cliente registrado exitosamente');
+        return redirect()->route('cliente')->with('mensaje', 'Cliente registrado exitosamente');
     }
 
     public function editar_cliente($id)
@@ -73,16 +72,17 @@ class ClienteController extends Controller
     public function actualizar_cliente(Request $request, $id)
     {
         $this->validateCliente($request, [
-                'nit' => [
-                'required', 
-                'string', 
-                'max:15', 
-                Rule::unique('cliente','nit')->ignore($id, 'id_cliente') // Ignora el producto actual
+            'nit' => [
+                'required',
+                'string',
+                'max:15',
+                Rule::unique('cliente', 'nit')->ignore($id, 'id_cliente') // Ignora el producto actual
             ],
         ]);
-    
+
         // Procedimiento almacenado para actualizar el producto
-        DB::statement('EXEC sp_actualizar_Cliente
+        DB::statement(
+            'EXEC sp_actualizar_Cliente
             @id_cliente = ?,
             @id_tipo_cliente = ?,
             @nombre_cliente = ?,
@@ -91,19 +91,18 @@ class ClienteController extends Controller
             @telefono = ?,
             @correo = ?',
             [
-                $id, 
+                $id,
                 $request->id_tipo_cliente,
-                $request->nombre_cliente, 
+                $request->nombre_cliente,
                 $request->dpi,
-                $request->nit, 
+                $request->nit,
                 $request->telefono,
                 $request->correo
             ]
         );
-    
+
         // Redirigir con éxito
-        return redirect()->route('cliente')->with('success', 'Cliente actualizado exitosamente.');
-        
+        return redirect()->route('cliente')->with('mensaje', 'Cliente actualizado exitosamente.');
     }
 
 
@@ -111,6 +110,15 @@ class ClienteController extends Controller
     {
         DB::statement('EXEC sp_cambiarEstado_Cliente ?', [$id]);
 
-        return redirect()->route('cliente')->with('success', 'Estado del cliente actualizado');
+        return redirect()->route('cliente')->with('mensaje', 'Estado del cliente actualizado');
+    }
+
+    public function mostrarDetalles($id)
+    {
+        $detalles = DB::table('VW_Detalle_Pedidos')
+            ->where('id_pedido', $id)
+            ->get();
+
+        return view('layouts.partials.admin.detallepedidos', compact('detalles'));
     }
 }

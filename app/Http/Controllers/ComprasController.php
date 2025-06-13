@@ -19,16 +19,28 @@ class ComprasController extends Controller
     public function index_compras(Request $request)
     {
         $buscar = $request->input('buscador');
+        $fechaInicio = $request->input('fecha_inicio');
+        $fechaFin = $request->input('fecha_fin');
 
-        $compras = DB::table('vw_detalle_compra') ->where('estado', '!=', 'I') 
+        $compras = DB::table('vw_detalle_compra')
             ->when($buscar, function ($query, $buscar) {
-                return $query->where('nombre_proveedor', 'LIKE', "%{$buscar}%")
-                            ->orWhere('id_compra', 'LIKE', "%{$buscar}%");
+                return $query->where(function ($q) use ($buscar) {
+                    $q->where('nombre_proveedor', 'LIKE', "%{$buscar}%")
+                    ->orWhere('id_compra', 'LIKE', "%{$buscar}%");
+                });
             })
-            ->get();
+            ->when($fechaInicio, function ($query, $fechaInicio) {
+                return $query->whereDate('fecha_compra', '>=', $fechaInicio);
+            })
+            ->when($fechaFin, function ($query, $fechaFin) {
+                return $query->whereDate('fecha_compra', '<=', $fechaFin);
+            })
+            ->orderBy('fecha_compra','desc')
+            ->paginate(10);
 
         return view('compras.compras', compact('compras'));
     }
+
 
     public function index_resgistrar()
     {
@@ -37,7 +49,8 @@ class ComprasController extends Controller
         $productos = EsquemaProducto::where('estado', 'A')->get(); 
         $presentaciones = Presentacion::where('estado', 'A')->get();
         $estanterias = Estanteria::where('estado', 'A')->get();
-        return view('compras.registrarcompras', compact('productos', 'presentaciones', 'tipo_compra', 'proveedores', 'estanterias'));
+        $fecha_compra = DB::selectOne("SELECT GETDATE() AS fecha")->fecha;
+        return view('compras.registrarcompras', compact('productos', 'presentaciones', 'tipo_compra', 'proveedores', 'estanterias', 'fecha_compra'));
         
     }
 
@@ -91,17 +104,13 @@ class ComprasController extends Controller
         $idEmpresa = Auth::user()->empresa()->where('estado', 'A')->first()?->id_empresa;
 
         if (!$idEmpresa) {
-            return back()->with('error', 'No se encontró una empresa asociada al usuario.');
+            return redirect()->route('compras')->with('error', 'No se encontró una empresa asociada al usuario.');
         }
         
-        $fechaCompra = $request->input('fecha_compra');
-        $hoy = Carbon::now()->format('Y-m-d');
+        $fechaDesdeBD = DB::selectOne("SELECT CONVERT(datetime, GETDATE()) AS fecha")->fecha;
+        $fechaCompra = Carbon::parse($fechaDesdeBD);
 
-        if ($fechaCompra > $hoy) {
-            return back()->with('error', 'La fecha de compra no puede ser mayor a la fecha actual.');
-        }
-
-        DB::transaction(function () use ($request, $insertQuery, $idEmpresa) {
+        DB::transaction(function () use ($request, $insertQuery, $idEmpresa, $fechaCompra) {
             DB::statement("
             DECLARE @Productos TipoProductos;
 
@@ -115,7 +124,7 @@ class ComprasController extends Controller
                 @Productos = @Productos, 
                 @IdEmpresa = ?;
             ", [
-                Carbon::parse($request->input('fecha_compra'))->toDateString(), 
+                $fechaCompra, 
                 $request->input('id_tipo_compra'),
                 $request->input('id_proveedor'),
                 $idEmpresa
@@ -124,14 +133,14 @@ class ComprasController extends Controller
         });
         
 
-        return redirect()->route('compras')->with('success', 'Compra registrada exitosamente.');
+        return redirect()->route('compras')->with('mensaje', 'Compra registrada exitosamente.');
     }
 
     public function anular($id)
     {
         DB::statement('EXEC sp_anularCompra ?', [$id]);
 
-        return redirect()->route('compras')->with('success', 'Compra Anulada');
+        return redirect()->route('compras')->with('mensaje', 'Compra Anulada');
     }
     
 
