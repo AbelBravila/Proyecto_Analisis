@@ -48,7 +48,7 @@ class DevolucionVentaController extends Controller
         return view('devoluciones_venta.create', compact('clientes', 'ventas'));
     }
 
-    public function store(Request $request)
+public function store(Request $request)
 {
     $request->validate([
         'id_venta' => 'required|exists:venta,id_venta',
@@ -56,17 +56,27 @@ class DevolucionVentaController extends Controller
     ]);
 
     $idUsuario = Auth::id();
+    $productos = json_decode($request->productos);
     $productosTable = [];
-    $errorMessages = [];
 
-     $productos = json_decode($request->productos);
-    //  return response()->json($request->productos);    
-    
-    // Preparar los datos para el procedimiento almacenado
+    // Validación: Caja aperturada
+    $idApertura = DB::table('Apertura_Caja as ac')
+        ->join('asignacion_sat as a', 'ac.ID_Asignacion', '=', 'a.id_asignacion')
+        ->where('a.id_usuario', $idUsuario)
+        ->where('ac.Estado', 'A')
+        ->value('ac.ID_Apertura');
+
+    if (!$idApertura) {
+        return response()->json(['error' => true, 'message' => 'El usuario no tiene una caja aperturada.']);
+    }
+
+    // Validación: Productos seleccionados
+    if (!$productos || count($productos) === 0) {
+        return response()->json(['error' => true, 'message' => 'No hay productos seleccionados para devolver.']);
+    }
+
     foreach ($productos as $producto) {
-        if ($producto->cantidad <= 0) {
-            continue;
-        }
+        if ($producto->cantidad <= 0) continue;
 
         $productosTable[] = [
             'id_producto' => $producto->id_producto,
@@ -75,21 +85,51 @@ class DevolucionVentaController extends Controller
             'producto_cambio_id' => $producto->tipo_devolucion === 'C' ? $producto->producto_cambio_id : null,
             'cantidad_cambio' => $producto->tipo_devolucion === 'C' ? $producto->cantidad_cambio : null,
             'danado' => $producto->danado,
-
             'precio' => $producto->precio,
-            
             'id_presentacion_venta' => null,
-            // 'id_presentacion_venta' => $producto['id_presentacion_venta'],
-
-            // 'id_presentacion_cambio' => $producto['tipo_devolucion'] === 'C' ? $producto['id_presentacion_cambio'] : null,
             'id_presentacion_cambio' => null,
         ];
     }
 
-    $errorMessage = '';
-    
+    if (count($productosTable) === 0) {
+        return response()->json(['error' => true, 'message' => 'No hay productos válidos con cantidad mayor a 0.']);
+    }
+
+    // Validación: Cantidad a devolver no mayor a vendida
+    foreach ($productosTable as $p) {
+        $vendida = DB::table('detalle_venta')
+            ->where('id_venta', $request->id_venta)
+            ->where('id_producto', $p['id_producto'])
+            ->value('cantidad');
+
+        if ($vendida === null) {
+            return response()->json(['error' => true, 'message' => "El producto con ID {$p['id_producto']} no pertenece a la venta."]);
+        }
+
+        if ($p['cantidad'] > $vendida) {
+            return response()->json(['error' => true, 'message' => "La cantidad a devolver del producto {$p['id_producto']} excede la cantidad vendida."]);
+        }
+    }
+
+    // Validación: Stock suficiente para productos de cambio
+    foreach ($productosTable as $p) {
+        if ($p['tipo_devolucion'] === 'C' && $p['producto_cambio_id']) {
+            $stock = DB::table('producto')
+                ->where('id_producto', $p['producto_cambio_id'])
+                ->value('stock');
+
+            if ($stock === null) {
+                return response()->json(['error' => true, 'message' => "El producto de cambio con ID {$p['producto_cambio_id']} no existe."]);
+            }
+
+            if ($p['cantidad_cambio'] > $stock) {
+                return response()->json(['error' => true, 'message' => "No hay suficiente stock para el producto de cambio con ID {$p['producto_cambio_id']}."]);
+            }
+        }
+    }
+
     DB::beginTransaction();
-    
+
     try {
         DB::statement("
             DECLARE @Detalles TipoDetalleDevolucion;
@@ -112,16 +152,17 @@ class DevolucionVentaController extends Controller
                 ];
                 return "(" . implode(', ', $values) . ")";
             }, $productosTable)) . ";
-            
+
             DECLARE @error_message VARCHAR(255);
-            
+
             EXEC sp_RealizarDevolucionVenta
                 @id_venta = ?,
                 @id_cliente = ?,
                 @id_usuario = ?,
                 @fecha_devolucion = ?,
-                @detalles = @Detalles
-                
+                @detalles = @Detalles,
+                @p_error_message = @error_message OUTPUT;
+
             SELECT @error_message AS error_message;
         ", [
             $request->id_venta,
@@ -129,16 +170,15 @@ class DevolucionVentaController extends Controller
             $idUsuario,
             now()->toDateTimeString()
         ]);
-        
-         DB::commit();
+
+        DB::commit();
 
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Devolución registrada correctamente.']);
         }
-        
-        return redirect()->route('devoluciones.index')
-            ->with('error', 'Devolución registrada correctamente.');
-            
+
+        return redirect()->route('devoluciones.index')->with('success', 'Devolución registrada correctamente.');
+
     } catch (\Exception $e) {
         DB::rollBack();
         if ($request->ajax()) {
@@ -146,10 +186,7 @@ class DevolucionVentaController extends Controller
         }
         return back()->with('error', 'Error al registrar la devolución: ' . $e->getMessage());
     }
-
-    
 }
-
 
 
     /*
