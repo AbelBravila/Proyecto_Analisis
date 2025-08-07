@@ -87,6 +87,17 @@
                                 <span class="error text-red-500 text-sm">{{ $message }}</span>
                             @enderror
                         </div>
+                        <div class="col-span-2">
+                            <label for="especial_product" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Es un Producto Especial?</label>
+                            <select id="especial_product" name="nivel" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                <option value="">Selecciona una respuesta</option>
+                                <option value="S">Si</option>
+                                <option value="N">No</option>
+                            </select>
+                            @error('especial_product')
+                                <span class="error text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
                     <button type="submit"
                         class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
@@ -211,6 +222,18 @@
                                                 required
                                                 value="{{ old('descripcion_product', $producto->descripcion) }}">
                                             @error('descripcion_product')
+                                                <span class="error text-red-500 text-sm">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-span-2">
+                                            <label for="especial_product" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Es un Producto Especial?</label>
+                                            <select id="especial_product" name="especial_product" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                                <option value="">Selecciona una respuesta</option>
+                                                <option value="S" {{ old('especial_product', $producto->especial) == 'S' ? 'selected' : '' }}>Si</option>
+                                                <option value="N" {{ old('especial_product', $producto->especial) == 'N' ? 'selected' : '' }}>No</option>
+                                            </select>
+
+                                            @error('especial_product')
                                                 <span class="error text-red-500 text-sm">{{ $message }}</span>
                                             @enderror
                                         </div>

@@ -14,7 +14,8 @@ class EsquemaProducto extends Model
         'nombre_producto',
         'descripcion',
         'fecha_creacion',
-        'estado'
+        'estado',
+        'especial'
     ];
     
     protected $casts = [

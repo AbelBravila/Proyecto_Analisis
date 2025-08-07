@@ -38,7 +38,8 @@ class ProductoController extends Controller
         $request->validate([
             'codigo_product' => 'required|string|max:15',
             'nombre_product' => 'required|string|max:100',
-            'descripcion_product' => 'required|string|max:100'
+            'descripcion_product' => 'required|string|max:100',
+            'especial_product' => 'required|string|max:1'
         ]);
     }
 
@@ -55,8 +56,14 @@ class ProductoController extends Controller
         DB::statement("EXEC sp_Insert_Esquema_Producto
             @codigo_producto = ?,
             @nombre_producto = ?,
-            @descripcion =?",
-            [$request->codigo_product, $request->nombre_product, $request->descripcion_product]
+            @descripcion =?,
+            @especial =?",
+            [
+                $request->codigo_product, 
+                $request->nombre_product, 
+                $request->descripcion_product,
+                $request->especial_product
+            ]
         );
 
         return redirect()->route('producto')->with('mensaje', 'Producto registrado exitosamente');
@@ -83,14 +90,16 @@ class ProductoController extends Controller
         // Procedimiento almacenado para actualizar el producto
         DB::statement('EXEC sp_actualizar_esquema_producto
             @id_esquema_producto = ?, 
-            @codigo_producto = ?, 
-            @nombre_producto = ?, 
-            @descripcion = ?',
+            @codigo_producto = ?,
+            @nombre_producto = ?,
+            @descripcion =?,
+            @especial =?',
             [
                 $id, 
                 $request->codigo_product, 
                 $request->nombre_product, 
-                $request->descripcion_product
+                $request->descripcion_product,
+                $request->especial_product
             ]
         );
     
