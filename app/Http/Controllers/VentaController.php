@@ -124,6 +124,7 @@ class VentaController extends Controller
         $cliente = Cliente::find($idCliente);
         $tipoCliente = TipoCliente::find($cliente->id_tipo_cliente);
         $descuento = $tipoCliente->descuento;
+
         $descuentoMonto = $subtotal * ($descuento / 100);
         $total = $subtotal - $descuentoMonto;
 
@@ -141,35 +142,60 @@ class VentaController extends Controller
             return redirect()->route('ventas.registrarventas')->with('error', 'El usuario no tiene una caja aperturada. No puede realizar la venta.');
         }
 
- DB::statement("EXEC sp_RealizarVenta 
-        @id_tipo_venta = ?, 
-        @id_tipo_pago = ?, 
-        @id_tipo_documento = ?, 
-        @id_cliente = ?, 
-        @id_usuario = ?, 
-        @fecha_venta = ?, 
-        @subtotal_venta = ?, 
-        @total_descuento = ?, 
-        @total_venta = ?, 
-        @p_error_message = ? OUTPUT",
-        [
-            $request->input('id_tipo_venta'),
-            $request->input('id_tipo_pago'),
-            $request->input('id_tipo_documento'),
-            $idCliente,
-            $idUsuario,
-            $fechaVenta,
-            $subtotal,
-            $descuentoMonto,
-            $total,
-            &$errorMessage
-        ]
-    );
+        DB::transaction(function () use ($request, $productosTable, $subtotal, $descuentoMonto, $total, $idCliente, $fechaVenta, $idUsuario) {
+            $idTipoVenta = $request->input('id_tipo_venta');
+            $idTipoPago = $request->input('id_tipo_pago');
+            $idTipoDocumento = $request->input('id_tipo_documento');
+            $fechaVenta = Carbon::parse($fechaVenta)->toDateString();
 
-        if ($errorMessage && $errorMessage !== 'Venta registrada correctamente.') {
-            return redirect()->route('ventas.registrarventas')->with('error', $errorMessage);
-        }
+            DB::statement("
+                EXEC sp_movimiento_caja_venta
+                    @id_usuario = ?, 
+                    @monto = ?;
+            ", [
+                $idUsuario, 
+                $total
+                ]);
 
+            DB::statement("
+                DECLARE @Productos TipoDetalleVenta;
+
+                INSERT INTO @Productos (id_producto, cantidad, precio, id_presentacion_venta)
+                VALUES 
+                " . implode(', ', array_map(function ($producto) {
+                    return "({$producto['id_producto']}, {$producto['cantidad']}, {$producto['precio']}, {$producto['id_presentacion_venta']})";
+                }, $productosTable)) . ";
+
+                -- Llamar al procedimiento almacenado
+                EXEC sp_RealizarVenta
+                    @id_cliente = ?, 
+                    @id_usuario = ?, 
+                    @id_tipo_venta = ?, 
+                    @id_tipo_pago = ?, 
+                    @id_tipo_documento = ?, 
+                    @fecha_venta = ?, 
+                    @subtotal_venta = ?, 
+                    @total_descuento = ?, 
+                    @total_venta = ?, 
+                    @productos = @Productos,
+                    @p_error_message = ? OUTPUT;
+            ", [
+                $idCliente, 
+                $idUsuario, 
+                $idTipoVenta, 
+                $idTipoPago, 
+                $idTipoDocumento, 
+                $fechaVenta, 
+                $subtotal, 
+                $descuentoMonto, 
+                $total, 
+                &$errorMessage
+            ]);
+
+            if ($errorMessage && $errorMessage !== 'Venta registrada correctamente.') {
+                return redirect()->route('ventas.registrarventas')->with('error', $errorMessage);
+            }
+        });
         return redirect()->route('ventas')->with('mensaje', 'Venta registrada exitosamente.');
     }
 
