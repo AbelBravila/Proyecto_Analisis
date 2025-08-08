@@ -5,6 +5,13 @@
         <h1 class="text-lg text-center dark:text-black ">Registrar Venta</h1>
     </b>
 
+    @if (session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">¡Error!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
+
     <form action="{{ route('ventas.crear') }}" method="POST">
         @csrf
 
@@ -35,7 +42,8 @@
         <!-- Cliente -->
         <div class="mb-3">
             <label for="id_cliente" class="form-label">Cliente</label>&ensp;
-            <select name="id_cliente" id="id_cliente" class="form-control select-cliente" required onchange="updateClienteDescuento()">
+            <select name="id_cliente" id="id_cliente" class="form-control select-cliente" required
+                onchange="updateClienteDescuento()">
                 <option value="">Seleccionar Cliente</option>
                 @foreach ($clientesConDescuento as $cliente)
                     <option value="{{ $cliente->id_cliente }}" data-descuento="{{ $cliente->descuento }}">
@@ -196,6 +204,22 @@
         </div>
     </form>
 
+    @if (request('showModal'))
+        <script>
+            $(document).ready(function() {
+                $('#miModal').modal('show');
+            });
+        </script>
+    @endif
+
+    <div id="miModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-[80%] max-w-none relative">
+            <button class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl"
+                onclick="cerrarModalDetalle()">&times;</button>
+            <h2 class="text-xl font-bold mb-4">Detalle de la venta <span id="detalle-venta-id"></span></h2>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
@@ -306,25 +330,19 @@
         }
 
         function updateDetails(index) {
-            // obtenemos el select de presentación y el option seleccionado
             const presSel = document.querySelector(`select[name="productos[${index}][id_presentacion_venta]"]`);
             const presOpt = presSel.options[presSel.selectedIndex];
 
-            // obtenemos el select de lote y el option seleccionado
             const loteSel = document.querySelector(`select[name="productos[${index}][id_producto]"]`);
             const loteOpt = loteSel.options[loteSel.selectedIndex];
 
-            // base de precio (viene de dataset.precio del option de lote)
             const basePrecio = parseFloat(loteOpt?.dataset.precio) || 0;
-            // cantidad y descuento de la presentación
             const mult = parseFloat(presOpt?.dataset.cantidad) || 1;
             const descuentoPres = parseFloat(presOpt?.dataset.descuento) || 0;
 
-            // ajustamos el precio unitario
             const precioAjustado = (basePrecio * mult) * (1 - descuentoPres / 100);
             document.querySelector(`input[name="productos[${index}][precio_p]"]`).value = precioAjustado.toFixed(2);
 
-            // recalcular total de la fila y totales generales
             updateTotalProducto(index);
 
             const cantidadInput = document.querySelector(`input[name="productos[${index}][cantidad]"]`);
@@ -360,8 +378,7 @@
             total = subtotal - descuentoMonto;
 
             document.getElementById('subtotal').value = subtotal.toFixed(2);
-            document.getElementById('descuento').value = descuentoMonto.toFixed(
-                2); // Esto es opcional, si quieres mostrar el descuento.
+            document.getElementById('descuento').value = descuentoMonto.toFixed(2); // Esto es opcional, si quieres mostrar el descuento.
             document.getElementById('total').value = total.toFixed(2);
         }
 
@@ -371,7 +388,6 @@
             updateTotals(); // Actualizar los totales después de eliminar una fila
         }
 
-        // Agregar producto
         document.getElementById('addProductBtn').addEventListener('click', function() {
             var tableBody = document.querySelector('#productos_table tbody');
             var rowIndex = tableBody.rows.length;

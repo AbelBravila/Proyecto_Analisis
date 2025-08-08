@@ -93,6 +93,8 @@ class VentaController extends Controller
 
     public function crearVenta(Request $request)
     {
+        $errorMessage = null;
+
         $productos = $request->input('productos');  
         $productosTable = [];
         $subtotal = 0;
@@ -141,8 +143,8 @@ class VentaController extends Controller
         if (!$aperturaCaja) {
             return redirect()->route('ventas.registrarventas')->with('error', 'El usuario no tiene una caja aperturada. No puede realizar la venta.');
         }
-
-        DB::transaction(function () use ($request, $productosTable, $subtotal, $descuentoMonto, $total, $idCliente, $fechaVenta, $idUsuario) {
+        try{
+            DB::transaction(function () use ($request, $productosTable, $subtotal, $descuentoMonto, $total, $idCliente, $fechaVenta, $idUsuario) {
             $idTipoVenta = $request->input('id_tipo_venta');
             $idTipoPago = $request->input('id_tipo_pago');
             $idTipoDocumento = $request->input('id_tipo_documento');
@@ -192,10 +194,15 @@ class VentaController extends Controller
                 &$errorMessage
             ]);
 
-            if ($errorMessage && $errorMessage !== 'Venta registrada correctamente.') {
-                return redirect()->route('ventas.registrarventas')->with('error', $errorMessage);
-            }
-        });
+            });
+        } catch (\Exception $e) {
+            return redirect()->route('ventas.registrarventas')->with('error', 'Error en la transacción: ' . $e->getMessage());
+        }   
+
+        if ($errorMessage === 'La venta contiene un producto especial.') {
+            return redirect()->route('ventas.registrar', ['showModal' => true]);
+        }
+
         return redirect()->route('ventas')->with('mensaje', 'Venta registrada exitosamente.');
     }
 
