@@ -26,7 +26,7 @@ use App\Http\Controllers\TipoDocumentoController;
 use App\Http\Controllers\TipoVentaController;
 use App\Http\Controllers\TipoPagoController;
 use App\Http\Controllers\PresentacionController;
-
+use App\Http\Controllers\NotificacionController;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EnviarCorreo;
@@ -38,6 +38,9 @@ use Illuminate\Support\Str;
 // Route::get('/', function () {
 //     return view('auth.login');
 // });
+
+Route::get('/enviar-push', [NotificacionController::class, 'enviarPush']);
+
 Route::get('/welcome', function () {
     return view('welcome');
 })->name('welcome')->middleware('auth');
