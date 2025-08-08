@@ -131,19 +131,6 @@
                                     <option value="">Seleccionar Presentación</option>
                                 </select>
                             </td>
-                            <!--
-                            <td>
-                            <select name="productos[0][id_presentacion_venta]" class="form-control" required onchange="updateDetails(0)">
-                                <option value="">Seleccionar Presentación</option>
-                                @foreach ($presentaciones as $presentacion)
-<option value="{{ $presentacion->id_presentacion_venta }}"
-                                            data-cantidad="{{ $presentacion->cantidad }}"
-                                            data-descuento="{{ $presentacion->descuento }}">
-                                        {{ $presentacion->nombre_presentacion }}
-                                    </option>
-@endforeach
-                            </select>
-                            </td> -->
                             <td>
                                 <select name="productos[0][id_producto]" class="form-control select-lote" required
                                     onchange="onLoteChange(0)">
@@ -228,17 +215,14 @@
             });
         }
 
-        // Variable global para el descuento
         let descuentoGlobal = 0;
 
-        // Función que se llama cuando se selecciona un cliente
         function updateClienteDescuento() {
             const clienteSelect = document.getElementById('id_cliente');
             const selectedOption = clienteSelect.options[clienteSelect.selectedIndex];
             descuentoGlobal = parseFloat(selectedOption.getAttribute('data-descuento')) || 0;
             updateTotals();
         }
-
 
         function onNombreProductoChange(index) {
             const nombreSelect = document.querySelector(`select[name="productos[${index}][nombre_producto]"]`);
@@ -264,7 +248,6 @@
             } else {
                 codigoInput.value = '';
             }
-            // Limpia precio y lote
             document.querySelector(`input[name="productos[${index}][precio_p]"]`).value = '';
         }
 
@@ -322,18 +305,6 @@
             updateDetails(index);
         }
 
-        /*function onLoteChange(index) {
-            const loteSelect = document.querySelector(`select[name="productos[${index}][id_producto]"]`);
-            const precio = loteSelect.options[loteSelect.selectedIndex]?.dataset?.precio || 0;
-            const lote = loteSelect.options[loteSelect.selectedIndex]?.dataset?.lote || '';
-
-            document.querySelector(`input[name="productos[${index}][precio_p]"]`).value = parseFloat(precio).toFixed(2);
-            document.querySelector(`input[name="productos[${index}][lote]"]`).value = lote;
-
-            updateDetails(index); // Para recalcular total del producto y actualizar totales
-        }*/
-
-        // Función para actualizar los detalles de la presentación (descuento y cantidad)
         function updateDetails(index) {
             // obtenemos el select de presentación y el option seleccionado
             const presSel = document.querySelector(`select[name="productos[${index}][id_presentacion_venta]"]`);
@@ -365,7 +336,6 @@
             }
         }
 
-        // Función para calcular el total por producto
         function updateTotalProducto(index) {
             const cantidad = parseFloat(document.querySelector(`input[name="productos[${index}][cantidad]"]`).value) || 0;
             const precio = parseFloat(document.querySelector(`input[name="productos[${index}][precio_p]"]`).value) || 0;
@@ -374,13 +344,11 @@
             updateTotals();
         }
 
-        // Función para actualizar los totales (Subtotal, Descuento, Total)
         function updateTotals() {
             let subtotal = 0;
             let descuentoMonto = 0;
             let total = 0;
 
-            // Sumar los totales de todos los productos
             const rows = document.querySelectorAll('#productos_table tbody tr');
             rows.forEach((row, index) => {
                 let totalProducto = parseFloat(row.querySelector(
@@ -391,46 +359,17 @@
             descuentoMonto = subtotal * (descuentoGlobal / 100);
             total = subtotal - descuentoMonto;
 
-            // Mostrar el subtotal
             document.getElementById('subtotal').value = subtotal.toFixed(2);
             document.getElementById('descuento').value = descuentoMonto.toFixed(
                 2); // Esto es opcional, si quieres mostrar el descuento.
             document.getElementById('total').value = total.toFixed(2);
         }
 
-        // Función para eliminar una fila de la tabla y actualizar los totales
         function eliminarFila(button) {
             const row = button.closest('tr');
             row.remove();
             updateTotals(); // Actualizar los totales después de eliminar una fila
         }
-
-        /*function updateProductData(index) {
-             const selectProducto = document.querySelector(`select[name="productos[${index}][id_esquema_producto]"]`);
-             const selectedOption = selectProducto.options[selectProducto.selectedIndex];
-
-             const codigo = selectedOption.getAttribute('data-codigo') || '';
-             const nombre = selectedOption.getAttribute('data-nombre') || '';
-             const oferta = selectedOption.getAttribute('data-oferta') == '1';
-
-             document.querySelector(`input[name="productos[${index}][codigo_producto]"]`).value = codigo;
-
-             // Obtener el select de presentaciones
-             const selectPresentacion = document.querySelector(`select[name="productos[${index}][id_presentacion]"]`);
-             selectPresentacion.innerHTML = `<option value="">Seleccionar Presentación</option>`;
-
-             // Lista completa de presentaciones en JS (inyectada desde PHP)
-             const presentaciones = @json($presentaciones);
-
-             presentaciones.forEach(p => {
-                 if (!oferta || p.id_presentacion == 3) {
-                     const option = document.createElement('option');
-                     option.value = p.id_presentacion;
-                     option.textContent = p.presentacion;
-                     selectPresentacion.appendChild(option);
-                 }
-             });
-         }*/
 
         // Agregar producto
         document.getElementById('addProductBtn').addEventListener('click', function() {
