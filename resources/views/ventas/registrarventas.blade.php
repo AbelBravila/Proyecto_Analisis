@@ -204,19 +204,24 @@
         </div>
     </form>
 
-    @if (request('showModal'))
+    @if (session('showModal'))
         <script>
-            $(document).ready(function() {
-                $('#miModal').modal('show');
-            });
+            mostrarModalBloqueante();
         </script>
     @endif
 
-    <div id="miModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+    <div id="miModal"
+        class="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-center items-center pointer-events-auto">
         <div class="bg-white p-6 rounded-lg shadow-lg w-[80%] max-w-none relative">
-            <button class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl"
-                onclick="cerrarModalDetalle()">&times;</button>
-            <h2 class="text-xl font-bold mb-4">Detalle de la venta <span id="detalle-venta-id"></span></h2>
+            <h2 class="text-xl font-bold mb-4">La venta contiene un producto especial. Por favor, espere...</h2>
+            <div class="flex justify-center">
+                <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                        stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+            </div>
         </div>
     </div>
 
@@ -224,6 +229,29 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            @if (session('error') === 'La venta contiene un producto especial.')
+                mostrarModalBloqueante();
+            @endif
+        });
+
+        function mostrarModalBloqueante() {
+            const modal = document.getElementById('miModal');
+            modal.classList.remove('hidden');
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            });
+            window.addEventListener('keydown', function(e) {
+                if (e.key === "Escape") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+        }
+
         function inicializarSelect2() {
             $('.select-producto').select2({
                 placeholder: 'Buscar producto...',
@@ -378,7 +406,8 @@
             total = subtotal - descuentoMonto;
 
             document.getElementById('subtotal').value = subtotal.toFixed(2);
-            document.getElementById('descuento').value = descuentoMonto.toFixed(2); // Esto es opcional, si quieres mostrar el descuento.
+            document.getElementById('descuento').value = descuentoMonto.toFixed(
+                2); // Esto es opcional, si quieres mostrar el descuento.
             document.getElementById('total').value = total.toFixed(2);
         }
 
@@ -426,7 +455,6 @@
             tableBody.appendChild(newRow);
             inicializarSelect2();
         });
-        // Inicializamos Select2 en los selects ya existentes
         document.addEventListener('DOMContentLoaded', () => {
             inicializarSelect2();
         });
