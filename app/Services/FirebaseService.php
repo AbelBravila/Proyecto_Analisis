@@ -14,7 +14,7 @@ class FirebaseService
     public function __construct()
     {
         $factory = (new Factory)->withServiceAccount(
-            storage_path('app/firebase/posmovil-37d5e-firebase-adminsdk-fbsvc-f4327b659f.json')
+            storage_path('app\firebase\posmovil-37d5e-firebase-adminsdk-fbsvc-595e34fa9b.json')
         );
 
         $this->messaging = $factory->createMessaging();

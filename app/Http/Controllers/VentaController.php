@@ -147,7 +147,6 @@ class VentaController extends Controller
             $idTipoVenta = $request->input('id_tipo_venta');
             $idTipoPago = $request->input('id_tipo_pago');
             $idTipoDocumento = $request->input('id_tipo_documento');
-            $fechaVenta = Carbon::parse($fechaVenta)->toDateString();
 
             DB::statement("
                 EXEC sp_movimiento_caja_venta
@@ -174,7 +173,6 @@ class VentaController extends Controller
                     @id_tipo_venta = ?, 
                     @id_tipo_pago = ?, 
                     @id_tipo_documento = ?, 
-                    @fecha_venta = ?, 
                     @subtotal_venta = ?, 
                     @total_descuento = ?, 
                     @total_venta = ?, 
@@ -185,7 +183,6 @@ class VentaController extends Controller
                 $idTipoVenta, 
                 $idTipoPago, 
                 $idTipoDocumento, 
-                $fechaVenta, 
                 $subtotal, 
                 $descuentoMonto, 
                 $total, 
@@ -193,20 +190,19 @@ class VentaController extends Controller
             ]);
             });
         } catch (\Exception $e) {
-            return redirect()->route('ventas.registrarventas')->with('error', 'Error en la transacción: ' . $e->getMessage());
-        }   
+            return redirect()->route('ventas.registrar')->with('error', 'Error en la transacción: ' . $e->getMessage());
+        } 
+        
+        $estado_venta =  DB::table('vw_Verificar_Venta')->value('estado');
 
-        $errorMessage = $result[0]->p_error_message ?? null;
+        //dd($estado_venta);
 
-        if ($errorMessage === 'La venta contiene un producto especial.') {
-            return redirect()->route('ventas.registrar')->with('showModal', true);
+        if ($estado_venta === 'P'){
+            return redirect()->route('enviar-push');
         }
-
-        if ($errorMessage !== 'Venta registrada correctamente.') {
-            return redirect()->route('ventas.registrar')->with('error', $errorMessage);
+        else {
+            return redirect()->route('ventas')->with('mensaje', 'Venta completada exitosamente');
         }
-
-        return redirect()->route('ventas')->with('mensaje', 'Venta registrada exitosamente.');
     }
 
     public function anular($id)
