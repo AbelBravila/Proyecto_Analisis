@@ -204,6 +204,21 @@
         </div>
     </form>
 
+    <div id="miModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-center items-center pointer-events-auto">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-[80%] max-w-none relative">
+            <h2 class="text-xl font-bold mb-4">La venta contiene un producto especial. Por favor, espere...</h2>
+            <div class="flex justify-center">
+                <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                        stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
@@ -222,6 +237,29 @@
                 width: '50%'
             });
         }
+
+        function mostrarModalBloqueante() {
+            const modal = document.getElementById('miModal');
+            modal.classList.remove('hidden');
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            });
+            window.addEventListener('keydown', function(e) {
+                if (e.key === "Escape") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+        }
+
+        @if (session('showModal'))
+            document.addEventListener('DOMContentLoaded', function() {
+                mostrarModalBloqueante();
+            });
+        @endif
 
         let descuentoGlobal = 0;
 
@@ -379,35 +417,41 @@
 
             var newRow = document.createElement('tr');
             newRow.innerHTML = `
-                            <td>
-                                <input type="text" name="productos[${rowIndex}][codigo_producto]" class="form-control" readonly>
-                            </td>
-                            <td>
-                                <select name="productos[${rowIndex}][nombre_producto]" class="form-control select-producto" required onchange="onNombreProductoChange(${rowIndex})">
-                                    <option value="">Seleccionar Producto</option>
-                                    @foreach ($productos->unique('esquema.codigo_producto') as $producto)
-                                        <option value="{{ $producto->esquema->codigo_producto }}">
-                                            {{ $producto->esquema->nombre_producto }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td><input type="number" name="productos[${rowIndex}][stock]" class="form-control" readonly></td>
-                            <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min="1" step="1" onchange="updateDetails(${rowIndex})"></td>
-                            <td><input type="number" name="productos[${rowIndex}][precio_p]" class="form-control" readonly></td>
-                            <td>
-                                <select name="productos[${rowIndex}][id_presentacion_venta]" class="form-control presentacion-select" required onchange="updateDetails(${rowIndex})">
-                                    <option value="">Seleccionar Presentación</option>
-                                </select>
-                            </td>
-                            <td>
-                                <select name="productos[${rowIndex}][id_producto]" class="form-control select-lote" required onchange="onLoteChange(${rowIndex})">
-                                    <option value="">Seleccionar Lote</option>
-                                </select>
-                            </td>
-                            <td><input type="text" name="productos[${rowIndex}][total_producto]" class="form-control" readonly></td>
-                            <td class="px-6 py-3 dark:text-black"><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>                    
-            `;
+    <td>
+        <input type="text" name="productos[${rowIndex}][codigo_producto]" class="form-control" readonly>
+    </td>
+    <td>
+        <select name="productos[${rowIndex}][nombre_producto]" class="form-control select-producto" required
+            onchange="onNombreProductoChange(${rowIndex})">
+            <option value="">Seleccionar Producto</option>
+            @foreach ($productos->unique('esquema.codigo_producto') as $producto)
+                <option value="{{ $producto->esquema->codigo_producto }}">
+                    {{ $producto->esquema->nombre_producto }}
+                </option>
+            @endforeach
+        </select>
+    </td>
+    <td><input type="number" name="productos[${rowIndex}][stock]" class="form-control" readonly></td>
+    <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min="1"
+            step="1" onchange="updateDetails(${rowIndex})"></td>
+    <td><input type="number" name="productos[${rowIndex}][precio_p]" class="form-control" readonly></td>
+    <td>
+        <select name="productos[${rowIndex}][id_presentacion_venta]" class="form-control presentacion-select" required
+            onchange="updateDetails(${rowIndex})">
+            <option value="">Seleccionar Presentación</option>
+        </select>
+    </td>
+    <td>
+        <select name="productos[${rowIndex}][id_producto]" class="form-control select-lote" required
+            onchange="onLoteChange(${rowIndex})">
+            <option value="">Seleccionar Lote</option>
+        </select>
+    </td>
+    <td><input type="text" name="productos[${rowIndex}][total_producto]" class="form-control" readonly></td>
+    <td class="px-6 py-3 dark:text-black"><button type="button"
+            class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button>
+    </td>
+    `;
             tableBody.appendChild(newRow);
             inicializarSelect2();
         });

@@ -37,6 +37,7 @@ class NotificacionController extends Controller
         //     'enviadas' => $enviadas,
         //     'fallidas' => $fallidas,
         // ]);
-        return redirect()->route('ventas')->with('mensaje', 'La venta contiene un producto especial.');
+
+        return redirect()->route('ventas.registrar')->with('showModal', true);
     }
 }

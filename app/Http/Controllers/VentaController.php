@@ -194,8 +194,7 @@ class VentaController extends Controller
         } 
         
         $estado_venta =  DB::table('vw_Verificar_Venta')->value('estado');
-
-        //dd($estado_venta);
+        $id_venta = DB::table('vw_Verificar_Venta')->value('id_venta');
 
         if ($estado_venta === 'P'){
             return redirect()->route('enviar-push');
