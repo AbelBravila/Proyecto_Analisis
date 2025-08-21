@@ -204,14 +204,8 @@
         </div>
     </form>
 
-    @if (session('showModal'))
-        <script>
-            mostrarModalBloqueante();
-        </script>
-    @endif
-
     <div id="miModal"
-        class="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-center items-center pointer-events-auto">
+        class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-center items-center pointer-events-auto">
         <div class="bg-white p-6 rounded-lg shadow-lg w-[80%] max-w-none relative">
             <h2 class="text-xl font-bold mb-4">La venta contiene un producto especial. Por favor, espere...</h2>
             <div class="flex justify-center">
@@ -229,11 +223,20 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            @if (session('error') === 'La venta contiene un producto especial.')
-                mostrarModalBloqueante();
-            @endif
-        });
+        function inicializarSelect2() {
+            $('.select-producto').select2({
+                placeholder: 'Buscar producto...',
+                width: '100%'
+            });
+            $('.select-lote').select2({
+                placeholder: 'Buscar lote...',
+                width: '100%'
+            });
+            $('.select-cliente').select2({
+                placeholder: 'Buscar cliente...',
+                width: '50%'
+            });
+        }
 
         function mostrarModalBloqueante() {
             const modal = document.getElementById('miModal');
@@ -252,20 +255,11 @@
             }, true);
         }
 
-        function inicializarSelect2() {
-            $('.select-producto').select2({
-                placeholder: 'Buscar producto...',
-                width: '100%'
+        @if (session('showModal'))
+            document.addEventListener('DOMContentLoaded', function() {
+                mostrarModalBloqueante();
             });
-            $('.select-lote').select2({
-                placeholder: 'Buscar lote...',
-                width: '100%'
-            });
-            $('.select-cliente').select2({
-                placeholder: 'Buscar cliente...',
-                width: '50%'
-            });
-        }
+        @endif
 
         let descuentoGlobal = 0;
 
@@ -423,35 +417,41 @@
 
             var newRow = document.createElement('tr');
             newRow.innerHTML = `
-                            <td>
-                                <input type="text" name="productos[${rowIndex}][codigo_producto]" class="form-control" readonly>
-                            </td>
-                            <td>
-                                <select name="productos[${rowIndex}][nombre_producto]" class="form-control select-producto" required onchange="onNombreProductoChange(${rowIndex})">
-                                    <option value="">Seleccionar Producto</option>
-                                    @foreach ($productos->unique('esquema.codigo_producto') as $producto)
-                                        <option value="{{ $producto->esquema->codigo_producto }}">
-                                            {{ $producto->esquema->nombre_producto }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td><input type="number" name="productos[${rowIndex}][stock]" class="form-control" readonly></td>
-                            <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min="1" step="1" onchange="updateDetails(${rowIndex})"></td>
-                            <td><input type="number" name="productos[${rowIndex}][precio_p]" class="form-control" readonly></td>
-                            <td>
-                                <select name="productos[${rowIndex}][id_presentacion_venta]" class="form-control presentacion-select" required onchange="updateDetails(${rowIndex})">
-                                    <option value="">Seleccionar Presentación</option>
-                                </select>
-                            </td>
-                            <td>
-                                <select name="productos[${rowIndex}][id_producto]" class="form-control select-lote" required onchange="onLoteChange(${rowIndex})">
-                                    <option value="">Seleccionar Lote</option>
-                                </select>
-                            </td>
-                            <td><input type="text" name="productos[${rowIndex}][total_producto]" class="form-control" readonly></td>
-                            <td class="px-6 py-3 dark:text-black"><button type="button" class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button></td>                    
-            `;
+    <td>
+        <input type="text" name="productos[${rowIndex}][codigo_producto]" class="form-control" readonly>
+    </td>
+    <td>
+        <select name="productos[${rowIndex}][nombre_producto]" class="form-control select-producto" required
+            onchange="onNombreProductoChange(${rowIndex})">
+            <option value="">Seleccionar Producto</option>
+            @foreach ($productos->unique('esquema.codigo_producto') as $producto)
+                <option value="{{ $producto->esquema->codigo_producto }}">
+                    {{ $producto->esquema->nombre_producto }}
+                </option>
+            @endforeach
+        </select>
+    </td>
+    <td><input type="number" name="productos[${rowIndex}][stock]" class="form-control" readonly></td>
+    <td><input type="number" name="productos[${rowIndex}][cantidad]" class="form-control" required min="1"
+            step="1" onchange="updateDetails(${rowIndex})"></td>
+    <td><input type="number" name="productos[${rowIndex}][precio_p]" class="form-control" readonly></td>
+    <td>
+        <select name="productos[${rowIndex}][id_presentacion_venta]" class="form-control presentacion-select" required
+            onchange="updateDetails(${rowIndex})">
+            <option value="">Seleccionar Presentación</option>
+        </select>
+    </td>
+    <td>
+        <select name="productos[${rowIndex}][id_producto]" class="form-control select-lote" required
+            onchange="onLoteChange(${rowIndex})">
+            <option value="">Seleccionar Lote</option>
+        </select>
+    </td>
+    <td><input type="text" name="productos[${rowIndex}][total_producto]" class="form-control" readonly></td>
+    <td class="px-6 py-3 dark:text-black"><button type="button"
+            class="text-blue-600 dark:text-red-500 hover:underline" onclick="eliminarFila(this)">Eliminar</button>
+    </td>
+    `;
             tableBody.appendChild(newRow);
             inicializarSelect2();
         });

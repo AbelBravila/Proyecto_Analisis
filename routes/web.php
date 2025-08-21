@@ -39,7 +39,7 @@ use Illuminate\Support\Str;
 //     return view('auth.login');
 // });
 
-Route::get('/enviar-push', [NotificacionController::class, 'enviarPush']);
+Route::get('/enviar-push', [NotificacionController::class, 'enviarPush'])->name('enviar-push');
 
 Route::get('/welcome', function () {
     return view('welcome');
