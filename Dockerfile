@@ -17,10 +17,12 @@ RUN apt-get update && apt-get install -y \
     libsodium-dev \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd sodium
 
-# ===== 3. Instalar SQL Server drivers =====
-RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl -sSL https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
-    && apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql17 \
+# ===== 3. Instalar Microsoft ODBC y drivers SQL Server =====
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg \
+    && mv microsoft.gpg /etc/apt/trusted.gpg.d/ \
+    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y msodbcsql17 \
     && pecl install sqlsrv pdo_sqlsrv \
     && docker-php-ext-enable sqlsrv pdo_sqlsrv
 
