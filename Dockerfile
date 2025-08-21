@@ -36,10 +36,12 @@ COPY . /var/www/html
 # ===== 6. Instalar dependencias PHP de Laravel =====
 RUN composer install --no-dev --optimize-autoloader
 
-# ===== 6.1 Instalar Node y compilar assets =====
-RUN apt-get install -y nodejs npm \
+# ===== 6.1 Instalar Node 18 y compilar assets con Vite =====
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
     && npm install \
-    && npm run build
+    && npm run build \
+    && rm -rf node_modules
 
 # ===== 7. Configurar permisos =====
 RUN chown -R www-data:www-data /var/www/html \
