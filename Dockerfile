@@ -37,11 +37,13 @@ COPY . /var/www/html
 RUN composer install --no-dev --optimize-autoloader
 
 # ===== 7. Configurar permisos =====
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # ===== 8. Configuración de Apache =====
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN sed -i 's/80/8080/' /etc/apache2/ports.conf
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf
 RUN sed -i 's/:80/:8080/' /etc/apache2/sites-available/000-default.conf
 
 # ===== 9. Limpiar caches de Laravel =====
