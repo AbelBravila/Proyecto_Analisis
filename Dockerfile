@@ -46,14 +46,18 @@ RUN sed -i 's/80/8080/' /etc/apache2/ports.conf
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf
 RUN sed -i 's/:80/:8080/' /etc/apache2/sites-available/000-default.conf
 
-# ===== 9. Limpiar caches de Laravel =====
+# ===== 9. Habilitar mod_rewrite y .htaccess =====
+RUN a2enmod rewrite \
+    && sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
+# ===== 10. Limpiar caches de Laravel =====
 RUN php artisan config:clear \
     && php artisan route:clear \
     && php artisan cache:clear \
     && php artisan view:clear
 
-# ===== 10. Exponer puerto =====
+# ===== 11. Exponer puerto =====
 EXPOSE 8080
 
-# ===== 11. Comando por defecto =====
+# ===== 12. Comando por defecto =====
 CMD ["apache2-foreground"]
