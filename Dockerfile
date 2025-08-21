@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     gnupg2 \
     unixodbc-dev \
     apt-transport-https \
+    libsodium-dev \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd sodium
 
 # ===== 3. Instalar SQL Server drivers =====
@@ -33,7 +34,7 @@ COPY . /var/www/html
 # ===== 6. Instalar dependencias PHP de Laravel =====
 RUN composer install --no-dev --optimize-autoloader
 
-# ===== 7. Configurar permisos (opcional, útil para storage y bootstrap/cache) =====
+# ===== 7. Configurar permisos =====
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # ===== 8. Exponer puerto =====
