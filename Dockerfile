@@ -36,6 +36,11 @@ COPY . /var/www/html
 # ===== 6. Instalar dependencias PHP de Laravel =====
 RUN composer install --no-dev --optimize-autoloader
 
+# ===== 6.1 Instalar Node y compilar assets =====
+RUN apt-get install -y nodejs npm \
+    && npm install \
+    && npm run build
+
 # ===== 7. Configurar permisos =====
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
