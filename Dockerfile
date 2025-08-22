@@ -40,7 +40,7 @@ RUN composer install --no-dev --optimize-autoloader
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install \
-    && npm run dev \
+    && npm run build \
     && rm -rf node_modules
 
 # ===== 7. Configurar permisos =====
