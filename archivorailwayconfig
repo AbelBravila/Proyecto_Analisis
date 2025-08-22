@@ -1,0 +1,40 @@
+# ===== Estas son las variables del .env del railway =====
+# ===== 2. Cambiar la url por la que se utilice en railway =====
+APP_NAME="Laravel"
+APP_ENV="local"
+APP_KEY="base64:QvO/CaDe04yRDx06t9UrydcaPjBiLVlxJdMBUQigtzk="
+APP_DEBUG="true"
+APP_URL="https://postgt.up.railway.app"
+ASSET_URL="https://postgt.up.railway.app"
+VITE_APP_URL="https://postgt.up.railway.app"
+APP_LOCALE="en"
+APP_FALLBACK_LOCALE="en"
+APP_FAKER_LOCALE="en_US"
+LOG_CHANNEL="stack"
+LOG_LEVEL="info"
+DB_CONNECTION="sqlsrv"
+DB_HOST="34.61.133.11"
+DB_PORT="1433"
+DB_DATABASE="POS"
+DB_USERNAME="sqlserver"
+DB_PASSWORD="123"
+DB_OPTIONS="TrustServerCertificate=True"
+MAIL_MAILER="smtp"
+MAIL_HOST="smtp.gmail.com"
+MAIL_PORT="587"
+MAIL_USERNAME="soportesistemaposgt@gmail.com"
+MAIL_PASSWORD="cepjurligqghyfpt"
+MAIL_ENCRYPTION="tls"
+MAIL_FROM_ADDRESS="soportesistemaposgt@gmail.com"
+MAIL_FROM_NAME="SoportePOS"
+SESSION_DRIVER="file"
+SESSION_LIFETIME="120"
+CACHE_DRIVER="file"
+QUEUE_CONNECTION="sync"
+NIXPACKS_BUILD_CMD="npm run dev"
+
+
+# 3. Cambiar el puerto en la configuracion del Railway al 8080, en caso de querer cambiar el puerto a otro hay que modificar el archivo Dockerfile en la línea 52, 54 y 58
+
+
+
