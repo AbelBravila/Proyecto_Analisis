@@ -152,6 +152,7 @@ Route::post('/ventas/crear', [VentaController::class, 'crearVenta'])->name('vent
 Route::get('/ventas/ventas/anular/{id}', [VentaController::class, 'anular'])->name('ventas.anular')->middleware('auth');
 Route::get('/ventas/ventas/{id}/detalle', [VentaController::class, 'show'])->name('ventas.show');
 Route::get('/ventas/{id}/detalle', [VentaController::class, 'mostrarDetalle']);
+Route::get('/venta/{id}/estado', [VentaController::class, 'verificarEstadoVenta'])->name('venta.estado');
 
 Route::get('/pasillo', [PasilloController::class, 'index_pasillo'])->name('Pasillo')->middleware('auth');
 Route::post('/pasillo', [PasilloController::class, 'ingreso_P'])->middleware('auth');

@@ -197,13 +197,30 @@ class VentaController extends Controller
         $id_venta = DB::table('vw_Verificar_Venta')->value('id_venta');
 
         if ($estado_venta === 'P'){
-            return redirect()->route('enviar-push');
+            return redirect()->route('enviar-push')->with('id_venta', $id_venta) ;
         }
         else {
             return redirect()->route('ventas')->with('mensaje', 'Venta completada exitosamente');
         }
     }
 
+    public function verificarEstadoVenta($id_venta)
+    {
+        $venta = DB::table('vw_Verificar_Venta')
+            ->where('id_venta', $id_venta)
+            ->select('estado', 'id_venta')
+            ->first();
+
+        if (!$venta) {
+            return response()->json(['error' => 'Venta no encontrada'], 404);
+        }
+
+        return response()->json([
+            'estado' => $venta->estado,
+            'id_venta' => $venta->id_venta,
+        ]);
+    }
+    
     public function anular($id)
     {
         DB::statement('EXEC sp_anularVenta ?', [$id]);

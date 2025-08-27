@@ -87,6 +87,8 @@
                                     <i class="fas fa-clock text-yellow-500" title="Pendiente"></i>
                                 @elseif ($venta->estado === 'A')
                                     <i class="fas fa-check-circle text-green-500" title="Autorizado"></i>
+                                @elseif ($venta->estado === 'N')
+                                    <i class="fas fa-xmark-circle text-red-500" title="No Autorizado"></i>
                                 @else
                                     {{ $venta->estado }}
                                 @endif

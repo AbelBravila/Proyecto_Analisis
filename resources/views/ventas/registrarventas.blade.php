@@ -239,25 +239,32 @@
         }
 
         function mostrarModalBloqueante() {
-            const modal = document.getElementById('miModal');
-            modal.classList.remove('hidden');
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                }
-            });
-            window.addEventListener('keydown', function(e) {
-                if (e.key === "Escape") {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }, true);
+            document.getElementById('miModal').classList.remove('hidden');
         }
 
-        @if (session('showModal'))
+        function ocultarModalBloqueante() {
+            document.getElementById('miModal').classList.add('hidden');
+        }
+
+        function verificarEstadoVenta(idVenta) {
+            fetch(`/venta/${idVenta}/estado`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.estado === "P") {
+                        mostrarModalBloqueante();
+                    } else {
+                        ocultarModalBloqueante();
+                        window.location.href = "{{ route('ventas') }}";
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+        @if (session('showModal') && session('id_venta'))
             document.addEventListener('DOMContentLoaded', function() {
+                const idVenta = "{{ session('id_venta') }}";
                 mostrarModalBloqueante();
+                setInterval(() => verificarEstadoVenta(idVenta), 5000);
             });
         @endif
 

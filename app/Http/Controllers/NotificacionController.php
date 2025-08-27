@@ -38,6 +38,11 @@ class NotificacionController extends Controller
         //     'fallidas' => $fallidas,
         // ]);
 
-        return redirect()->route('ventas.registrar')->with('showModal', true);
+        $id_venta = session('id_venta');
+
+        return redirect()
+            ->route('ventas.registrar')
+            ->with('showModal', true)
+            ->with('id_venta', $id_venta);
     }
 }
