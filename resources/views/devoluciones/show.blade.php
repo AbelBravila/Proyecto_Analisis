@@ -25,7 +25,7 @@
             <div class="space-y-2 dark:text-white">
                 <p><span class="font-semibold">Total Productos:</span> {{ $devolucion->detalles->count() }}</p>
                 <p><span class="font-semibold">Cantidad Total:</span> {{ $devolucion->detalles->sum('cantidad') }}</p>
-                <p><span class="font-semibold">Monto Total:</span> Q{{ number_format($devolucion->detalles->sum(function($item) { return $item->cantidad * $item->precio; }), 2) }}</p>
+                <p><span class="font-semibold">Monto Total:</span> Q{{ number_format($devolucion->detalles->sum(function($item) { return $item->cantidad * $item->costo; }), 2) }}</p>
             </div>
         </div>
     </div>
@@ -64,7 +64,7 @@
                 <tr class="bg-gray-100 dark:bg-gray-700 font-bold">
                     <td colspan="3" class="px-6 py-4"></td>
                     <td class="px-6 py-4">Total:</td>
-                    <td class="px-6 py-4">${{ number_format($devolucion->detalles->sum(function($item) { return $item->cantidad * $item->costo; }), 2) }}</td>
+                    <td class="px-6 py-4">Q{{ number_format($devolucion->detalles->sum(function($item) { return $item->cantidad * $item->costo; }), 2) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -74,7 +74,8 @@
         <button onclick="window.print()" class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800 mr-2">
             <i class="fas fa-print mr-2"></i>Imprimir
         </button>
-        <a href="#" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+        <a href="{{ route('devoluciones.pdf', $devolucion->id_devolucion) }}" 
+            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
             <i class="fas fa-file-pdf mr-2"></i>Exportar PDF
         </a>
     </div>

@@ -203,6 +203,8 @@ Route::prefix('devoluciones')->name('devoluciones.')->group(function () {
     Route::get('/compra/{id}/detalle', [DevolucionController::class, 'detalleCompra'])->name('compra.detalle')->middleware('auth');
     // Mueve esta ruta al final
     Route::get('/{id}', [DevolucionController::class, 'show'])->name('show');
+    Route::get('/{id}/pdf', [DevolucionController::class, 'exportarPDF'])->name('pdf')->middleware('auth');
+
 });
 Route::prefix('devoluciones_venta')->name('devoluciones_venta.')->group(function () {
     Route::get('/', [DevolucionVentaController::class, 'index'])->name('index')->middleware('auth');
@@ -216,6 +218,7 @@ Route::prefix('devoluciones_venta')->name('devoluciones_venta.')->group(function
     Route::get('/venta/{id}/detalle', [DevolucionVentaController::class, 'detalleVenta'])->name('venta.detalle')->middleware('auth');
     // Ver detalles de una devolución específica (última ruta por convención)
     Route::get('/{id}', [DevolucionVentaController::class, 'show'])->name('show')->middleware('auth');
+    Route::get('/{id}/pdf', [DevolucionVentaController::class, 'exportarPDF'])->name('pdf')->middleware('auth');
 });
 
 Route::post('/devoluciones-venta', [DevolucionVentaController::class, 'store'])

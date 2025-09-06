@@ -7,9 +7,19 @@ use App\Models\Devolucion;
 use App\Models\Compra;
 use App\Models\Proveedor;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DevolucionController extends Controller
 {
+    public function exportarPDF($id)
+    {
+        $devolucion = Devolucion::with('detalles.producto.esquema')->findOrFail($id);
+
+        $pdf = Pdf::loadView('devoluciones.pdf', compact('devolucion'))
+                ->setPaper('a4', 'portrait');
+
+        return $pdf->download("devolucion_{$devolucion->id_devolucion}.pdf");
+    }
     public function index()
     {
         $devoluciones = Devolucion::with(['detalles.producto.esquema', 'compra.proveedor'])

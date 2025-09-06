@@ -11,10 +11,19 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Carbon;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DevolucionVentaController extends Controller
 {
+        public function exportarPDF($id)
+    {
+        $devolucion = DevolucionVenta::with('detalles.producto.esquema')->findOrFail($id);
+
+        $pdf = Pdf::loadView('devoluciones_venta.pdf', compact('devolucion'))
+                ->setPaper('a4', 'portrait');
+
+        return $pdf->download("devolucion_Venta_{$devolucion->id_devolucion_venta}.pdf");
+    }
     public function index()
     {
         $devoluciones = DevolucionVenta::with(['detalles.producto.esquema', 'cliente']) // Cambio aquí
