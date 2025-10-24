@@ -125,6 +125,7 @@ Route::post('/compras/crear', [ComprasController::class, 'crearCompra'])->name('
 Route::get('/compras/compras/anular/{id}', [ComprasController::class, 'anular'])->name('compras.anular')->middleware('auth');
 Route::get('/compras/compras/{id}/detalle', [ComprasController::class, 'show'])->name('compras.show');
 Route::get('/compras/{id}/detalle', [ComprasController::class, 'mostrarDetalle']);
+Route::get('/compras/{id}/pdf', [ComprasController::class, 'exportarPDF'])->name('compras.pdf')->middleware('auth');
 
 
 //PRODUCTO
@@ -153,6 +154,7 @@ Route::get('/ventas/ventas/anular/{id}', [VentaController::class, 'anular'])->na
 Route::get('/ventas/ventas/{id}/detalle', [VentaController::class, 'show'])->name('ventas.show');
 Route::get('/ventas/{id}/detalle', [VentaController::class, 'mostrarDetalle']);
 Route::get('/venta/{id}/estado', [VentaController::class, 'verificarEstadoVenta'])->name('venta.estado');
+Route::get('/{id}/pdf', [VentaController::class, 'exportarPDF'])->name('ventas.pdf')->middleware('auth');
 
 Route::get('/pasillo', [PasilloController::class, 'index_pasillo'])->name('Pasillo')->middleware('auth');
 Route::post('/pasillo', [PasilloController::class, 'ingreso_P'])->middleware('auth');

@@ -13,6 +13,9 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Venta;
+use App\Models\User;
 
 class VentaController extends Controller
 {
@@ -246,5 +249,20 @@ class VentaController extends Controller
 
         return view('ventas.partials.detalle_modal', compact('total_detalle'));
     }
+
+    public function exportarPDF($id)
+    {
+        $venta = Venta::findOrFail($id);
+
+        $total_detalle = DB::table('vw_productos_vendidos')
+            ->where('id_venta', $id)
+            ->get();
+
+        $pdf = Pdf::loadView('ventas.pdf', compact('venta', 'total_detalle'))
+                ->setPaper('a4', 'portrait');
+
+        return $pdf->download("Venta_{$venta->id_venta}.pdf");
+    }
+
 }
 

@@ -13,6 +13,9 @@ use App\Models\Producto;
 use App\Models\TipoCompra;
 use App\Models\Presentacion;
 use App\Models\Estanteria;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Compra;
+use App\Models\User;
 
 class ComprasController extends Controller
 {
@@ -171,5 +174,19 @@ class ComprasController extends Controller
             ->get();
 
         return view('compras.partials.detalle_modal', compact('total_detalle'));
+    }
+
+    public function exportarPDF($id)
+    {
+        $compra = Compra::findOrFail($id);
+
+        $total_detalle = DB::table('vw_productos_comprados')
+            ->where('id_compra', $id)
+            ->get();
+
+        $pdf = Pdf::loadView('compras.pdf', compact('compra', 'total_detalle'))
+                ->setPaper('a4', 'portrait');
+
+        return $pdf->download("Compra_{$compra->id_compra}.pdf");
     }
 }
