@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 use App\Mail\EnviarCorreo;
 use App\Mail\ContrasenaTemp;
 use APP\Models\User;
+use Resend\Laravel\Facades\Resend;
+
 
 
 class UsuarioController extends Controller
@@ -93,7 +95,15 @@ class UsuarioController extends Controller
         }
         $correo_u = $request->input('correo_u');
         // Ahora, $usuario es un objeto válido
-        Mail::to($correo_u)->send(new ContrasenaTemp($contraseñaTemporal, $correo_u, $usuario));
+        //Mail::to($correo_u)->send(new ContrasenaTemp($contraseñaTemporal, $correo_u, $usuario));
+        
+        Resend::emails()->send([
+            'from' => 'soporte@icdigitallink.com',
+            'to' => [$correo_u],
+            'subject' => 'Bienvenido a POSGT - Tu cuenta ha sido creada',
+            'html' => "<h1>Bienvenido a POS Guatemala</h1>
+            <p>!Hola {$usuario->nombre_usuario} esta es tu contraseña: <span>{$password}</span></p>",
+        ]);
 
         return redirect()->route('Usuario')->with('mensaje', 'Usuario registrado exitosamente');
     }
