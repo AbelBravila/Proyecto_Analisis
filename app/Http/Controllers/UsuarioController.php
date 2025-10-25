@@ -100,7 +100,7 @@ class UsuarioController extends Controller
             'to' => [$correo_u],
             'subject' => 'Bienvenido a POSGT - Tu cuenta ha sido creada',
             'html' => "<h1>Bienvenido a POS Guatemala</h1>
-            <p>!Hola {$usuario->nombre_usuario} esta es tu contraseña: <span>{$password}</span></p>",
+            <p>!Hola {$usuario->nombre_usuario} esta es tu contraseña: <span>{$contraseñaTemporal}</span></p>",
         ]);
 
         return redirect()->route('Usuario')->with('mensaje', 'Usuario registrado exitosamente');
