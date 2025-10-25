@@ -133,7 +133,6 @@
                     <th>Cantidad</th>
                     <th>Costo Unitario</th>
                     <th>Subtotal</th>
-                    <th>Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -147,14 +146,17 @@
                         <td>{{ $detalle->cantidad }}</td>
                         <td>Q{{ number_format($detalle->precio_unitario, 2) }}</td>
                         <td>Q{{ number_format($detalle->subtotal, 2) }}</td>
-                        <td>Q{{ number_format($detalle->subtotal, 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
             <tfoot>
                 <tr>
+                    <td colspan="8" style="text-align: right;">DESCUENTO:</td>
+                    <td style="text-align: right;"><strong><span class="currency">Q{{ number_format($venta->total_descuento, 2) }}</span></strong></td>
+                </tr>
+                <tr>
                     <td colspan="8" style="text-align: right;">TOTAL GENERAL:</td>
-                    <td style="text-align: right;"><strong><span class="currency">Q{{ number_format($total_detalle->sum(function($item) { return $item->cantidad * $item->precio_unitario; }), 2) }}</span></strong></td>
+                    <td style="text-align: right;"><strong><span class="currency">Q{{ number_format($total_final->total_venta, 2) }}</span></strong></td>
                 </tr>
             </tfoot>
         </table>
