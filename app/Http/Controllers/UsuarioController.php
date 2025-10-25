@@ -96,113 +96,12 @@ class UsuarioController extends Controller
         //Mail::to($correo_u)->send(new ContrasenaTemp($contraseñaTemporal, $correo_u, $usuario));
         
         Resend::emails()->send([
-    'from' => 'soporte@icdigitallink.com',
-    'to' => [$correo_u],
-    'subject' => 'Bienvenido a POSGT - Tu cuenta ha sido creada',
-    'html' => '
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Bienvenido a POS GT</title>
-<style>
-    body {
-        font-family: "Segoe UI", Arial, sans-serif;
-        background-color: #f4f6f8;
-        margin: 0;
-        padding: 0;
-        color: #333;
-    }
-    .container {
-        max-width: 600px;
-        margin: 40px auto;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        overflow: hidden;
-    }
-    .header-simple {
-        text-align: center;
-        background-color: #002855;
-        color: white;
-        padding: 30px 20px;
-    }
-    .header-simple img.logo-simple {
-        max-width: 80px;
-        height: auto;
-        border-radius: 8px;
-    }
-    .sistema-title {
-        margin: 10px 0 0;
-        font-size: 22px;
-        letter-spacing: 1px;
-    }
-    .content {
-        padding: 30px 40px;
-        text-align: center;
-    }
-    h1 {
-        font-size: 24px;
-        color: #002855;
-        margin-bottom: 15px;
-    }
-    p {
-        font-size: 16px;
-        line-height: 1.6;
-        margin: 10px 0;
-    }
-    .password-box {
-        background-color: #e8f0fe;
-        display: inline-block;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: bold;
-        color: #002855;
-        margin: 15px 0;
-    }
-    .button {
-        display: inline-block;
-        padding: 12px 24px;
-        background-color: #002855;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 8px;
-        font-weight: 500;
-        margin-top: 20px;
-    }
-    .footer {
-        background-color: #f0f0f0;
-        text-align: center;
-        padding: 15px;
-        font-size: 13px;
-        color: #777;
-    }
-</style>
-</head>
-<body>
-    <div class="container">
-        <div class="header-simple">
-            <img src="data:image/jpeg;base64,'.base64_encode(file_get_contents(resource_path("images/logo.jpg"))).'" alt="Logo" class="logo-simple">
-            <h1 class="sistema-title">SISTEMA POS GT</h1>
-        </div>
-
-        <div class="content">
-            <h1>¡Bienvenido a POS Guatemala!</h1>
-            <p>Hola <strong>'.$usuario->nombre_usuario.'</strong>, tu cuenta ha sido creada exitosamente.</p>
-            <p>Esta es tu contraseña temporal:</p>
-            <div class="password-box">'.$contraseñaTemporal.'</div>
-            <p>Por tu seguridad, te recomendamos cambiarla la próxima vez que inicies sesión.</p>
-            <a href="https://posgt.icdigitallink.com" class="button">Ir al Sistema</a>
-        </div>
-
-        <div class="footer">
-            © '.date("Y").' POS GT | Desarrollado por <strong>IC Digital Link</strong>
-        </div>
-    </div>
-</body>
-</html>'
-]);
-
+            'from' => 'soporte@icdigitallink.com',
+            'to' => [$correo_u],
+            'subject' => 'Bienvenido a POSGT - Tu cuenta ha sido creada',
+            'html' => "<h1>Bienvenido a POS Guatemala</h1>
+            <p>!Hola {$usuario->nombre_usuario} esta es tu contraseña: <span>{$contraseñaTemporal}</span></p>",
+        ]);
 
         return redirect()->route('Usuario')->with('mensaje', 'Usuario registrado exitosamente');
     }
