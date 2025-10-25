@@ -40,12 +40,12 @@
         <!-- Gráficas -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
-                <h3 class="text-gray-800 font-semibold mb-4">📅 Ventas de los últimos 7 días</h3>
+                <h3 class="text-gray-800 font-semibold mb-4">📅 Ultimas ventas</h3>
                 <canvas id="ventasChart"></canvas>
             </div>
 
             <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
-                <h3 class="text-gray-800 font-semibold mb-4">🏢 Top 5 proveedores con más compras</h3>
+                <h3 class="text-gray-800 font-semibold mb-4">🏢 Top de proveedores con más compras</h3>
                 <canvas id="proveedoresChart"></canvas>
             </div>
         </div>
