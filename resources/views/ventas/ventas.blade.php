@@ -81,8 +81,10 @@
                                     onclick="return confirm('¿Estás seguro de que deseas anular esta venta?')"></a>
                                 <a class="fa fa-list fa-lg text-blue-600 hover:underline ver-detalle cursor-pointer"
                                     data-id="{{ $venta->id_venta }}"></a>
-                                <a class="fa fa-print fa-lg text-blue-600 hover:underline"
-                                    href="{{ route('ventas.pdf', ['id' => $venta->id_venta]) }}"></a>
+                                @if ($venta->estado === 'A')
+                                    <a class="fa fa-print fa-lg text-blue-600 hover:underline"
+                                        href="{{ route('ventas.pdf', ['id' => $venta->id_venta]) }}"></a>
+                                @endif
                             </td>
                             <td class="px-6 py-3 text-center">
                                 @if ($venta->estado === 'P')
