@@ -47,7 +47,7 @@ class RecuperacionController extends Controller
             'from' => 'Soporte POS <soportesistemaposgt@gmail.com>',
             'to' => [$correo],
             'subject' => 'Recuperación de contraseña',
-            'html' => "<p>¡Hola <b>{$usuario->nombre}</b>!<br>
+            'html' => "<p>¡Hola <b>{$usuario->nombre_usuario}</b>!<br>
                    Esta es tu nueva contraseña: 
                    <span style='color:red; font-weight:bold;'>{$nuevaContrasena}</span></p>",
         ]);
