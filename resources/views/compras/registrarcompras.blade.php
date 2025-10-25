@@ -17,7 +17,7 @@
 
         <!-- Fecha de compra -->
         <div class="mb-3">
-            <label for="fecha_compra" class="form-label">Fecha de Venta</label>&ensp;
+            <label for="fecha_compra" class="form-label">Fecha de Compra</label>&ensp;
             <input type="date" name="fecha_compra" id="fecha_compra" class="form-control" value="{{ \Carbon\Carbon::parse($fecha_compra)->toDateString() }}" readonly>
         </div>
 

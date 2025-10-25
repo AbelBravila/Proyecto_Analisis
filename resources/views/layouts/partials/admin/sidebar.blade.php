@@ -195,7 +195,7 @@
         ],
     ];
 
-     $linksFiltrados = collect($links)->filter(function($link) use ($nivel) {
+    $linksFiltrados = collect($links)->filter(function($link) use ($nivel) {
         if (!isset($link['header'])) {
             switch ($nivel) {
                 case 1: // Admin todo xd
