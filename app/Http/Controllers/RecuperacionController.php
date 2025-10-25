@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EnviarCorreo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use App\Mail\EnviarCorreo;
+use Resend\Laravel\Facades\Resend;
 
 class RecuperacionController extends Controller
 {
@@ -17,7 +18,7 @@ class RecuperacionController extends Controller
         // Verificar si el correo existe en la base de datos
         $usuario = DB::table('usuario')->where('correo', $correo)->first();
 
-        if (!$usuario) {
+        if (! $usuario) {
             return redirect()->route('password.request')->with('error', 'El correo no está registrado.');
         }
 
@@ -38,7 +39,18 @@ class RecuperacionController extends Controller
         DB::statement("EXEC sp_EncriptarContrasena '$correo', '$nuevaContrasena'");
 
         // Enviar el correo con la nueva contraseña
-        Mail::to($correo)->send(new EnviarCorreo($nuevaContrasena, $correo,$usuario));
+        // Mail::to($correo)->send(new EnviarCorreo($nuevaContrasena, $correo, $usuario));
+
+        $resend = Resend::client('re_JBGFdL3L_5kzDPPF6vTnJrwaE8BKRoeYH');
+
+        $resend->emails->send([
+            'from' => 'Soporte POS <soportesistemaposgt@gmail.com>',
+            'to' => [$correo],
+            'subject' => 'Recuperación de contraseña',
+            'html' => "<p>¡Hola <b>{$usuario->nombre}</b>!<br>
+                   Esta es tu nueva contraseña: 
+                   <span style='color:red; font-weight:bold;'>{$nuevaContrasena}</span></p>",
+        ]);
 
         return redirect()->route('login')->with('info', 'Se ha enviado un correo con la nueva contraseña.');
     }
