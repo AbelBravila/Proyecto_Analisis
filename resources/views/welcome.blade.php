@@ -45,7 +45,7 @@
             </div>
 
             <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
-                <h3 class="text-gray-800 font-semibold mb-4">🏢 Top de proveedores con más compras</h3>
+                <h3 class="text-gray-800 font-semibold mb-4">🏢 Top de clientes </h3>
                 <canvas id="proveedoresChart"></canvas>
             </div>
         </div>
@@ -88,10 +88,10 @@
         new Chart(proveedoresCtx, {
             type: 'bar',
             data: {
-                labels: {!! json_encode($comprasPorProveedor->pluck('nombre_proveedor')) !!},
+                labels: {!! json_encode($ventasPorCliente->pluck('nombre_cliente')) !!},
                 datasets: [{
-                    label: 'Total Compras (Q)',
-                    data: {!! json_encode($comprasPorProveedor->pluck('total')) !!},
+                    label: 'Total Ventas (Q)',
+                    data: {!! json_encode($ventasPorCliente->pluck('total')) !!},
                     backgroundColor: 'rgba(59,130,246,0.6)',
                     borderColor: '#3b82f6',
                     borderWidth: 1,

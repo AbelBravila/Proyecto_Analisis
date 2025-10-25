@@ -21,6 +21,13 @@ class DashboardController extends Controller
             ->take(7)
             ->get();
 
+            // Compras por proveedor (top 5)
+        $ventasPorCliente = VistaVenta::selectRaw('nombre_cliente, SUM(subtotal) as total')
+            ->groupBy('nombre_cliente')
+            ->orderByDesc('total')
+            ->take(5)
+            ->get();
+
         // Compras por proveedor (top 5)
         $comprasPorProveedor = VistaCompra::selectRaw('nombre_proveedor, SUM(subtotal) as total')
             ->groupBy('nombre_proveedor')
@@ -28,6 +35,6 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('welcome', compact('totalVentas', 'totalCompras', 'ventasPorDia', 'comprasPorProveedor'));
+        return view('welcome', compact('totalVentas', 'totalCompras', 'ventasPorDia', 'comprasPorProveedor', 'ventasPorCliente'));
     }
 }
