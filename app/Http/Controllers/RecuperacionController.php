@@ -44,7 +44,7 @@ class RecuperacionController extends Controller
         // $resend = Resend::client('re_JBGFdL3L_5kzDPPF6vTnJrwaE8BKRoeYH');
 
         Resend::emails()->send([
-            'from' => 'Soporte POS <soportesistemaposgt@gmail.com>',
+            'from' => 'soporte@icdigitallink.com',
             'to' => [$correo],
             'subject' => 'Recuperación de contraseña',
             'html' => "<p>¡Hola <b>{$usuario->nombre_usuario}</b>!<br>
