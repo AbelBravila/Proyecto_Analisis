@@ -35,15 +35,16 @@ use App\Http\Controllers\Tipo_CompraController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Http\Controllers\DashboardController;
+
+Route::get('/welcome', [DashboardController::class, 'index'])
+    ->name('welcome')
+    ->middleware('auth');
 // Route::get('/', function () {
     //     return view('auth.login');
     // });
     
     Route::get('/enviar-push', [NotificacionController::class, 'enviarPush'])->name('enviar-push');
-    
-    Route::get('/welcome', function () {
-        return view('welcome');
-    })->name('welcome')->middleware('auth');
     
     Route::post('Reset-Password', [LoginController::class, 'resetPassword'])->name('reset');
     Route::get('/register/{id}', [LoginController::class, 'registerForm'])->name('register');

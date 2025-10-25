@@ -196,14 +196,13 @@
     ];
 
      $linksFiltrados = collect($links)->filter(function($link) use ($nivel) {
-        // Si no es encabezado, aplicamos la lógica de permisos
         if (!isset($link['header'])) {
             switch ($nivel) {
-                case 1: // Admin → todo
+                case 1: // Admin todo xd
                     return true;
-                case 2: // Gerente → todo menos Usuarios
+                case 2: // Gerente todo menos Usuarios
                     return !in_array($link['route'], ['Usuario']);
-                case 3: // Vendedor → solo ciertas secciones
+                case 3: // Vendedor solo ciertas secciones
                     return in_array($link['route'], [
                         'welcome','ventas', 'cliente', 'producto', 'Pasillo', 'Estanteria', 'ofertas', 'devoluciones_venta.index'
                     ]);
@@ -211,18 +210,16 @@
                     return false;
             }
         }
-        return true; // Mantenemos los encabezados temporalmente
+        return true;
     })->values();
     $linksFinal = [];
     $mostrarEncabezado = false;
 
     foreach ($linksFiltrados as $index => $link) {
         if (isset($link['header'])) {
-            // Miramos si el siguiente enlace pertenece a este encabezado
             $proximo = $linksFiltrados[$index + 1] ?? null;
 
             if ($proximo && !isset($proximo['header'])) {
-                // Solo agregamos el encabezado si hay algo debajo
                 $linksFinal[] = $link;
             }
         } else {
