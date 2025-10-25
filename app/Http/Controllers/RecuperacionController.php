@@ -41,9 +41,9 @@ class RecuperacionController extends Controller
         // Enviar el correo con la nueva contraseña
         // Mail::to($correo)->send(new EnviarCorreo($nuevaContrasena, $correo, $usuario));
 
-        $resend = Resend::client('re_JBGFdL3L_5kzDPPF6vTnJrwaE8BKRoeYH');
+        // $resend = Resend::client('re_JBGFdL3L_5kzDPPF6vTnJrwaE8BKRoeYH');
 
-        $resend->emails->send([
+        Resend::emails()->send([
             'from' => 'Soporte POS <soportesistemaposgt@gmail.com>',
             'to' => [$correo],
             'subject' => 'Recuperación de contraseña',
