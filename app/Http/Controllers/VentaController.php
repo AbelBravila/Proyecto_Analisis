@@ -262,7 +262,6 @@ class VentaController extends Controller
             ->where('id_venta', $id)
             ->get();
 
-
         $pdf = Pdf::loadView('ventas.pdf', compact('venta', 'total_detalle', 'total_final'))
                 ->setPaper('a4', 'portrait');
 

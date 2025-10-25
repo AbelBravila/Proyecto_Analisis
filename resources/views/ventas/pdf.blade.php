@@ -156,7 +156,7 @@
                 </tr>
                 <tr>
                     <td colspan="8" style="text-align: right;">TOTAL GENERAL:</td>
-                    <td style="text-align: right;"><strong><span class="currency">Q{{ number_format($total_final->total_venta, 2) }}</span></strong></td>
+                    <td style="text-align: right;"><strong><span class="currency">Q{{ number_format($venta->total_venta, 2) }}</span></strong></td>
                 </tr>
             </tfoot>
         </table>
