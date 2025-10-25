@@ -151,11 +151,11 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="8" style="text-align: right;">DESCUENTO:</td>
+                    <td colspan="7" style="text-align: right;">DESCUENTO:</td>
                     <td style="text-align: right;"><strong><span class="currency">Q{{ number_format($venta->total_descuento, 2) }}</span></strong></td>
                 </tr>
                 <tr>
-                    <td colspan="8" style="text-align: right;">TOTAL GENERAL:</td>
+                    <td colspan="7" style="text-align: right;">TOTAL GENERAL:</td>
                     <td style="text-align: right;"><strong><span class="currency">Q{{ number_format($venta->total_venta, 2) }}</span></strong></td>
                 </tr>
             </tfoot>
