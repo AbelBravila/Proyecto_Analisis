@@ -6,18 +6,20 @@ $logFile = '/var/www/posgt/deploy.log';
 
 $rawBody = file_get_contents('php://input');
 
+$computedSignature = 'sha256=' . hash_hmac('sha256', $rawBody, $secret);
+$githubSignature = $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ?? '';
+
+if (!hash_equals($computedSignature, $githubSignature)) {
+    http_response_code(403);
+    file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Firma inválida\n", FILE_APPEND);
+    exit('Firma inválida');
+}
+
 if (isset($_SERVER['CONTENT_TYPE']) && str_contains($_SERVER['CONTENT_TYPE'], 'application/x-www-form-urlencoded')) {
     parse_str($rawBody, $data);
     $body = $data['payload'] ?? '{}';
 } else {
     $body = $rawBody;
-}
-
-$signature = 'sha256=' . hash_hmac('sha256', $body, $secret);
-if (!hash_equals($signature, $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ?? '')) {
-    http_response_code(403);
-    file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Firma inválida\n", FILE_APPEND);
-    exit('Firma inválida');
 }
 
 $payload = json_decode($body, true);
@@ -28,7 +30,7 @@ file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Ref: {$ref}\n", FILE_APPEN
 file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Usuario actual: " . get_current_user() . "\n", FILE_APPEND);
 
 if (($_SERVER['HTTP_X_GITHUB_EVENT'] ?? '') === 'ping') {
-    file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Ping recibido de GitHub (prueba de conexión)\n\n", FILE_APPEND);
+    file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Ping recibido de GitHub\n\n", FILE_APPEND);
     http_response_code(200);
     echo "Pong";
     exit;
