@@ -1,41 +1,82 @@
-<x-guest-layout>
-    <x-authentication-card>
+<?php
 
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
+$secret = '7332b2908e4535575bb7b5a71b977ddcb4fd9200be29d4fa6205022acf04d937c6e8148f375872d57330bbfc1f6815f9';
+$projectPath = '/var/www/posgt/Proyecto_Analisis';
+$logFile = '/var/www/posgt/deploy.log';
 
-        <x-validation-errors class="mb-4" />
+$rawBody = file_get_contents('php://input');
 
-        @session('info')
-            <div class="mb-4 font-medium text-sm text-green-600">
-                {{ $value }}
-            </div>
-        @endsession
+$computedSignature = 'sha256=' . hash_hmac('sha256', $rawBody, $secret);
+$githubSignature = $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ?? '';
 
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-            <div>
-                <x-label for="email" value="{{ __('Correo') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="correo" :value="old('email')" required autofocus autocomplete="username" />
-            </div>
+if (!hash_equals($computedSignature, $githubSignature)) {
+    http_response_code(403);
+    file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Firma inválida\n", FILE_APPEND);
+    exit('Firma inválida');
+}
 
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Con') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="contrasena" required autocomplete="current-password" />
-            </div>
+if (isset($_SERVER['CONTENT_TYPE']) && str_contains($_SERVER['CONTENT_TYPE'], 'application/x-www-form-urlencoded')) {
+    parse_str($rawBody, $data);
+    $body = $data['payload'] ?? '{}';
+} else {
+    $body = $rawBody;
+}
 
-            <div class="flex items-center justify-end mt-4">
-                @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                        {{ __('¿Olvidaste tu Contraseña?') }}
-                    </a>
-                @endif
+$payload = json_decode($body, true);
+$ref = $payload['ref'] ?? '(sin ref)';
 
-                <x-button class="ms-4" type="submit" >
-                    {{ __('Log in') }}
-                </x-button>
-            </div>
-        </form>
-    </x-authentication-card>
-</x-guest-layout>
+file_put_contents($logFile, "=== Webhook recibido ===\n", FILE_APPEND);
+file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Ref: {$ref}\n", FILE_APPEND);
+file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Usuario actual: " . get_current_user() . "\n", FILE_APPEND);
+
+if (($_SERVER['HTTP_X_GITHUB_EVENT'] ?? '') === 'ping') {
+    file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Ping recibido de GitHub\n\n", FILE_APPEND);
+    http_response_code(200);
+    echo "Pong";
+    exit;
+}
+
+if (!in_array($ref, ['refs/heads/main', 'refs/heads/master'])) {
+    file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Rama no autorizada: {$ref}\n\n", FILE_APPEND);
+    http_response_code(200);
+    echo "Rama ignorada";
+    exit;
+}
+
+if (!file_exists($logFile)) {
+    touch($logFile);
+    chown($logFile, 'www-data');
+    chmod($logFile, 0664);
+}
+
+$commands = [
+    "cd $projectPath",
+    'sudo git config --global --add safe.directory /var/www/posgt/Proyecto_Analisis',
+    'sudo git reset --hard',
+    'sudo git pull origin main',
+    'sudo composer install --no-dev --optimize-autoloader',
+    'sudo npm install',
+    'sudo npm run build',
+    'sudo rm -rf node_modules',
+    'sudo php artisan config:clear',
+    'sudo php artisan cache:clear',
+    'sudo php artisan route:clear',
+    'sudo php artisan view:clear',
+    'sudo php artisan optimize',
+    "sudo chown -R www-data:www-data $projectPath",
+    "sudo chmod -R 775 $projectPath/storage $projectPath/bootstrap/cache",
+];
+
+$output = "\n=== DEPLOY START " . date('[Y-m-d H:i:s]') . " ===\n";
+
+foreach ($commands as $cmd) {
+    $output .= "\n$ $cmd\n";
+    $res = shell_exec("$cmd 2>&1");
+    $output .= $res ?: "(sin salida)\n";
+}
+
+$output .= "\n=== DEPLOY END " . date('[Y-m-d H:i:s]') . " ===\n\n";
+file_put_contents($logFile, $output, FILE_APPEND);
+
+http_response_code(200);
+echo "Despliegue ejecutado correctamente.";
